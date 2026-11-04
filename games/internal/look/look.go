@@ -1,9 +1,11 @@
-// Package look is what the games share so they look alike: the window, the
-// page around the board, the side panel and the game-over question.
+// Package look is what the games share so they look alike: the window, where
+// the board goes, the HUD beside it and the game-over question. The board is
+// the game's own twod entity; the HUD is ui.
 package look
 
 import (
 	"github.com/merlindorin/ember/platform"
+	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/ui"
 	"github.com/merlindorin/ember/ui/kit"
 )
@@ -15,18 +17,31 @@ const (
 	Ink   = "#f4f1de"
 )
 
+// The window is 640 by 440; the HUD's panel takes the right from HUDLeft,
+// the board the rest.
+const (
+	width, height = 640, 440
+	HUDLeft       = 410
+)
+
 const css = `html, body { height: 100%; }
-body { display: flex; align-items: center; justify-content: center; gap: 28px; }
+body { display: flex; align-items: center; justify-content: flex-end; padding-right: 40px; }
 #side { width: 190px; }`
 
 // Window is a game's window: the same size and title style for every game.
 func Window(title string) *platform.Window {
-	return platform.NewWindow(platform.Title("ember · "+title), platform.Size(640, 440), platform.FixedSize())
+	return platform.NewWindow(platform.Title("ember · "+title), platform.Size(width, height), platform.FixedSize())
 }
 
-// Page is a game's document, with its own CSS after the shared one.
-func Page(own string) *ui.Document {
-	return ui.NewDocument(kit.Theme(), ui.CSS(css+"\n"+own))
+// Place is where a board w by h goes: centred left of the HUD, its top-left
+// at the entity's position.
+func Place(w, h float32) twod.Option {
+	return twod.At((HUDLeft-w)/2, (height-h)/2)
+}
+
+// HUD is a game's document for the panel beside the board.
+func HUD() *ui.Document {
+	return ui.NewDocument(kit.Theme(), ui.CSS(css))
 }
 
 // Side is the panel beside the board.

@@ -14,8 +14,8 @@ import (
 func play(t *testing.T) (*Play, *world.World, func(input.Key)) {
 	t.Helper()
 	win := look.Window("tetris")
-	p := newPlay(win.Input(), func() uint64 { return 1 })
-	win.Add(p.doc)
+	p, well := newPlay(win.Input(), func() uint64 { return 1 })
+	win.Add(well, p.hud)
 	w := ember.New().AddEntities(win).AddSystems(p)
 	w.RunFrames(1)
 	press := func(k input.Key) {
@@ -76,22 +76,26 @@ func TestAToppedOutGameAsksForANewOne(t *testing.T) {
 	if _, open := p.over.Attr("open"); !open {
 		t.Fatal("game over shows the question")
 	}
-	p.doc.Close(p.over, "again")
+	p.hud.Close(p.over, "again")
 	w.RunFrames(1)
 	if p.game.Over || p.score.Text() != "0" {
 		t.Fatalf("New game starts again: over %v, score %q", p.game.Over, p.score.Text())
 	}
 }
 
-func TestTheScreenIsClean(t *testing.T) {
+func TestTheBoardSitsLeftOfACleanHUD(t *testing.T) {
 	p, _, _ := play(t)
-	if r, ok := p.doc.BoxOf(p.canvas); !ok || r.W != 196 || r.H != 386 {
-		t.Fatalf("the board is ten by twenty cells: %v", r)
+	panel, ok := p.hud.BoxOf(p.hud.ByID("side"))
+	if !ok || panel.X < look.HUDLeft {
+		t.Fatalf("the HUD keeps right of the board's area: %v", panel)
 	}
-	if faults := align.Check(p.doc); len(faults) > 0 {
+	if next, shown := p.hud.BoxOf(p.next); !shown || next.W != 80 || next.H != 40 {
+		t.Fatalf("the preview is 80 by 40: %v", next)
+	}
+	if faults := align.Check(p.hud); len(faults) > 0 {
 		t.Fatalf("layout faults: %v", faults)
 	}
-	if warns := p.doc.Warnings(); len(warns) > 0 {
+	if warns := p.hud.Warnings(); len(warns) > 0 {
 		t.Fatalf("CSS warnings: %v", warns)
 	}
 }

@@ -13,8 +13,8 @@ import (
 func play(t *testing.T) (*Game, *world.World, func(input.Key)) {
 	t.Helper()
 	win := look.Window("2048")
-	g := newGame(win.Input(), func() uint64 { return 1 })
-	win.Add(g.doc)
+	g, tiles := newGame(win.Input(), func() uint64 { return 1 })
+	win.Add(tiles, g.hud)
 	w := ember.New().AddEntities(win).AddSystems(g)
 	w.RunFrames(1)
 	press := func(k input.Key) {
@@ -51,22 +51,23 @@ func TestAFullBoardAsksForANewGame(t *testing.T) {
 	if _, open := g.over.Attr("open"); !open {
 		t.Fatal("game over shows the question")
 	}
-	g.doc.Close(g.over, "again")
+	g.hud.Close(g.over, "again")
 	w.RunFrames(1)
 	if g.board.Over() || g.score.Text() != "0" {
 		t.Fatalf("New game starts again: %v, score %q", g.board.Cells, g.score.Text())
 	}
 }
 
-func TestTheScreenIsClean(t *testing.T) {
+func TestTheBoardSitsLeftOfACleanHUD(t *testing.T) {
 	g, _, _ := play(t)
-	if r, ok := g.doc.BoxOf(g.canvas); !ok || r.W != 354 || r.H != 354 {
-		t.Fatalf("the board is 354 square: %v", r)
+	panel, ok := g.hud.BoxOf(g.hud.ByID("side"))
+	if !ok || panel.X < look.HUDLeft {
+		t.Fatalf("the HUD keeps right of the board's area: %v", panel)
 	}
-	if faults := align.Check(g.doc); len(faults) > 0 {
+	if faults := align.Check(g.hud); len(faults) > 0 {
 		t.Fatalf("layout faults: %v", faults)
 	}
-	if warns := g.doc.Warnings(); len(warns) > 0 {
+	if warns := g.hud.Warnings(); len(warns) > 0 {
 		t.Fatalf("CSS warnings: %v", warns)
 	}
 }

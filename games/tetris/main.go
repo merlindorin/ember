@@ -29,8 +29,8 @@ const delay, repeat = 0.17, 0.05
 // doesn't answer it too.
 const askAfter = 0.6
 
-const css = `#board { width: 196px; height: 386px; }
-#next { width: 80px; height: 40px; }`
+// The board's size: the cells with a 4-point margin.
+const boardW, boardH = W*cell + 6, H*cell + 6
 
 // colorOf is a piece's colour, on the board and in the preview.
 func colorOf(kind int) color.Color {
@@ -52,22 +52,26 @@ func colorOf(kind int) color.Color {
 	}
 }
 
-// Play is the screen around the game: it reads the keys, lets time pass and
-// shows the board when it changed.
+// Play reads the keys, lets time pass and keeps the HUD in step.
 type Play struct {
 	game                *Game
 	in                  *input.State
-	doc                 *ui.Document
-	canvas, next, over  *ui.Node
+	hud                 *ui.Document
+	next, over          *ui.Node
 	score, lines, level *ui.Node
 	seed                func() uint64
 	held, ended         float32
 }
 
-func newPlay(in *input.State, seed func() uint64) *Play {
-	p := &Play{game: New(seed()), in: in, doc: look.Page(css), seed: seed}
-	p.canvas = ui.Canvas(p.draw, ui.ID("board"))
-	p.next = ui.Canvas(p.drawNext, ui.ID("next"))
+// Well is the play area, a twod entity drawing the board every frame.
+type Well struct {
+	twod.Item
+	play *Play
+}
+
+func newPlay(in *input.State, seed func() uint64) (*Play, *Well) {
+	p := &Play{game: New(seed()), in: in, hud: look.HUD(), seed: seed}
+	p.next = ui.Canvas(p.drawNext, ui.ID("next"), ui.Style("width: 80px; height: 40px"))
 	scoreRow, score := look.Stat("Score", "score")
 	linesRow, lines := look.Stat("Lines", "lines")
 	levelRow, level := look.Stat("Level", "level")
@@ -75,9 +79,9 @@ func newPlay(in *input.State, seed func() uint64) *Play {
 	p.over = look.GameOver(p.restart)
 	side := look.Side("Tetris", scoreRow, linesRow, levelRow, kit.Separator(), kit.Label("Next"), p.next,
 		kit.Separator(), look.Keys("← →: move", "↑: turn", "↓: faster", "Space: drop", "N: new game"))
-	p.doc.Body().Append(p.canvas, side, p.over)
+	p.hud.Body().Append(side, p.over)
 	p.show()
-	return p
+	return p, twod.Build(&Well{Item: twod.Base(), play: p}, "board", look.Place(boardW, boardH))
 }
 
 func (p *Play) Update(f world.Frame) {
@@ -98,7 +102,7 @@ func (p *Play) Update(f world.Frame) {
 	}
 	p.steer(f.DT)
 	p.game.Step(f.DT, p.in.Down(input.KeyDown))
-	if p.game.Board != before.Board || p.game.Piece != before.Piece || p.game.Score != before.Score {
+	if p.game.Next != before.Next || p.game.Score != before.Score || p.game.Lines != before.Lines {
 		p.show()
 	}
 }
@@ -107,7 +111,7 @@ func (p *Play) Update(f world.Frame) {
 func (p *Play) ask(dt float32) {
 	if p.ended < askAfter && p.ended+dt >= askAfter {
 		kit.SetAlert(p.over, "Game over", fmt.Sprintf("Score %d, %d lines.", p.game.Score, p.game.Lines))
-		p.doc.ShowModal(p.over)
+		p.hud.ShowModal(p.over)
 	}
 	p.ended += dt
 }
@@ -143,12 +147,12 @@ func (p *Play) show() {
 	p.score.SetText(strconv.Itoa(p.game.Score))
 	p.lines.SetText(strconv.Itoa(p.game.Lines))
 	p.level.SetText(strconv.Itoa(p.game.Level()))
-	p.doc.Invalidate(p.canvas)
-	p.doc.Invalidate(p.next)
+	p.hud.Invalidate(p.next)
 }
 
-func (p *Play) draw(c *twod.Canvas) {
-	c.RoundRect(geom.Rect{W: c.Size().X, H: c.Size().Y}, 8, color.Hex(look.Board))
+func (w *Well) Draw(c *twod.Canvas) {
+	p := w.play
+	c.RoundRect(geom.Rect{W: boardW, H: boardH}, 8, color.Hex(look.Board))
 	for y, row := range p.game.Board {
 		for x, kind := range row {
 			col := color.Hex(look.Empty)
@@ -185,7 +189,7 @@ func square(c *twod.Canvas, x, y int, col color.Color) {
 
 func main() {
 	win := look.Window("tetris")
-	p := newPlay(win.Input(), func() uint64 { return uint64(time.Now().UnixNano()) })
-	win.Add(p.doc)
+	p, well := newPlay(win.Input(), func() uint64 { return uint64(time.Now().UnixNano()) })
+	win.Add(well, p.hud)
 	ember.New().AddEntities(win).AddSystems(p).MustRun()
 }

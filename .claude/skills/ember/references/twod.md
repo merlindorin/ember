@@ -115,8 +115,7 @@ Still frames: `twod.Still(frames[3])` or `SetStill(f)`; part of a texture: `twod
 - Draw order: layer number, then `Z`, then `SortByY()` (feet lower draw in front), then the order added.
 - `NewLayer(n int, opts ...LayerOption) *Layer`: `Fixed()` ignores the camera (HUD), `Parallax(f)`, `ClipTo(r geom.Rect)`, `Anchor(x, y)` (a fixed layer's origin as a share of the window), `Blend(...)`.
 - `NewCamera(opts ...CameraOption) *Camera`, added to the window: `Follow(e)`, `Smoothing(speed)`, `Bounds(r geom.Rect)`, `Zoom(z)`, `ViewSize(w, h float32)` (keep w×h in view, scale to fit), `Resolution(w, h int)` (pixel-perfect, letterboxed), `Offset(x, y)` (shake), `Layers(...)`.
-- Setters: `SetFollow`, `SetZoom`, `SetBounds`, `SetOffset`, `SetViewSize`. Mouse to world: `cam.ScreenToWorld(win.Input().Mouse())`; back: `WorldToScreen`.
-- Without a camera, world points are window points (top-left 0, 0).
+- Setters: `SetFollow`, `SetZoom`, `SetBounds`, `SetOffset`, `SetViewSize`. Mouse to world: `cam.ScreenToWorld(win.Input().Mouse())` (`WorldToScreen` back); without a camera, world points are window points.
 
 ```go
 package main
@@ -158,10 +157,11 @@ func main() {
 ```
 Examples: `examples/23-2d-camera`, `examples/28-y-sort`, `examples/30-pixel-perfect`.
 
-## Draw on a canvas (custom entity or ui.Canvas)
+## Draw a game's board: a custom entity on the canvas
 
-A game's own entity embeds `twod.Item` from `twod.Base()`, is finished by `twod.Build(e, name, opts...)`, and draws in `Draw(c *twod.Canvas)`, in its own space, every frame.
-For a play area inside a ui screen use `ui.Canvas(func(c *twod.Canvas))` instead (see ui.md); it redraws only after `doc.Invalidate(node)`.
+This is how a game draws its board or play area: a twod entity, never ui, so effects, blend modes and lights can go on it.
+It embeds `twod.Item` from `twod.Base()`, is finished by `twod.Build(e, name, opts...)`, and draws in `Draw(c *twod.Canvas)`, in its own space, every frame.
+A HUD widget drawn by `ui.Canvas(func(c *twod.Canvas))` (see ui.md) uses the same methods, but redraws only after `doc.Invalidate(node)`.
 
 | Canvas method | Draws |
 |---|---|
@@ -216,7 +216,7 @@ func main() {
 	ember.New().AddEntities(win).AddSystems(&Drain{bar: bar}).MustRun()
 }
 ```
-Example: `examples/17-custom-elements` (a ui.Canvas element).
+A HUD widget on the same canvas: `examples/17-custom-elements`.
 
 ## Colours
 

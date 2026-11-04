@@ -113,10 +113,12 @@ Callbacks go on the element: `ui.OnClick(fn)`, `OnInput`, `OnChange`, `OnSubmit`
 
 `ui.Canvas(draw func(c *twod.Canvas), args ...ui.Arg) *ui.Node` is an element the game draws (`examples/17-custom-elements`).
 
+- For HUD widgets only (an orb, a minimap); a game's play area is twod entities (SKILL.md), so effects, particles and lights can go on it.
+
 - `draw` runs in the content box: the origin is its top-left, and `c.Size()` is the size the layout gave it.
 - `draw` runs when the canvas first shows, when its box moves or resizes, and after `doc.Invalidate(n)`. Otherwise the last drawing stays.
 - Draw with `c.Rect(r, col)`, `c.RoundRect(r, radius, col)`, `c.Circle(center, radius, col)`, `c.Line(a, b, width, col)`, `c.Border(r, radius, thickness, col)`, `c.Text(at, text, opts...)`, `c.Image(r, tex, uv, tint)`.
-- Size it with CSS (`#board { width: 256px; height: 256px; }`); without it, a canvas is 300 by 150.
+- Size it with CSS (`#orb { width: 96px; height: 96px; }`); without it, a canvas is 300 by 150.
 - `ui.OnClick` on a canvas runs on a click on it; `doc.PointerOn(n) (geom.Vec2, bool)` is then the pointer in the canvas's own points, false when it is off the canvas.
 - Tell automation what a canvas shows with `ui.Attr("role", "meter")` and `ui.Attr("aria-valuenow", v)`.
 
@@ -136,9 +138,9 @@ Escape and the pad's East are Back. Enter, Space and the pad's South press the f
 
 See [testing.md](testing.md): `doc.ByID`, `doc.BoxOf`, simulated clicks, `align.Check(doc)` and `doc.Warnings()`, which every screen's test runs. Automation names an element by the path of its ancestors' IDs, `settings/save` (`examples/18-testing-ui`).
 
-## A game screen: a board and a score
+## A HUD over a 2D board
 
-A board on a canvas, toggled by clicks; a side panel with the score, a bar and a restart button that asks first. Escape asks too.
+The board is a twod entity, drawn every frame; the ui is the HUD beside it: the score, a bar, and a restart that asks first. Escape asks too. A click the HUD took is `PointerCaptured`, so it never reaches the board.
 
 ```go
 package main
@@ -149,47 +151,50 @@ import (
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
+	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/ui"
 	"github.com/merlindorin/ember/ui/kit"
+	"github.com/merlindorin/ember/world"
 )
 
-const cell, size = 48, 5
+// The board's top-left in the window, and its cells.
+const left, top, cell, size = 56, 60, 48, 5
 
+// The HUD sits right; the board is drawn left of it, in the 2D world.
 const page = `html, body { height: 100%; }
-body { display: flex; align-items: center; justify-content: center; gap: 24px; }
-#board { width: 240px; height: 240px; }
-#side { min-width: 200px; }`
+body { display: flex; align-items: center; justify-content: flex-end; padding-right: 48px; }
+#hud { min-width: 200px; }`
 
-// Board is the rules: plain Go, tested without a window.
-type Board struct {
+// Lights is the rules: plain Go, tested without a window.
+type Lights struct {
 	Lit   [size][size]bool
 	Score int
 }
 
-func (b *Board) Toggle(x, y int) {
+func (l *Lights) Toggle(x, y int) {
 	if x < 0 || y < 0 || x >= size || y >= size {
 		return
 	}
-	b.Lit[x][y] = !b.Lit[x][y]
-	if b.Lit[x][y] {
-		b.Score++
+	l.Lit[x][y] = !l.Lit[x][y]
+	if l.Lit[x][y] {
+		l.Score++
 	}
 }
 
-type Screen struct {
-	board                   Board
-	doc                     *ui.Document
-	canvas, score, bar, ask *ui.Node
+// Board is the play area, a twod entity drawn every frame.
+type Board struct {
+	twod.Item
+	game *Lights
 }
 
-func (s *Screen) draw(c *twod.Canvas) {
-	c.RoundRect(geom.Rect{W: c.Size().X, H: c.Size().Y}, 8, color.Hex("#2b2d42"))
+func (b *Board) Draw(c *twod.Canvas) {
+	c.RoundRect(geom.Rect{W: size * cell, H: size * cell}, 8, color.Hex("#2b2d42"))
 	for x := range size {
 		for y := range size {
 			col := color.Hex("#3d405b")
-			if s.board.Lit[x][y] {
+			if b.game.Lit[x][y] {
 				col = color.Hex("#f2cc8f")
 			}
 			c.RoundRect(geom.Rect{X: float32(x*cell) + 4, Y: float32(y*cell) + 4, W: cell - 8, H: cell - 8}, 6, col)
@@ -197,47 +202,56 @@ func (s *Screen) draw(c *twod.Canvas) {
 	}
 }
 
-func (s *Screen) click() {
-	at, ok := s.doc.PointerOn(s.canvas)
-	if !ok {
-		return
-	}
-	s.board.Toggle(int(at.X)/cell, int(at.Y)/cell)
-	s.show()
+// HUD is the ui around the board: the score, a bar, and a restart that asks first.
+type HUD struct {
+	doc             *ui.Document
+	score, bar, ask *ui.Node
 }
 
-func (s *Screen) show() {
-	s.score.SetText(fmt.Sprint(s.board.Score))
-	kit.SetProgress(s.bar, float64(min(s.board.Score, 25)))
-	s.doc.Invalidate(s.canvas)
-}
-
-func (s *Screen) answer(e ui.Event) {
-	if e.Value == "restart" {
-		s.board = Board{}
-		s.show()
-	}
-}
-
-func newScreen() *Screen {
-	s := &Screen{doc: ui.NewDocument(kit.Theme(), ui.CSS(page))}
-	s.canvas = ui.Canvas(s.draw, ui.ID("board"), ui.OnClick(s.click))
-	s.score = kit.Label("0", ui.ID("score"))
-	s.bar = kit.Progress(0, kit.Range(0, 25))
-	s.ask = kit.Alert("Restart?", "The score goes back to zero.",
+func newHUD(game *Lights) *HUD {
+	h := &HUD{doc: ui.NewDocument(kit.Theme(), ui.CSS(page))}
+	h.score = kit.Label("0", ui.ID("score"))
+	h.bar = kit.Progress(0, kit.Range(0, 25))
+	h.ask = kit.Alert("Restart?", "The score goes back to zero.",
 		kit.Button("Cancel"), kit.Button("Restart", kit.Primary(), ui.Value("restart")))
-	ui.On(s.ask, ui.EventClose, s.answer)
-	restart := kit.Button("Restart", ui.ID("restart"), ui.OnClick(func() { s.doc.ShowModal(s.ask) }))
-	side := kit.Panel(kit.Title("Score"), ui.ID("side"), kit.Padding(16), kit.Column(kit.Gap(8),
-		s.score, s.bar, restart, kit.Hint(kit.KeyboardHint("Click a cell to light it"))))
-	s.doc.Body().Append(s.canvas, side, s.ask)
-	ui.On(s.doc.Body(), ui.EventBack, func() { s.doc.ShowModal(s.ask) })
-	return s
+	ui.On(h.ask, ui.EventClose, func(e ui.Event) {
+		if e.Value == "restart" {
+			*game = Lights{}
+		}
+	})
+	restart := kit.Button("Restart", ui.ID("restart"), ui.OnClick(func() { h.doc.ShowModal(h.ask) }))
+	h.doc.Body().Append(kit.Panel(kit.Title("Score"), ui.ID("hud"), kit.Padding(16), kit.Column(kit.Gap(8),
+		h.score, h.bar, restart, kit.Hint(kit.KeyboardHint("Click a cell to light it")))), h.ask)
+	ui.On(h.doc.Body(), ui.EventBack, func() { h.doc.ShowModal(h.ask) })
+	return h
+}
+
+func (h *HUD) show(game *Lights) {
+	h.score.SetText(fmt.Sprint(game.Score))
+	kit.SetProgress(h.bar, float64(min(game.Score, 25)))
+}
+
+// Play turns a click on the board into a toggle, unless the HUD took it.
+type Play struct {
+	game *Lights
+	in   *input.State
+	hud  *HUD
+}
+
+func (p *Play) Update(world.Frame) {
+	if p.in.Pressed(input.MouseLeft) && !p.in.PointerCaptured() {
+		at := p.in.Mouse().Sub(geom.V2(left, top))
+		p.game.Toggle(int(at.X)/cell, int(at.Y)/cell)
+	}
+	p.hud.show(p.game)
 }
 
 func main() {
 	win := platform.NewWindow(platform.Title("lights"), platform.Size(640, 360), platform.FixedSize())
-	win.Add(newScreen().doc)
-	ember.New().AddEntities(win).MustRun()
+	game := &Lights{}
+	board := twod.Build(&Board{Item: twod.Base(), game: game}, "board", twod.At(left, top))
+	hud := newHUD(game)
+	win.Add(board, hud.doc)
+	ember.New().AddEntities(win).AddSystems(&Play{game: game, in: win.Input(), hud: hud}).MustRun()
 }
 ```

@@ -246,23 +246,36 @@ const dumpDOM = "--dump-dom"
 // minWidth is the narrowest window headless Chrome keeps.
 const minWidth = 500
 
+// minNarrowHeight is the shortest window a narrow page's picture is taken
+// in: Chrome for Testing on CI runners drew only the first line of narrow,
+// short pages (160×104, 480×120). Wide pages keep their window, where a
+// modal dialog centres as in ui.
+const minNarrowHeight = 500
+
 // fit makes page lay out in a viewport of size as ui's does: the root
-// never shows a scrollbar, and a page narrower than Chrome's narrowest
-// window keeps its width on the root. It returns the window to open.
+// never shows a scrollbar, and a page smaller than the window it opens in
+// keeps its size on the root. It returns the window to open: at least
+// minWidth wide, and for a narrow page's picture minNarrowHeight tall,
+// cropped back to size.
 func fit(page []byte, size geom.Vec2, shot bool) ([]byte, geom.Vec2) {
 	rule := "html { scrollbar-width: none; }"
 	window := size
 	if size.X < minWidth {
-		rule += fmt.Sprintf(" html { width: %gpx; }", size.X)
-		if shot {
-			// Chrome's window is wider than the page, so the initial
-			// containing block is too: for a picture, html becomes the
-			// containing block of absolute boxes at the page's size, so right
-			// and bottom resolve as ui's do. Box dumps leave html's own box
-			// as ui has it.
-			rule += fmt.Sprintf(" html { height: %gpx; position: relative; }", size.Y)
-		}
 		window.X = minWidth
+		if shot {
+			window.Y = max(window.Y, minNarrowHeight)
+		}
+	}
+	if window.X > size.X {
+		rule += fmt.Sprintf(" html { width: %gpx; }", size.X)
+	}
+	if shot && window != size {
+		// Chrome's window is bigger than the page, so the initial
+		// containing block is too: for a picture, html becomes the
+		// containing block of absolute boxes at the page's size, so right
+		// and bottom resolve as ui's do. Box dumps leave html's own box
+		// as ui has it.
+		rule += fmt.Sprintf(" html { width: %gpx; height: %gpx; position: relative; }", size.X, size.Y)
 	}
 	return bytes.Replace(page, []byte("</head>"), []byte("<style>"+rule+"</style>\n</head>"), 1), window
 }

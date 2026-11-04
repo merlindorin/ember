@@ -15,6 +15,8 @@ Drawn for ember in this repository, with no outside source, and given to the pub
 
 ## From others
 
+- `.github/readme/*.png`: captures of Lantervale, our game built on ember, drawing 0x72's [16x16 DungeonTileset II](https://0x72.itch.io/dungeontileset-ii) (CC0), icons from [496 pixel art icons for medieval/fantasy RPG](https://opengameart.org/content/496-pixel-art-icons-for-medievalfantasy-rpg) by Henrique Lazarini (CC0 1.0), and the [Cinzel](https://github.com/NDISCOVER/Cinzel) and [Silkscreen](https://github.com/googlefonts/silkscreen) fonts (SIL Open Font License 1.1); the HUD's frames and cursor are the game's own (CC0 1.0).
+
 Each beside the files it covers:
 
 - [examples/internal/crypt/CREDITS.md](examples/internal/crypt/CREDITS.md): 0x72's 16x16 DungeonTileset II (CC0) and HydroGene's music (CC0); `tools/tileset/testdata` holds a copy of the same tilesets.

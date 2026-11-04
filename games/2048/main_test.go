@@ -71,3 +71,33 @@ func TestTheBoardSitsLeftOfACleanHUD(t *testing.T) {
 		t.Fatalf("CSS warnings: %v", warns)
 	}
 }
+
+func TestAMoveAnimatesThenSettles(t *testing.T) {
+	g, w, press := play(t)
+	g.board.Cells = [4][4]int{{2, 2, 0, 0}}
+	press(input.KeyLeft)
+	if g.since >= slideTime+popTime || len(g.moved.Slides) != 2 || len(g.moved.Merged) != 1 {
+		t.Fatalf("the move is being drawn: since %v, %+v", g.since, g.moved)
+	}
+	w.RunFrames(30)
+	if g.since < slideTime+popTime {
+		t.Fatalf("half a second later it has settled: since %v", g.since)
+	}
+}
+
+func TestAfterNewGameTheArrowsStillPlay(t *testing.T) {
+	g, w, press := play(t)
+	in := g.in
+	r, _ := g.hud.BoxOf(g.hud.ByID("new-game"))
+	in.SetMouse(r.Center())
+	w.RunFrames(1)
+	in.SetMouseButton(input.MouseLeft, true)
+	w.RunFrames(1)
+	in.SetMouseButton(input.MouseLeft, false)
+	w.RunFrames(2)
+	g.board.Cells = [4][4]int{{0, 2}}
+	press(input.KeyLeft)
+	if g.board.Cells[0][0] != 2 {
+		t.Fatalf("Left reaches the game after the click: %v", g.board.Cells)
+	}
+}

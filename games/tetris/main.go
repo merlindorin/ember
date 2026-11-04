@@ -71,14 +71,17 @@ type Well struct {
 
 func newPlay(in *input.State, seed func() uint64) (*Play, *Well) {
 	p := &Play{game: New(seed()), in: in, hud: look.HUD(), seed: seed}
-	p.next = ui.Canvas(p.drawNext, ui.ID("next"), ui.Style("width: 80px; height: 40px"))
-	scoreRow, score := look.Stat("Score", "score")
-	linesRow, lines := look.Stat("Lines", "lines")
-	levelRow, level := look.Stat("Level", "level")
+	p.next = ui.Canvas(p.drawNext, ui.ID("next"), ui.Style("width: 64px; height: 32px"))
+	scoreCard, score := look.Stat("Score", "score")
+	linesCard, lines := look.Stat("Lines", "lines")
+	levelCard, level := look.Stat("Level", "level")
 	p.score, p.lines, p.level = score, lines, level
 	p.over = look.GameOver(p.restart)
-	side := look.Side("Tetris", scoreRow, linesRow, levelRow, kit.Separator(), kit.Label("Next"), p.next,
-		kit.Separator(), look.Keys("← →: move", "↑: turn", "↓: faster", "Space: drop", "N: new game"))
+	side := look.Side("Tetris",
+		look.Stats(scoreCard, look.Card("Next", p.next)),
+		look.Stats(linesCard, levelCard),
+		look.NewGame(p.hud, p.restart),
+		look.Keys("← →", "move", "↑", "turn", "↓", "faster", "Space", "drop", "N", "new game"))
 	p.hud.Body().Append(side, p.over)
 	p.show()
 	return p, twod.Build(&Well{Item: twod.Base(), play: p}, "board", look.Place(boardW, boardH))
@@ -152,10 +155,10 @@ func (p *Play) show() {
 
 func (w *Well) Draw(c *twod.Canvas) {
 	p := w.play
-	c.RoundRect(geom.Rect{W: boardW, H: boardH}, 8, color.Hex(look.Board))
+	c.RoundRect(geom.Rect{W: boardW, H: boardH}, 10, color.Hex(look.Surface))
 	for y, row := range p.game.Board {
 		for x, kind := range row {
-			col := color.Hex(look.Empty)
+			col := color.Hex(look.Cell)
 			if kind != 0 {
 				col = colorOf(kind)
 			}
@@ -175,7 +178,7 @@ func (w *Well) Draw(c *twod.Canvas) {
 
 func (p *Play) drawNext(c *twod.Canvas) {
 	for _, at := range spawn(p.game.Next).cells {
-		c.RoundRect(geom.Rect{X: float32(at[0] * 20), Y: float32(at[1] * 20), W: 18, H: 18}, 3, colorOf(p.game.Next))
+		c.RoundRect(geom.Rect{X: float32(at[0] * 16), Y: float32(at[1] * 16), W: 14, H: 14}, 3, colorOf(p.game.Next))
 	}
 }
 

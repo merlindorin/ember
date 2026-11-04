@@ -6,12 +6,14 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/bits"
 	"strconv"
 	"time"
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/color"
+	"github.com/merlindorin/ember/ease"
 	"github.com/merlindorin/ember/games/internal/look"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/input"
@@ -26,6 +28,10 @@ const tile, gap = 76, 10
 // side is the board's width and height.
 const side = 4*tile + 5*gap
 
+// A move draws in two beats: the tiles slide, then merged tiles pop and the
+// new one grows in.
+const slideTime, popTime = 0.1, 0.15
+
 // Game reads the arrows, plays them on the board and keeps the HUD in step.
 type Game struct {
 	board       *Board
@@ -34,6 +40,8 @@ type Game struct {
 	over        *ui.Node
 	score, best *ui.Node
 	seed        func() uint64
+	moved       Moved
+	since       float32 // since the last move, in seconds
 }
 
 // Tiles is the play area, a twod entity drawing the board every frame.
@@ -43,18 +51,21 @@ type Tiles struct {
 }
 
 func newGame(in *input.State, seed func() uint64) (*Game, *Tiles) {
-	g := &Game{board: New(seed()), in: in, hud: look.HUD(), seed: seed}
-	scoreRow, score := look.Stat("Score", "score")
-	bestRow, best := look.Stat("Best tile", "best")
+	g := &Game{board: New(seed()), in: in, hud: look.HUD(), seed: seed, since: slideTime + popTime}
+	scoreCard, score := look.Stat("Score", "score")
+	bestCard, best := look.Stat("Best tile", "best")
 	g.score, g.best = score, best
 	g.over = look.GameOver(g.restart)
-	keys := look.Keys("Arrows: slide", "N: new game")
-	g.hud.Body().Append(look.Side("2048", scoreRow, bestRow, kit.Separator(), keys), g.over)
+	g.hud.Body().Append(look.Side("2048",
+		look.Stats(scoreCard, bestCard),
+		look.NewGame(g.hud, g.restart),
+		look.Keys("← →", "slide sideways", "↑ ↓", "slide up and down", "N", "new game")), g.over)
 	g.show()
 	return g, twod.Build(&Tiles{Item: twod.Base(), game: g}, "board", look.Place(side, side))
 }
 
-func (g *Game) Update(world.Frame) {
+func (g *Game) Update(f world.Frame) {
+	g.since += f.DT
 	if g.in.Pressed(input.KeyN) {
 		g.restart()
 		return
@@ -63,19 +74,25 @@ func (g *Game) Update(world.Frame) {
 		key input.Key
 		dir Dir
 	}{{input.KeyLeft, Left}, {input.KeyRight, Right}, {input.KeyUp, Up}, {input.KeyDown, Down}} {
-		if g.in.Pressed(k.key) && g.board.Move(k.dir) {
-			g.show()
-			if g.board.Over() {
-				kit.SetAlert(g.over, "Game over", fmt.Sprintf("Score %d, best tile %d.", g.board.Score, g.board.Best()))
-				g.hud.ShowModal(g.over)
-			}
+		if !g.in.Pressed(k.key) {
+			continue
+		}
+		moved, ok := g.board.Move(k.dir)
+		if !ok {
 			return
 		}
+		g.moved, g.since = moved, 0
+		g.show()
+		if g.board.Over() {
+			kit.SetAlert(g.over, "Game over", fmt.Sprintf("Score %d, best tile %d.", g.board.Score, g.board.Best()))
+			g.hud.ShowModal(g.over)
+		}
+		return
 	}
 }
 
 func (g *Game) restart() {
-	g.board = New(g.seed())
+	g.board, g.moved, g.since = New(g.seed()), Moved{}, slideTime+popTime
 	g.show()
 }
 
@@ -85,21 +102,63 @@ func (g *Game) show() {
 }
 
 func (t *Tiles) Draw(c *twod.Canvas) {
-	c.RoundRect(geom.Rect{W: side, H: side}, 10, color.Hex(look.Board))
-	for r, row := range t.game.board.Cells {
-		for col, v := range row {
-			cell := geom.Rect{X: float32(gap + col*(tile+gap)), Y: float32(gap + r*(tile+gap)), W: tile, H: tile}
-			if v == 0 {
-				c.RoundRect(cell, 8, color.Hex(look.Empty))
-				continue
-			}
-			c.RoundRect(cell, 8, tileColor(v))
-			label := strconv.Itoa(v)
-			opts := []twod.TextOption{twod.Typeface(twod.Bold()), twod.FontSize(fontSize(v)), twod.Color(textColor(v))}
-			size := c.Measure(label, opts...)
-			c.Text(geom.V2(cell.X+(tile-size.X)/2, cell.Y+(tile-size.Y)/2), label, opts...)
+	g := t.game
+	c.RoundRect(geom.Rect{W: side, H: side}, 12, color.Hex(look.Surface))
+	for r := range 4 {
+		for col := range 4 {
+			c.RoundRect(cellRect(geom.V2(float32(col), float32(r)), 1), 8, color.Hex(look.Cell))
 		}
 	}
+	if g.since < slideTime {
+		k := ease.OutCubic(g.since / slideTime)
+		for _, s := range g.moved.Slides {
+			from := geom.V2(float32(s.From[1]), float32(s.From[0]))
+			drawTile(c, from.Lerp(geom.V2(float32(s.To[1]), float32(s.To[0])), k), 1, s.Value)
+		}
+		return
+	}
+	pop := min((g.since-slideTime)/popTime, 1)
+	for r, row := range g.board.Cells {
+		for col, v := range row {
+			if v == 0 {
+				continue
+			}
+			scale := float32(1)
+			switch at := [2]int{r, col}; {
+			case at == g.moved.Added:
+				scale = ease.OutBack(pop)
+			case merged(g.moved, at):
+				scale = 1 + 0.12*float32(math.Sin(math.Pi*float64(pop)))
+			}
+			drawTile(c, geom.V2(float32(col), float32(r)), scale, v)
+		}
+	}
+}
+
+func merged(m Moved, at [2]int) bool {
+	for _, c := range m.Merged {
+		if c == at {
+			return true
+		}
+	}
+	return false
+}
+
+// cellRect is the square of the cell at {column, row}, scaled about its centre.
+func cellRect(at geom.Vec2, scale float32) geom.Rect {
+	size := tile * scale
+	x := gap + at.X*(tile+gap) + (tile-size)/2
+	y := gap + at.Y*(tile+gap) + (tile-size)/2
+	return geom.Rect{X: x, Y: y, W: size, H: size}
+}
+
+func drawTile(c *twod.Canvas, at geom.Vec2, scale float32, v int) {
+	r := cellRect(at, scale)
+	c.RoundRect(r, 8*scale, tileColor(v))
+	label := strconv.Itoa(v)
+	opts := []twod.TextOption{twod.Typeface(twod.Bold()), twod.FontSize(fontSize(v) * scale), twod.Color(textColor(v))}
+	size := c.Measure(label, opts...)
+	c.Text(geom.V2(r.X+(r.W-size.X)/2, r.Y+(r.H-size.Y)/2), label, opts...)
 }
 
 func tileColor(v int) color.Color {
@@ -127,7 +186,7 @@ func textColor(v int) color.Color {
 	if v <= 4 {
 		return color.Hex("#776e65")
 	}
-	return color.Hex(look.Ink)
+	return color.Hex("#f9f6f2")
 }
 
 func fontSize(v int) float32 {

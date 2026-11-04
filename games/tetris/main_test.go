@@ -89,8 +89,8 @@ func TestTheBoardSitsLeftOfACleanHUD(t *testing.T) {
 	if !ok || panel.X < look.HUDLeft {
 		t.Fatalf("the HUD keeps right of the board's area: %v", panel)
 	}
-	if next, shown := p.hud.BoxOf(p.next); !shown || next.W != 80 || next.H != 40 {
-		t.Fatalf("the preview is 80 by 40: %v", next)
+	if next, shown := p.hud.BoxOf(p.next); !shown || next.W != 64 || next.H != 32 {
+		t.Fatalf("the preview is 64 by 32: %v", next)
 	}
 	if faults := align.Check(p.hud); len(faults) > 0 {
 		t.Fatalf("layout faults: %v", faults)

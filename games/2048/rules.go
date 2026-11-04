@@ -28,27 +28,48 @@ func New(seed uint64) *Board {
 	return b
 }
 
-// Move pushes every line towards d and reports whether anything moved.
-func (b *Board) Move(d Dir) bool {
-	moved := false
+// A Slide is one tile's way in a move: From and To are {row, column}.
+type Slide struct {
+	From, To [2]int
+	Value    int
+}
+
+// Moved is what a move did, for drawing it: every tile's slide, the cells
+// whose tile is a merge, and where the new tile came.
+type Moved struct {
+	Slides []Slide
+	Merged [][2]int
+	Added  [2]int
+}
+
+// Move pushes every line towards d and reports what moved, if anything did.
+func (b *Board) Move(d Dir) (Moved, bool) {
+	var moved Moved
+	changed := false
 	for i := range 4 {
-		var line [4]int
+		var in [4]int
 		for j := range 4 {
-			line[j] = *b.at(d, i, j)
+			in[j] = b.cell(at(d, i, j))
 		}
-		slid, gained := slide(line)
-		if slid != line {
-			moved = true
-		}
-		b.Score += gained
+		l := slide(in)
+		changed = changed || l.out != in
+		b.Score += l.gained
 		for j := range 4 {
-			*b.at(d, i, j) = slid[j]
+			if in[j] != 0 {
+				moved.Slides = append(moved.Slides, Slide{From: at(d, i, j), To: at(d, i, l.dest[j]), Value: in[j]})
+			}
+			if l.merged[j] {
+				moved.Merged = append(moved.Merged, at(d, i, j))
+			}
+			to := at(d, i, j)
+			b.Cells[to[0]][to[1]] = l.out[j]
 		}
 	}
-	if moved {
-		b.add()
+	if !changed {
+		return Moved{}, false
 	}
-	return moved
+	moved.Added = b.add()
+	return moved, true
 }
 
 // Over reports whether no move is left: the board is full and no two
@@ -76,21 +97,25 @@ func (b *Board) Best() int {
 	return best
 }
 
-// at is the j-th cell of line i, counted from the side d pushes towards.
-func (b *Board) at(d Dir, i, j int) *int {
+// at is the {row, column} of the j-th cell of line i, counted from the side
+// d pushes towards.
+func at(d Dir, i, j int) [2]int {
 	switch d {
 	case Right:
-		return &b.Cells[i][3-j]
+		return [2]int{i, 3 - j}
 	case Up:
-		return &b.Cells[j][i]
+		return [2]int{j, i}
 	case Down:
-		return &b.Cells[3-j][i]
+		return [2]int{3 - j, i}
 	case Left:
 	}
-	return &b.Cells[i][j]
+	return [2]int{i, j}
 }
 
-func (b *Board) add() {
+func (b *Board) cell(at [2]int) int { return b.Cells[at[0]][at[1]] }
+
+// add puts a 2 (or, one time in ten, a 4) on an empty cell and returns it.
+func (b *Board) add() [2]int {
 	var empty [][2]int
 	for r := range 4 {
 		for c := range 4 {
@@ -100,34 +125,43 @@ func (b *Board) add() {
 		}
 	}
 	if len(empty) == 0 {
-		return
+		return [2]int{-1, -1}
 	}
 	at := empty[b.rng.IntN(len(empty))]
 	b.Cells[at[0]][at[1]] = 2
 	if b.rng.IntN(10) == 0 {
 		b.Cells[at[0]][at[1]] = 4
 	}
+	return at
 }
 
-// slide pushes a line towards its start, merging each pair once, and
-// returns it with the points the merges made.
-func slide(line [4]int) ([4]int, int) {
-	tiles := make([]int, 0, 4)
-	gained, open := 0, false // open: the last tile placed may still merge
-	for _, v := range line {
-		if v == 0 {
-			continue
-		}
-		if last := len(tiles) - 1; open && tiles[last] == v {
-			tiles[last] *= 2
-			gained += tiles[last]
+// line is a line after a slide: its cells, the points its merges made, the
+// index each tile went to, and which cells hold a merge.
+type line struct {
+	out, dest [4]int
+	gained    int
+	merged    [4]bool
+}
+
+// slide pushes a line towards its start, merging each pair once.
+func slide(in [4]int) line {
+	var l line
+	n, open := 0, false // open: the last tile placed may still merge
+	for j, v := range in {
+		switch {
+		case v == 0:
+		case open && l.out[n-1] == v:
+			l.out[n-1] *= 2
+			l.gained += l.out[n-1]
+			l.merged[n-1] = true
+			l.dest[j] = n - 1
 			open = false
-			continue
+		default:
+			l.out[n] = v
+			l.dest[j] = n
+			n++
+			open = true
 		}
-		tiles = append(tiles, v)
-		open = true
 	}
-	var out [4]int
-	copy(out[:], tiles)
-	return out, gained
+	return l
 }

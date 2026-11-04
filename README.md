@@ -65,12 +65,14 @@ Each one is an example of [the guide](https://ember.vanyda.cloud/ember/): click 
 
 <table>
 <tr>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-tetris.wasm.gz"><img src=".github/readme/tetris.png" alt="Tetris made with ember"></a></td>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-2048.wasm.gz"><img src=".github/readme/2048.png" alt="2048 made with ember"></a></td>
+<td width="33%"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-tetris.wasm.gz"><img src=".github/readme/tetris.png" alt="Tetris made with ember"></a></td>
+<td width="33%"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-2048.wasm.gz"><img src=".github/readme/2048.png" alt="2048 made with ember"></a></td>
+<td width="33%"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-snake.wasm.gz"><img src=".github/readme/snake.png" alt="Snake made with ember"></a></td>
 </tr>
 <tr>
 <td align="center"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-tetris.wasm.gz">Play Tetris</a> · <a href="games/tetris">code</a></td>
 <td align="center"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-2048.wasm.gz">Play 2048</a> · <a href="games/2048">code</a></td>
+<td align="center"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-snake.wasm.gz">Play Snake</a> · <a href="games/snake">code</a></td>
 </tr>
 </table>
 

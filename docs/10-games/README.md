@@ -4,3 +4,4 @@ Small, whole games made with ember: the rules in plain Go, the board a 2D entity
 
 - [Tetris](01-tetris.md)
 - [2048](02-2048.md)
+- [Snake](03-snake.md)

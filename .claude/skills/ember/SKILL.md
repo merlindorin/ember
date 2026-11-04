@@ -1,0 +1,137 @@
+---
+name: ember
+description: Build games, tools and examples with the ember Go engine (github.com/merlindorin/ember) - windows, 2D drawing, ui screens of HTML elements and CSS, input, sound, headless tests and captures. Use whenever code imports github.com/merlindorin/ember or a task asks for a game, example or screen made with ember.
+---
+
+# Building with ember
+
+ember is a Go game engine on its own ECS. Read this page first, then the reference for the task; copy the shape of the closest example rather than guessing an API.
+
+| Task | Read |
+|---|---|
+| entities, systems, phases, events, time, tweens | [references/world.md](references/world.md) |
+| windows, sprites, shapes, text, canvas drawing, tile maps, lights | [references/twod.md](references/twod.md) |
+| a screen: panels, labels, buttons, forms, CSS, custom drawn elements | [references/ui.md](references/ui.md) |
+| keys, mouse, gamepads, action maps, sound | [references/input-audio.md](references/input-audio.md) |
+| tests, simulated input, automation, screenshots | [references/testing.md](references/testing.md) |
+
+## Rules
+
+- **Rules are plain Go.** Keep a game's rules (a board, a score, a piece) in types that import no ember package; test them as plain Go. Systems only read input, call the rules and show the result.
+- **A system** is a struct with `Update(world.Frame)` (or another phase method); add it with `AddSystems`. It reads its window's input through `win.Input()`.
+- **Options, not structs.** Constructors take options (`platform.Size(640, 360)`, `twod.At(x, y)`); every option has a getter of the same name, setters exist where change at run time is meant.
+- **`Add` returns the parent**, so windows, twod entities and ui containers chain: `win.Add(doc)`, `ember.New().AddEntities(win)`.
+- **ui reacts by callbacks** on the element (`ui.OnClick(fn)`), not by reading `ui.Clicked` events in a loop.
+- **A `ui.Canvas` draws again only after `doc.Invalidate(node)`.** Call it whenever what it draws changed.
+- **Input is read in `PreUpdate` or `Update`**; `Pressed` is true for one frame, `Down` while held.
+- **Example windows are fixed size** (`platform.FixedSize()`) unless their layout follows the window.
+- **No raylib, no OS dialogs, no structs of config.** Never import `gpu`, `internal/...` or `platform/desktop` from game code.
+- **Comments only where the code can't say it**; the reader is a senior developer.
+
+## Workflow
+
+1. Find the closest example in `examples/` (numbered by guide page; `examples/NN-name/main.go` has a header saying what it shows and how to run it) and its guide page in `docs/`.
+2. Write the rules as plain Go with a `_test.go` beside them.
+3. Build the screen: a window, a `ui.Document` for panels and text, a `ui.Canvas` or twod entities for the play area.
+4. Add one system that reads input and drives the rules.
+5. Test headless: input simulated, `RunFrames`, assertions on the rules and on the ui (`doc.ByID`, `BoxOf`, `align.Check`).
+6. Capture a screenshot and look at it before saying it works:
+   `EMBER_HIDDEN=1 EMBER_CAPTURE=shot.png EMBER_CAPTURE_FRAME=60 EMBER_CAPTURE_KEYS="right:10-11" go run ./path`
+7. `go vet ./...` and `go test ./...` from `ember` must stay clean.
+
+## A game skeleton
+
+A board drawn on a `ui.Canvas`, a side panel of kit labels, one system reading the arrows. It builds and runs as is; grow it rather than starting from nothing.
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/merlindorin/ember"
+	"github.com/merlindorin/ember/color"
+	"github.com/merlindorin/ember/geom"
+	"github.com/merlindorin/ember/input"
+	"github.com/merlindorin/ember/platform"
+	"github.com/merlindorin/ember/twod"
+	"github.com/merlindorin/ember/ui"
+	"github.com/merlindorin/ember/ui/kit"
+	"github.com/merlindorin/ember/world"
+)
+
+const cell, cols, rows = 32, 8, 8
+
+const page = `html, body { height: 100%; }
+body { display: flex; align-items: center; justify-content: center; gap: 24px; }
+#board { width: 256px; height: 256px; }`
+
+// Game is the rules, plain Go: no ember type, so tests need no window.
+type Game struct {
+	X, Y, Moves int
+}
+
+func (g *Game) Move(dx, dy int) {
+	x, y := g.X+dx, g.Y+dy
+	if x < 0 || y < 0 || x >= cols || y >= rows {
+		return
+	}
+	g.X, g.Y, g.Moves = x, y, g.Moves+1
+}
+
+// Play reads the keys each frame, changes the game and shows it.
+type Play struct {
+	game  *Game
+	in    *input.State
+	doc   *ui.Document
+	board *ui.Node
+	moves *ui.Node
+}
+
+func (p *Play) Update(world.Frame) {
+	before := *p.game
+	switch {
+	case p.in.Pressed(input.KeyLeft):
+		p.game.Move(-1, 0)
+	case p.in.Pressed(input.KeyRight):
+		p.game.Move(1, 0)
+	case p.in.Pressed(input.KeyUp):
+		p.game.Move(0, -1)
+	case p.in.Pressed(input.KeyDown):
+		p.game.Move(0, 1)
+	}
+	if *p.game != before {
+		p.moves.SetText(fmt.Sprint(p.game.Moves))
+		p.doc.Invalidate(p.board) // a ui.Canvas draws again only when told
+	}
+}
+
+func (p *Play) draw(c *twod.Canvas) {
+	c.RoundRect(geom.Rect{W: c.Size().X, H: c.Size().Y}, 8, color.Hex("#2b2d42"))
+	r := geom.Rect{X: float32(p.game.X*cell) + 3, Y: float32(p.game.Y*cell) + 3, W: cell - 6, H: cell - 6}
+	c.RoundRect(r, 6, color.Hex("#ef8354"))
+}
+
+func main() {
+	win := platform.NewWindow(platform.Title("skeleton"), platform.Size(640, 360), platform.FixedSize())
+	doc := ui.NewDocument(kit.Theme(), ui.CSS(page))
+	play := &Play{game: &Game{}, in: win.Input(), doc: doc, moves: kit.Label("0")}
+	play.board = ui.Canvas(play.draw, ui.ID("board"))
+	doc.Body().Append(play.board, kit.Panel(kit.Padding(16), kit.Column(kit.Gap(8),
+		kit.Label("Moves"), play.moves, kit.Label("Arrows move"))))
+	win.Add(doc)
+	ember.New().AddEntities(win).AddSystems(play).MustRun()
+}
+```
+
+## Commands
+
+```sh
+task wgpu                                  # once: the WebGPU library the renderer loads
+go run ./examples/19-sprites               # any example
+go test ./...                              # GPU-free tests
+task docs                                  # the guide on http://localhost:1313/ember/
+task web PKG=./examples/19-sprites         # the same program in the browser (dist/web)
+```
+
+The engine's design rules and why they hold are in `AGENT.md` and `docs/99-decisions/`.

@@ -1,8 +1,9 @@
 /* Kenney's UI Pack - Pixel Adventure over the games' layout: a red banner
    for the title, parchment cards, wooden buttons, parchment dialogs with
-   metal corners. The large tiles are 32 pixels, cut 8 pixels in (6 for the
-   buttons, 10 for the dialogs' corners), the prompts 16 pixels, all drawn
-   2 points a pixel and kept sharp; the text is Silkscreen. */
+   metal corners. A button lightens under the pointer and sinks onto its
+   ledge when pressed. The large tiles are 32 pixels, cut 8 pixels in (6
+   for the buttons, 10 for the dialogs' corners), the prompts 16 pixels, all
+   drawn 2 points a pixel and kept sharp; the text is Silkscreen. */
 @font-face { font-family: "Silkscreen"; src: url(silkscreen.ttf); }
 body { font-family: "Silkscreen"; color: #d8c4a0; }
 * { image-rendering: pixelated; }
@@ -24,8 +25,9 @@ body { font-family: "Silkscreen"; color: #d8c4a0; }
 
 .new, .item { border-width: 12px; border-image: url(wood.png) 6 fill; color: #fff1d2; padding: 0; font-size: 14px;
   text-align: center; }
-.new:hover, .item:hover { color: #ffffff; }
-.new:active, .item:active { transform: translateY(2px); }
+.new, .item { box-shadow: 0 4px 0 #3b2412; transition: transform 60ms; }
+.new:hover, .item:hover { border-image-source: url(wood-hover.png); color: #ffffff; }
+.new:active, .item:active { transform: translateY(4px); box-shadow: none; }
 .new:focus-visible, .item:focus-visible, input.volume:focus-visible { outline: 2px solid #fff1d2; outline-offset: 2px; }
 
 .key { font-size: 11px; color: #d8c4a0; }

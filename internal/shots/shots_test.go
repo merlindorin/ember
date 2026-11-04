@@ -47,7 +47,7 @@ func check(t *testing.T, s shots.Shot, shown, seen map[string]bool) {
 	checkSource(t, s)
 	checkSizes(t, s)
 	for k := range s.Env {
-		if k == "EMBER_CAPTURE" || k == "EMBER_HIDDEN" || k == "EMBER_CAPTURE_FRAME" {
+		if k == "EMBER_CAPTURE" || k == "EMBER_HIDDEN" || k == "EMBER_SCALE" || k == "EMBER_CAPTURE_FRAME" {
 			t.Errorf("%s: %s is the runner's (Frame sets the frame)", s.Out, k)
 		}
 	}

@@ -343,7 +343,9 @@ func (s Shot) expand(vs []string, tmp string) []string {
 
 // environ is base with the capture's settings and s's Env.
 func (s Shot) environ(base []string, tmp, shot string, frame int) []string {
-	env := append(append([]string{}, base...), "EMBER_HIDDEN=1", "EMBER_CAPTURE="+shot)
+	// EMBER_SCALE draws at 2 pixels a point on every screen, the 1×
+	// one Pages captures on too.
+	env := append(append([]string{}, base...), "EMBER_HIDDEN=1", "EMBER_SCALE=2", "EMBER_CAPTURE="+shot)
 	if frame > 0 {
 		env = append(env, "EMBER_CAPTURE_FRAME="+strconv.Itoa(frame))
 	}

@@ -128,7 +128,15 @@ func capture(t *testing.T, root string, s Scene, path, saves string) {
 	}
 	cmd := exec.CommandContext(context.Background(), "go", "run", pkg)
 	cmd.Dir = root
-	cmd.Env = append(os.Environ(), "EMBER_HIDDEN=1", "EMBER_CAPTURE="+path, fmt.Sprintf("EMBER_CAPTURE_FRAME=%d", s.Frame))
+	// EMBER_SCALE draws at 2 pixels a point on every screen, as the
+	// references were made, a 1× CI screen too.
+	cmd.Env = append(
+		os.Environ(),
+		"EMBER_HIDDEN=1",
+		"EMBER_SCALE=2",
+		"EMBER_CAPTURE="+path,
+		fmt.Sprintf("EMBER_CAPTURE_FRAME=%d", s.Frame),
+	)
 	if s.Saves != "" {
 		cmd.Env = append(cmd.Env, s.Saves+"="+saves)
 	}

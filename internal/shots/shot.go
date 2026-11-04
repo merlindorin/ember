@@ -14,7 +14,7 @@ type Shot struct {
 	Args []string `json:"args"`
 	// Env is added to the run's environment: the EMBER_CAPTURE_* scripts
 	// (KEYS, MOUSE, TEXT, PAD, TOUCH, SIZE, FRAMES, EVERY) and anything
-	// else. EMBER_HIDDEN and EMBER_CAPTURE are the runner's.
+	// else. EMBER_HIDDEN, EMBER_SCALE and EMBER_CAPTURE are the runner's.
 	Env map[string]string `json:"env"`
 	// Frame is EMBER_CAPTURE_FRAME: 30 for a picture unless set, the
 	// first recorded frame for a GIF.

@@ -41,6 +41,8 @@
 //	                        at those frames, in straight lines; a GIF puts smaller
 //	                        frames on a dark desk as large as the largest
 //	EMBER_HIDDEN=1          create invisible windows, and play no sound
+//	EMBER_SCALE=2           in a hidden run, pixels per point the windows draw
+//	                        at, whatever the screen's (a CI screen is 1×)
 //	EMBER_FRAMES=n          quit after n frames
 //	EMBER_STATS=1           print, on quitting, the GPU and the backend it drew
 //	                        through, the frame, tick and render times, each
@@ -105,6 +107,7 @@ func (p Plugin) Build(w *world.World) {
 		crashLog: p.CrashLog,
 		world:    w,
 		hidden:   os.Getenv("EMBER_HIDDEN") != "",
+		pixels:   hiddenScale(),
 		scripted: os.Getenv("EMBER_HIDDEN") != "" || os.Getenv("EMBER_CAPTURE") != "",
 		natives:  map[*platform.Window]*native{},
 		gifs:     map[*native]*capture.GIF{},
@@ -183,6 +186,8 @@ type native struct {
 	// scripted is set in a capture or a hidden run, where the cursor is
 	// the script's.
 	scripted bool
+	// pixels is the driver's: pixels per point a hidden run draws at.
+	pixels float32
 	// surface is what the window shows through WebGPU, frame this frame's
 	// texture of it, and configured the size it was last configured to.
 	surface    *wgpu.Surface
@@ -273,7 +278,30 @@ func (n *native) SetClipboard(text string) { glfw.SetClipboardString(text) }
 func (n *native) sync() {
 	ww, wh := n.h.GetSize()
 	fw, fh := n.h.GetFramebufferSize()
+	fw, fh = framebuffer(ww, wh, fw, fh, n.pixels)
 	n.window.Sync(geom.V2(float32(ww), float32(wh)), geom.V2(float32(fw), float32(fh)), n.focused)
+}
+
+// framebuffer is the size a window of ww×wh points draws at: the system's
+// fw×fh, or pixels a point when a hidden run asks for it. A hidden window
+// draws offscreen, so its frame can be any size.
+func framebuffer(ww, wh, fw, fh int, pixels float32) (int, int) {
+	if pixels <= 0 {
+		return fw, fh
+	}
+	return int(float32(ww)*pixels + 0.5), int(float32(wh)*pixels + 0.5)
+}
+
+// hiddenScale is EMBER_SCALE in a hidden run, else 0.
+func hiddenScale() float32 {
+	if os.Getenv("EMBER_HIDDEN") == "" {
+		return 0
+	}
+	v, err := strconv.ParseFloat(os.Getenv("EMBER_SCALE"), 32)
+	if err != nil {
+		return 0
+	}
+	return float32(v)
 }
 
 type driver struct {
@@ -292,6 +320,8 @@ type driver struct {
 	// pending are the windows drawn but not swapped yet.
 	pending []*native
 	hidden  bool
+	// pixels is EMBER_SCALE in a hidden run, 0 for the screen's.
+	pixels float32
 	// scripted is set for a capture or a hidden run, which reads no real
 	// input device.
 	scripted bool
@@ -706,7 +736,15 @@ func (d *driver) create(e platform.Windowed) (*native, error) {
 		h.SetPos(int(at.X), int(at.Y))
 	}
 	d.opened++
-	n := &native{h: h, entity: e, window: win, focused: true, order: d.opened, scripted: d.scripted}
+	n := &native{
+		h:        h,
+		entity:   e,
+		window:   win,
+		focused:  true,
+		order:    d.opened,
+		scripted: d.scripted,
+		pixels:   d.pixels,
+	}
 	if err = d.attach(n); err != nil {
 		h.Destroy()
 		return nil, err

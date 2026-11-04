@@ -16,7 +16,7 @@ Drawn for ember in this repository, with no outside source, and given to the pub
 ## From others
 
 - `.github/readme/horde.png`, `sanctuary.png`, `power-ups.png`: captures of Lantervale, our game built on ember, drawing 0x72's [16x16 DungeonTileset II](https://0x72.itch.io/dungeontileset-ii) (CC0), icons from [496 pixel art icons for medieval/fantasy RPG](https://opengameart.org/content/496-pixel-art-icons-for-medievalfantasy-rpg) by Henrique Lazarini (CC0 1.0), and the [Cinzel](https://github.com/NDISCOVER/Cinzel) and [Silkscreen](https://github.com/googlefonts/silkscreen) fonts (SIL Open Font License 1.1); the HUD's frames and cursor are the game's own (CC0 1.0).
-- `.github/readme/tetris.png`, `2048.png`, `snake.png` and `hello.png`: captures of ember's own games and sample, ember's own work (CC0 1.0).
+- `.github/readme/tetris.png`, `2048.png`, `snake.png`, `flap.png` and `hello.png`: captures of ember's own games and sample, ember's own work (CC0 1.0).
 - `.github/readme/*.gif` and `emoji.png`: copies of the guide's pictures of the examples, under the licences of what they draw: ember's own (above), [examples/internal/crypt/CREDITS.md](examples/internal/crypt/CREDITS.md), and for `emoji.png` the Twemoji pictures (CC-BY 4.0) and Noto Emoji (OFL 1.1) of [examples/45-emoji/CREDITS.md](examples/45-emoji/CREDITS.md).
 
 Each beside the files it covers:

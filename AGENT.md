@@ -66,6 +66,7 @@ go run ./examples/54-audio-effects  # sfx bus reverb grows from corridor to hall
 go run ./games/tetris                # small whole games: a twod board entity and a ui HUD beside it (games/internal/look), rules in plain Go
 go run ./games/2048
 go run ./games/snake
+go run ./games/flap
 go run ./examples/92-ui-kit -element button   # each ui kit component alone, its events logged (ui: HTML elements + a CSS subset, decision 0049; guide docs/05-ui)
 go run ./examples/93-html-elements -element p   # each ui element alone in its default look (div … canvas); its test runs align.Check on every one
 task test:all                       # vet + tests, GPU goldens, every ui Chrome suite/pixel page/card against its threshold (table last; reports in EMBER_CHROME_REPORTS)

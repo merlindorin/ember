@@ -730,4 +730,18 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 		},
 		Frame: 540,
 	},
+	{
+		Out:  "10-games/flap.png",
+		Run:  "./games/flap",
+		Args: []string{seed, "4"},
+		Env: map[string]string{
+			gamesDir: tmp,
+			CaptureKeys: "space:10-11;space:51-52;space:90-91;space:130-131;space:174-175;space:214-215;space:253-254;" +
+				"space:293-294;space:323-324;space:353-354;space:393-394;space:432-433;space:472-473;" +
+				"space:511-512;space:564-565;space:604-605;space:624-625;space:657-658;space:697-698;" +
+				"space:747-748;space:786-787;space:830-831;space:870-871;space:893-894;space:925-926;" +
+				"space:964-965;space:1009-1010;space:1049-1050;space:1083-1084;space:1112-1113;space:1152-1153",
+		},
+		Frame: 700,
+	},
 }

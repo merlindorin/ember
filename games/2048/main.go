@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"math/bits"
 	"strconv"
 	"time"
 
@@ -37,8 +36,31 @@ const side = 4*tile + 5*gap
 // new one grows in.
 const slideTime, popTime = 0.1, 0.15
 
+// An action is what the player asks with a key or a pad button.
+type action int
+
+const (
+	slideLeft action = iota
+	slideRight
+	slideUp
+	slideDown
+	again
+	pause
+)
+
+func newControls() *input.Actions[action] {
+	return input.NewActions(
+		input.Bind(slideLeft, input.KeyLeft, input.GamepadLeft, input.GamepadLeftStickLeft),
+		input.Bind(slideRight, input.KeyRight, input.GamepadRight, input.GamepadLeftStickRight),
+		input.Bind(slideUp, input.KeyUp, input.GamepadUp, input.GamepadLeftStickUp),
+		input.Bind(slideDown, input.KeyDown, input.GamepadDown, input.GamepadLeftStickDown),
+		input.Bind(again, look.AgainButtons()...),
+		input.Bind(pause, look.MenuButtons()...))
+}
+
 // Game reads the arrows, plays them on the board and keeps the HUD in step.
 type Game struct {
+	controls    *input.Actions[action]
 	board       *Board
 	in          *input.State
 	hud         *ui.Document
@@ -58,11 +80,13 @@ type Game struct {
 type Tiles struct {
 	twod.Item
 	game *Game
+	skin *look.Skin
 }
 
 func newGame(win *platform.Window, seed func() uint64, data *save.Data) (*Game, *Tiles) {
 	in := win.Input()
-	g := &Game{board: New(seed()), in: in, hud: look.HUD(), seed: seed, since: slideTime + popTime, data: data,
+	g := &Game{board: New(seed()), in: in, controls: newControls(), hud: look.HUD(), seed: seed,
+		since: slideTime + popTime, data: data,
 		sounds: newSounds(), player: sound.NewPlayer(music(), data.Music, data.Effects, !data.MusicOff)}
 	scoreCard, score := look.Stat("Score", "score")
 	bestCard, best := look.Stat("Best tile", "best")
@@ -71,7 +95,9 @@ func newGame(win *platform.Window, seed func() uint64, data *save.Data) (*Game, 
 	g.hud.Body().Append(look.Side("2048",
 		look.Stats(scoreCard, bestCard),
 		look.NewGame(g.hud, g.restart),
-		look.Keys("Arrows", "slide", "N", "new game", "F", "full screen", "Esc", "menu")), g.over)
+		look.Controls(
+			look.Control{Keys: []string{"left", "right", "up", "down"}, Pad: []string{"dpad"}, Does: "slide"},
+			look.AgainControl(), look.MenuControl())), g.over)
 	g.menu = look.NewMenu(g.hud, look.Hooks{NewGame: g.restart, Data: func() *save.Data { return g.data },
 		SoundChanged: func() {
 			g.player.Set(g.data.Music, g.data.Effects, !g.data.MusicOff)
@@ -86,7 +112,7 @@ func newGame(win *platform.Window, seed func() uint64, data *save.Data) (*Game, 
 		win.SetFullscreen(true)
 	}
 	g.show()
-	return g, twod.Build(&Tiles{Item: twod.Base(), game: g}, "board", look.Place(side, side))
+	return g, twod.Build(&Tiles{Item: twod.Base(), game: g, skin: look.LoadSkin()}, "board", look.Place(side, side))
 }
 
 func (g *Game) Update(f world.Frame) {
@@ -94,15 +120,19 @@ func (g *Game) Update(f world.Frame) {
 	if g.menu.Open() {
 		return
 	}
-	if g.in.Pressed(input.KeyN) {
+	if g.controls.Pressed(g.in, pause) {
+		g.menu.Show()
+		return
+	}
+	if g.controls.Pressed(g.in, again) {
 		g.restart()
 		return
 	}
 	for _, k := range []struct {
-		key input.Key
-		dir Dir
-	}{{input.KeyLeft, Left}, {input.KeyRight, Right}, {input.KeyUp, Up}, {input.KeyDown, Down}} {
-		if !g.in.Pressed(k.key) {
+		slide action
+		dir   Dir
+	}{{slideLeft, Left}, {slideRight, Right}, {slideUp, Up}, {slideDown, Down}} {
+		if !g.controls.Pressed(g.in, k.slide) {
 			continue
 		}
 		moved, ok := g.board.Move(k.dir)
@@ -161,17 +191,17 @@ func (g *Game) show() {
 
 func (t *Tiles) Draw(c *twod.Canvas) {
 	g := t.game
-	c.RoundRect(geom.Rect{W: side, H: side}, 12, color.Hex(look.Surface))
+	t.skin.Tray(c, geom.Rect{W: side, H: side})
 	for r := range 4 {
 		for col := range 4 {
-			c.RoundRect(cellRect(geom.V2(float32(col), float32(r)), 1), 8, color.Hex(look.Cell))
+			t.skin.Slot(c, cellRect(geom.V2(float32(col), float32(r)), 1))
 		}
 	}
 	if g.since < slideTime {
 		k := ease.OutCubic(g.since / slideTime)
 		for _, s := range g.moved.Slides {
 			from := geom.V2(float32(s.From[1]), float32(s.From[0]))
-			drawTile(c, from.Lerp(geom.V2(float32(s.To[1]), float32(s.To[0])), k), 1, s.Value)
+			t.drawTile(c, from.Lerp(geom.V2(float32(s.To[1]), float32(s.To[0])), k), 1, s.Value)
 		}
 		return
 	}
@@ -188,7 +218,7 @@ func (t *Tiles) Draw(c *twod.Canvas) {
 			case merged(g.moved, at):
 				scale = 1 + 0.12*float32(math.Sin(math.Pi*float64(pop)))
 			}
-			drawTile(c, geom.V2(float32(col), float32(r)), scale, v)
+			t.drawTile(c, geom.V2(float32(col), float32(r)), scale, v)
 		}
 	}
 }
@@ -210,51 +240,61 @@ func cellRect(at geom.Vec2, scale float32) geom.Rect {
 	return geom.Rect{X: x, Y: y, W: size, H: size}
 }
 
-func drawTile(c *twod.Canvas, at geom.Vec2, scale float32, v int) {
+// drawTile draws a tile at {column, row}: the UI pack's parchment, its
+// number inked in its value's colour in the HUD's pixel font; 2048 and up
+// on the parchment with metal corners.
+func (t *Tiles) drawTile(c *twod.Canvas, at geom.Vec2, scale float32, v int) {
 	r := cellRect(at, scale)
-	c.RoundRect(r, 8*scale, tileColor(v))
+	if v >= 2048 {
+		t.skin.Plate(c, r)
+	} else {
+		t.skin.Piece(c, r)
+	}
 	label := strconv.Itoa(v)
-	opts := []twod.TextOption{twod.Typeface(twod.Bold()), twod.FontSize(fontSize(v) * scale), twod.Color(textColor(v))}
+	opts := []twod.TextOption{twod.Typeface(t.skin.Face), twod.FontSize(fontSize(v) * scale), twod.Color(ink(v)),
+		twod.Pixelated()}
 	size := c.Measure(label, opts...)
 	c.Text(geom.V2(r.X+(r.W-size.X)/2, r.Y+(r.H-size.Y)/2), label, opts...)
 }
 
-func tileColor(v int) color.Color {
+// ink is a value's colour, warm to cold as it grows.
+func ink(v int) color.Color {
 	switch v {
 	case 2:
-		return color.Hex("#eee4da")
+		return color.Hex("#7d5a36")
 	case 4:
-		return color.Hex("#ede0c8")
+		return color.Hex("#6d4b27")
 	case 8:
-		return color.Hex("#f2b179")
+		return color.Hex("#c86a1e")
 	case 16:
-		return color.Hex("#f59563")
+		return color.Hex("#c8562a")
 	case 32:
-		return color.Hex("#f67c5f")
+		return color.Hex("#c8393f")
 	case 64:
-		return color.Hex("#f65e3b")
-	case 128, 256, 512, 1024, 2048:
-		return color.Hex("#edcf72").Lerp(color.Hex("#edc22e"), float32(bits.Len(uint(v))-8)/4)
+		return color.Hex("#9c1f33")
+	case 128:
+		return color.Hex("#4f9a2f")
+	case 256:
+		return color.Hex("#2f7a26")
+	case 512:
+		return color.Hex("#3a7fd0")
+	case 1024:
+		return color.Hex("#2a4fa8")
 	default:
-		return color.Hex("#3c3a32")
+		return color.Hex("#7b3cc0")
 	}
 }
 
-func textColor(v int) color.Color {
-	if v <= 4 {
-		return color.Hex("#776e65")
-	}
-	return color.Hex("#f9f6f2")
-}
-
+// fontSize is a value's text size, a multiple of 8 so Silkscreen's pixels
+// stay whole.
 func fontSize(v int) float32 {
 	switch {
 	case v < 100:
-		return 34
+		return 40
 	case v < 1000:
-		return 28
+		return 24
 	default:
-		return 22
+		return 16
 	}
 }
 

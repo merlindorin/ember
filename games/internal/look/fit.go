@@ -7,8 +7,10 @@ import (
 	"github.com/merlindorin/ember/world"
 )
 
-// Fit scales the HUD with the window, as Camera does the board, and turns
-// full screen on and off with F or Toggle. Add it to the World's systems.
+// Fit scales the HUD with the window, as Camera does the board, turns full
+// screen on and off with F or Toggle, and shows the pad's prompts in
+// Controls while a gamepad is what the player used last. Add it to the
+// World's systems.
 type Fit struct {
 	win     *platform.Window
 	hud     *ui.Document
@@ -23,8 +25,17 @@ func NewFit(win *platform.Window, hud *ui.Document, changed func(on bool)) *Fit 
 }
 
 func (f *Fit) Update(world.Frame) {
-	if f.win.Input().Pressed(input.KeyF) && !f.win.Input().KeyboardCaptured() {
+	in := f.win.Input()
+	if in.Pressed(input.KeyF) && !in.KeyboardCaptured() {
 		f.Toggle()
+	}
+	body := f.hud.Body()
+	if pad := in.LastDevice() == input.GamepadDevice; pad != body.HasClass("gamepad") {
+		if pad {
+			body.AddClass("gamepad")
+		} else {
+			body.RemoveClass("gamepad")
+		}
 	}
 	size := f.win.Size()
 	if zoom := min(size.X/width, size.Y/height); zoom > 0 && zoom != f.zoom {

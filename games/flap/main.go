@@ -31,6 +31,7 @@ const askAfter = 0.8
 // Play reads the flaps, steps the world on its Tick, sounds what happened and
 // keeps the HUD in step.
 type Play struct {
+	controls    *input.Actions[action]
 	game        *Game
 	in          *input.State
 	hud         *ui.Document
@@ -55,6 +56,24 @@ type Sky struct {
 	twod.Item
 	play *Play
 	art  *Art
+	skin *look.Skin
+}
+
+// An action is what the player asks with a key or a pad button; a click
+// on the board flaps too.
+type action int
+
+const (
+	flap action = iota
+	again
+	pause
+)
+
+func newControls() *input.Actions[action] {
+	return input.NewActions(
+		input.Bind(flap, input.KeySpace, input.KeyUp, input.KeyW, input.GamepadSouth),
+		input.Bind(again, look.AgainButtons()...),
+		input.Bind(pause, look.MenuButtons()...))
 }
 
 func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
@@ -63,7 +82,7 @@ func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
 		panic(err) // embedded files that always decode
 	}
 	in := win.Input()
-	p := &Play{game: New(seed()), in: in, hud: look.HUD(), seed: seed, data: data, flapped: 1,
+	p := &Play{game: New(seed()), in: in, controls: newControls(), hud: look.HUD(), seed: seed, data: data, flapped: 1,
 		sounds: newSounds(), player: sound.NewPlayer(music(), data.Music, data.Effects, !data.MusicOff)}
 	scoreCard, score := look.Stat("Score", "score")
 	bestCard, best := look.Stat("Best", "best")
@@ -74,7 +93,8 @@ func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
 		look.Stats(scoreCard, bestCard),
 		p.start,
 		look.NewGame(p.hud, p.restart),
-		look.Keys("Space", "flap", "Click", "flap too", "N", "new game", "F", "full screen", "Esc", "menu")), p.over)
+		look.Controls(look.Control{Keys: []string{"space"}, Pad: []string{"a"}, Does: "flap"},
+			look.AgainControl(), look.MenuControl())), p.over)
 	p.menu = look.NewMenu(p.hud, look.Hooks{NewGame: p.restart, Data: func() *save.Data { return p.data },
 		SoundChanged: func() {
 			p.player.Set(p.data.Music, p.data.Effects, !p.data.MusicOff)
@@ -88,7 +108,8 @@ func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
 	if data.Fullscreen {
 		win.SetFullscreen(true)
 	}
-	p.sky = twod.Build(&Sky{Item: twod.Base(), play: p, art: pictures}, "board", look.Place(Width, Height))
+	sky := &Sky{Item: twod.Base(), play: p, art: pictures, skin: look.LoadSkin()}
+	p.sky = twod.Build(sky, "board", look.Place(Width, Height))
 	p.puffs = twod.NewParticles(nil, twod.Rate(0), twod.Velocity(30, 120), twod.Direction(geom.Pi, 1.2),
 		twod.Lifetime(0.3, 0.7), twod.SizeOverLife(5, 1), twod.Drag(0.08),
 		twod.ColorOverLife(color.Hex("#ffffff").Alpha(0.7), color.Hex("#ffffff").Alpha(0)), twod.MaxParticles(400))
@@ -102,7 +123,11 @@ func (p *Play) Update(f world.Frame) {
 	if p.menu.Open() {
 		return
 	}
-	if p.in.Pressed(input.KeyN) {
+	if p.controls.Pressed(p.in, pause) {
+		p.menu.Show()
+		return
+	}
+	if p.controls.Pressed(p.in, again) {
 		p.restart()
 		return
 	}
@@ -110,8 +135,7 @@ func (p *Play) Update(f world.Frame) {
 		p.ask(f.DT)
 		return
 	}
-	if p.in.Pressed(input.KeySpace) || p.in.Pressed(input.KeyUp) || p.in.Pressed(input.KeyW) ||
-		p.in.Pressed(input.MouseLeft) && !p.in.PointerCaptured() {
+	if p.controls.Pressed(p.in, flap) || p.in.Pressed(input.MouseLeft) && !p.in.PointerCaptured() {
 		p.started = true
 		p.game.Flap()
 		p.flapped = 0
@@ -202,7 +226,8 @@ func (s *Sky) Draw(c *twod.Canvas) {
 	p := s.play
 	g := p.game
 	board := geom.Rect{W: Width, H: Height}
-	c.PushClipRounded(board, [4]float32{10, 10, 10, 10})
+	s.skin.Board(c, board)
+	c.PushClip(board)
 	defer c.PopClip()
 	white := color.Hex("#ffffff")
 

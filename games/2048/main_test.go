@@ -104,3 +104,43 @@ func TestAfterNewGameTheArrowsStillPlay(t *testing.T) {
 		t.Fatalf("Left reaches the game after the click: %v", g.board.Cells)
 	}
 }
+
+func TestAGamepadPlaysTheGameAndItsMenu(t *testing.T) {
+	g, w, _ := play(t)
+	in := g.in
+	in.ConnectGamepad(0, "pad")
+	pad := func(b input.GamepadButton) {
+		in.SetGamepadButton(0, b, true)
+		w.RunFrames(1)
+		in.SetGamepadButton(0, b, false)
+		w.RunFrames(1)
+	}
+	g.board.Cells = [4][4]int{{2, 2, 0, 0}}
+	pad(input.GamepadLeft)
+	if g.board.Cells[0][0] != 4 {
+		t.Fatalf("the cross slides: %v", g.board.Cells)
+	}
+	if !g.hud.Body().HasClass("gamepad") {
+		t.Fatal("the HUD shows the pad's prompts once the pad is used")
+	}
+	if faults := align.Check(g.hud); len(faults) > 0 {
+		t.Fatalf("the pad's prompts' layout: %v", faults)
+	}
+	pad(input.GamepadStart)
+	if !g.menu.Open() {
+		t.Fatal("Menu opens the menu")
+	}
+	pad(input.GamepadEast)
+	if g.menu.Open() {
+		t.Fatal("B closes it")
+	}
+	pad(input.GamepadBack)
+	if g.board.Score != 0 {
+		t.Fatalf("View starts a new game: score %d", g.board.Score)
+	}
+	g.in.SetKey(input.KeyLeft, true)
+	w.RunFrames(1)
+	if g.hud.Body().HasClass("gamepad") {
+		t.Fatal("a key brings the keyboard's prompts back")
+	}
+}

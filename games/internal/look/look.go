@@ -9,20 +9,22 @@ import (
 
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
+	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/ui"
 	"github.com/merlindorin/ember/ui/kit"
 )
 
-// The palette, for color.Hex; the CSS below uses the same values.
+// The palette, for color.Hex: the UI pack's wood and parchment on a dark
+// green.
 const (
-	Background = "#1a1b26"
-	Surface    = "#24263a"
-	Cell       = "#2f3148"
-	Ink        = "#e8e6f0"
-	Muted      = "#8b8fa8"
-	Accent     = "#ff9e64"
+	Background = "#1f2a22"
+	Surface    = "#5e3a1a"
+	Cell       = "#7a4d24"
+	Ink        = "#fff1d2"
+	Muted      = "#d8c4a0"
+	Accent     = "#c58747"
 )
 
 // The window is 640 by 440; the HUD takes the right from HUDLeft, the board
@@ -32,43 +34,34 @@ const (
 	HUDLeft       = 410
 )
 
+// css lays the HUD out; adventure/adventure.css gives it its look.
 const css = `html, body { height: 100%; }
 body { display: flex; align-items: center; justify-content: center; background: transparent; }
 #stage { width: 640px; height: 440px; flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end;
-  padding-right: 40px; pointer-events: none; }
-#side { width: 190px; display: flex; flex-direction: column; gap: 14px; pointer-events: auto; }
-.title { font-size: 44px; font-weight: 700; color: #ff9e64; line-height: 1; }
+  padding-right: 16px; pointer-events: none; }
+#side { width: 214px; display: flex; flex-direction: column; gap: 10px; pointer-events: auto; }
+.title { height: 64px; display: flex; align-items: center; justify-content: center; }
 .stats { display: flex; gap: 8px; }
-.stat { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 8px 12px;
-  border-radius: 8px; background: #24263a; }
-.label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #8b8fa8; }
-.value { font-size: 24px; font-weight: 700; color: #e8e6f0; }
-.new { padding: 10px; border: none; border-radius: 8px; background: #ff9e64; color: #1a1b26; font-weight: 700; }
-.new:hover { background: #ffb380; }
-.new:focus-visible { outline: 2px solid #ffb380; outline-offset: 2px; }
-.keys { display: flex; flex-direction: column; gap: 6px; }
-.key { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8b8fa8; }
-dialog.over { width: 280px; padding: 0; border: none; border-radius: 14px; background: #24263a;
-  color: #e8e6f0; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5); }
-dialog.over::backdrop { background-color: rgba(10, 10, 18, 0.6); }
-.over-body { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 24px; }
-.over-title { margin-bottom: 6px; font-size: 28px; font-weight: 700; color: #ff9e64; text-align: center; }
-.over-message { font-size: 14px; color: #8b8fa8; text-align: center; }
-.item { padding: 9px; border: none; border-radius: 8px; background: #2f3148; color: #e8e6f0; }
-.item:hover { background: #3a3d58; }
-.item:focus-visible, input.volume:focus-visible { outline: 2px solid #ffb380; outline-offset: 2px; }
-.setting { display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
-.setting { gap: 10px; }
+.stat { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.keys { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 6px; }
+.key { display: flex; align-items: center; gap: 6px; }
+.key.wide { grid-column: 1 / -1; }
+.prompts { display: flex; }
+.prompts img { width: 32px; height: 32px; }
+.pad { display: none; }
+body.gamepad .pad { display: flex; }
+body.gamepad .kb { display: none; }
+dialog.over { width: 300px; padding: 0; }
+.over-body { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.over-title, .over-message { text-align: center; }
+.setting { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .setting-name { width: 60px; }
-input.volume { flex: 1; height: 18px; background-color: #2f3148; color: #ff9e64; accent-color: #ff9e64; }
-.level { width: 40px; text-align: right; font-weight: 700; }
+input.volume { flex: 1; height: 18px; }
+.level { width: 40px; text-align: right; }
 .ranks { display: flex; flex-direction: column; gap: 4px; }
-.rank { display: flex; gap: 12px; font-size: 14px; }
-.place { width: 20px; color: #8b8fa8; }
-.points { flex: 1; font-weight: 700; }
-.when { color: #8b8fa8; }
-kbd { width: 44px; padding: 2px 0; border-radius: 4px; background: #2f3148; color: #e8e6f0;
-  font-size: 11px; text-align: center; }`
+.rank { display: flex; gap: 12px; }
+.place { width: 20px; }
+.points { flex: 1; }`
 
 // Window is a game's window: the same size, title style and background.
 func Window(title string) *platform.Window {
@@ -100,13 +93,15 @@ func HUD() *ui.Document {
 	if err != nil {
 		panic(err) // an embedded folder that is always there
 	}
-	return ui.NewDocument(kit.Theme(), ui.CSS(css), ui.Stylesheet(adventure, "adventure.css"))
+	return ui.NewDocument(kit.Theme(), ui.CSS(css), ui.Stylesheet(adventure, "adventure.css"), ui.Images(adventure))
 }
 
 // Side is the HUD's column: the game's name, then its parts, on a stage the
 // window's size that Fit scales with the board.
 func Side(name string, parts ...*ui.Node) *ui.Node {
-	side := ui.Div(ui.ID("side"), ui.Div(ui.Class("title"), ui.Text(name)))
+	title := ui.Div(ui.Class("title"),
+		ui.Span(ui.Class("banner-left")), ui.Span(ui.Class("banner-right")), ui.Span(ui.Class("name"), ui.Text(name)))
+	side := ui.Div(ui.ID("side"), title)
 	side.Append(parts...)
 	return ui.Div(ui.ID("stage"), side)
 }
@@ -130,13 +125,53 @@ func Card(name string, content *ui.Node) *ui.Node {
 	return ui.Div(ui.Class("stat"), ui.Span(ui.Class("label"), ui.Text(name)), content)
 }
 
-// Keys lists the controls, a key cap then what it does, pairs of strings.
-func Keys(pairs ...string) *ui.Node {
+// AgainButtons start a new game in every game: N or the pad's View button.
+func AgainButtons() []input.Button { return []input.Button{input.KeyN, input.GamepadBack} }
+
+// MenuButtons open the menu: the pad's Menu button (Escape opens it through
+// the HUD).
+func MenuButtons() []input.Button { return []input.Button{input.GamepadStart} }
+
+// AgainControl is the controls line for AgainButtons.
+func AgainControl() Control {
+	return Control{Keys: []string{"n"}, Pad: []string{"view"}, Does: "new game"}
+}
+
+// MenuControl is the controls line for MenuButtons and Escape.
+func MenuControl() Control {
+	return Control{Keys: []string{"esc"}, Pad: []string{"menu"}, Does: "menu"}
+}
+
+// A Control is a line of the controls list: the prompts of its keys and of
+// its gamepad buttons, named after the pictures in adventure/prompts
+// without their "key-" or "pad-", then what they do.
+type Control struct {
+	Keys, Pad []string
+	Does      string
+}
+
+// Controls lists the controls, two a line (one with more than two prompts
+// takes a whole line), with the keyboard's prompts or,
+// once a gamepad was used, the pad's (Fit switches them).
+func Controls(controls ...Control) *ui.Node {
 	list := ui.Div(ui.Class("keys"))
-	for i := 0; i+1 < len(pairs); i += 2 {
-		list.Append(ui.Div(ui.Class("key"), ui.Kbd(ui.Text(pairs[i])), ui.Span(ui.Text(pairs[i+1]))))
+	for _, c := range controls {
+		line := ui.Div(ui.Class("key"), prompts("kb", "key-", c.Keys), prompts("pad", "pad-", c.Pad),
+			ui.Span(ui.Text(c.Does)))
+		if max(len(c.Keys), len(c.Pad)) > 2 {
+			line.AddClass("wide")
+		}
+		list.Append(line)
 	}
 	return list
+}
+
+func prompts(class, prefix string, names []string) *ui.Node {
+	row := ui.Span(ui.Class("prompts", class))
+	for _, n := range names {
+		row.Append(ui.Img(ui.Attr("src", "prompts/"+prefix+n+".png"), ui.Attr("alt", n)))
+	}
+	return row
 }
 
 // NewGame is the button that starts again. It gives the focus back, so the

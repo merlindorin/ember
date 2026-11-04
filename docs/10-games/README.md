@@ -1,6 +1,6 @@
 # Games
 
-Small, whole games made with ember: the rules in plain Go, the board a 2D entity, the HUD and menus ui, the music and sounds made in code.
+Small, whole games made with ember: the rules in plain Go, the board a 2D entity, the HUD and menus ui, the music and sounds made in code. Each plays with the keyboard or a gamepad, its prompts switching to the device last used, in Kenney's pixel UI and input prompts (CC0).
 
 - [Tetris](01-tetris.md)
 - [2048](02-2048.md)

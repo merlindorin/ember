@@ -121,3 +121,45 @@ func TestEnterAnswersTheGameOverQuestion(t *testing.T) {
 		t.Fatalf("Enter presses New game: open %v, over %v", open, p.game.Over)
 	}
 }
+
+func TestAGamepadPlaysTheGameAndItsMenu(t *testing.T) {
+	p, w, _ := play(t)
+	in := p.in
+	in.ConnectGamepad(0, "pad")
+	pad := func(b input.GamepadButton) {
+		in.SetGamepadButton(0, b, true)
+		w.RunFrames(1)
+		in.SetGamepadButton(0, b, false)
+		w.RunFrames(1)
+	}
+	x := p.game.Piece.X
+	pad(input.GamepadLeft)
+	if p.game.Piece.X != x-1 {
+		t.Fatalf("the cross moves: %d then %d", x, p.game.Piece.X)
+	}
+	turned := p.game.Piece
+	pad(input.GamepadSouth)
+	if p.game.Piece.cells == turned.cells {
+		t.Fatal("A turns the piece")
+	}
+	kind := p.game.Next
+	pad(input.GamepadUp)
+	if p.game.Piece.Kind != kind || p.game.Score == 0 {
+		t.Fatalf("up drops: kind %d, score %d", p.game.Piece.Kind, p.game.Score)
+	}
+	if !p.hud.Body().HasClass("gamepad") {
+		t.Fatal("the HUD shows the pad's prompts")
+	}
+	if faults := align.Check(p.hud); len(faults) > 0 {
+		t.Fatalf("the pad's prompts' layout: %v", faults)
+	}
+	pad(input.GamepadStart)
+	if !p.menu.Open() {
+		t.Fatal("Menu opens the menu")
+	}
+	pad(input.GamepadEast)
+	pad(input.GamepadBack)
+	if p.menu.Open() || p.game.Score != 0 {
+		t.Fatalf("B closes the menu, View starts again: open %v, score %d", p.menu.Open(), p.game.Score)
+	}
+}

@@ -91,3 +91,36 @@ func TestEscapeOpensTheMenuAndTheSnakeWaits(t *testing.T) {
 		t.Fatalf("CSS warnings: %v", warns)
 	}
 }
+
+func TestAGamepadPlaysTheGameAndItsMenu(t *testing.T) {
+	p, w, _ := play(t)
+	in := p.in
+	in.ConnectGamepad(0, "pad")
+	pad := func(b input.GamepadButton) {
+		in.SetGamepadButton(0, b, true)
+		w.RunFrames(1)
+		in.SetGamepadButton(0, b, false)
+		w.RunFrames(1)
+	}
+	head := p.game.Head()
+	pad(input.GamepadDown)
+	w.RunFrames(30)
+	if p.game.Head().Y <= head.Y {
+		t.Fatalf("the cross steers: %v from %v", p.game.Head(), head)
+	}
+	if !p.hud.Body().HasClass("gamepad") {
+		t.Fatal("the HUD shows the pad's prompts")
+	}
+	if faults := align.Check(p.hud); len(faults) > 0 {
+		t.Fatalf("the pad's prompts' layout: %v", faults)
+	}
+	pad(input.GamepadStart)
+	if !p.menu.Open() {
+		t.Fatal("Menu opens the menu")
+	}
+	pad(input.GamepadEast)
+	pad(input.GamepadBack)
+	if p.menu.Open() || p.started {
+		t.Fatalf("B closes the menu, View starts again: open %v, started %v", p.menu.Open(), p.started)
+	}
+}

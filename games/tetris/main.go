@@ -64,6 +64,7 @@ const clearTime = 0.35
 // Play reads the keys, lets time pass, sounds what happened and keeps the
 // HUD in step.
 type Play struct {
+	controls            *input.Actions[action]
 	game                *Game
 	in                  *input.State
 	hud                 *ui.Document
@@ -81,16 +82,42 @@ type Play struct {
 	fit                 *look.Fit
 }
 
+// An action is what the player asks with a key or a pad button.
+type action int
+
+const (
+	moveLeft action = iota
+	moveRight
+	turn
+	faster
+	drop
+	again
+	pause
+)
+
+func newControls() *input.Actions[action] {
+	return input.NewActions(
+		input.Bind(moveLeft, input.KeyLeft, input.GamepadLeft, input.GamepadLeftStickLeft),
+		input.Bind(moveRight, input.KeyRight, input.GamepadRight, input.GamepadLeftStickRight),
+		input.Bind(turn, input.KeyUp, input.GamepadSouth),
+		input.Bind(faster, input.KeyDown, input.GamepadDown, input.GamepadLeftStickDown),
+		input.Bind(drop, input.KeySpace, input.GamepadUp),
+		input.Bind(again, look.AgainButtons()...),
+		input.Bind(pause, look.MenuButtons()...))
+}
+
 // Well is the play area, a twod entity drawing the board every frame.
 type Well struct {
 	twod.Item
 	play   *Play
 	blocks *twod.Texture
+	skin   *look.Skin
 }
 
 func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
 	in := win.Input()
-	p := &Play{game: New(seed()), in: in, hud: look.HUD(), seed: seed, clearing: clearTime, data: data,
+	p := &Play{game: New(seed()), in: in, controls: newControls(), hud: look.HUD(), seed: seed,
+		clearing: clearTime, data: data,
 		sounds: newSounds(), player: sound.NewPlayer(music(), data.Music, data.Effects, !data.MusicOff)}
 	p.next = ui.Canvas(p.drawNext, ui.ID("next"), ui.Style("width: 64px; height: 32px"))
 	scoreCard, score := look.Stat("Score", "score")
@@ -102,7 +129,12 @@ func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
 		look.Stats(scoreCard, look.Card("Next", p.next)),
 		look.Stats(linesCard, levelCard),
 		look.NewGame(p.hud, p.restart),
-		look.Keys("← →", "move", "↑", "turn", "↓", "faster", "Space", "drop", "F", "full screen", "Esc", "menu"))
+		look.Controls(
+			look.Control{Keys: []string{"left", "right"}, Pad: []string{"left-right"}, Does: "move"},
+			look.Control{Keys: []string{"up"}, Pad: []string{"a"}, Does: "turn"},
+			look.Control{Keys: []string{"down"}, Pad: []string{"down"}, Does: "faster"},
+			look.Control{Keys: []string{"space"}, Pad: []string{"up"}, Does: "drop"},
+			look.AgainControl(), look.MenuControl()))
 	p.hud.Body().Append(side, p.over)
 	p.menu = look.NewMenu(p.hud, look.Hooks{NewGame: p.restart, Data: func() *save.Data { return p.data },
 		SoundChanged: func() {
@@ -117,7 +149,8 @@ func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
 	if data.Fullscreen {
 		win.SetFullscreen(true)
 	}
-	p.well = twod.Build(&Well{Item: twod.Base(), play: p, blocks: loadBlocks()}, "board", look.Place(boardW, boardH))
+	well := &Well{Item: twod.Base(), play: p, blocks: loadBlocks(), skin: look.LoadSkin()}
+	p.well = twod.Build(well, "board", look.Place(boardW, boardH))
 	p.sparks = twod.NewParticles(nil, twod.Rate(0), twod.Velocity(40, 180), twod.Direction(-geom.Pi/2, geom.Pi),
 		twod.Gravity(geom.V2(0, 320)), twod.Lifetime(0.4, 0.9), twod.SizeOverLife(5, 0.5),
 		twod.ColorOverLife(color.Hex("#fff3d6"), color.Hex(look.Accent).Alpha(0)), twod.Blend(twod.Add),
@@ -131,7 +164,11 @@ func (p *Play) Update(f world.Frame) {
 	if p.menu.Open() {
 		return
 	}
-	if p.in.Pressed(input.KeyN) {
+	if p.controls.Pressed(p.in, pause) {
+		p.menu.Show()
+		return
+	}
+	if p.controls.Pressed(p.in, again) {
 		p.restart()
 		return
 	}
@@ -144,11 +181,11 @@ func (p *Play) Update(f world.Frame) {
 	}
 	before := *p.game
 	switch {
-	case p.in.Pressed(input.KeyUp):
+	case p.controls.Pressed(p.in, turn):
 		if p.game.Rotate() {
 			p.player.Play(p.sounds.turn)
 		}
-	case p.in.Pressed(input.KeySpace):
+	case p.controls.Pressed(p.in, drop):
 		p.game.Drop()
 		p.player.Play(p.sounds.drop)
 	}
@@ -156,7 +193,7 @@ func (p *Play) Update(f world.Frame) {
 	if p.game.Piece.X != before.Piece.X && p.game.Next == before.Next {
 		p.player.Play(p.sounds.move)
 	}
-	p.game.Step(f.DT, p.in.Down(input.KeyDown))
+	p.game.Step(f.DT, p.controls.Down(p.in, faster))
 	p.heard(before)
 	if p.game.Next != before.Next || p.game.Score != before.Score || p.game.Lines != before.Lines {
 		p.show()
@@ -210,9 +247,9 @@ func (p *Play) store() {
 func (p *Play) steer(dt float32) {
 	var dx int
 	switch {
-	case p.in.Down(input.KeyLeft):
+	case p.controls.Down(p.in, moveLeft):
 		dx = -1
-	case p.in.Down(input.KeyRight):
+	case p.controls.Down(p.in, moveRight):
 		dx = 1
 	default:
 		p.held = 0
@@ -242,7 +279,7 @@ func (p *Play) show() {
 
 func (w *Well) Draw(c *twod.Canvas) {
 	p := w.play
-	c.RoundRect(geom.Rect{W: boardW, H: boardH}, 10, color.Hex(look.Surface))
+	w.skin.Board(c, geom.Rect{W: boardW, H: boardH})
 	if p.clearing < clearTime {
 		w.drawClear(c, p.clearing/clearTime)
 		return
@@ -267,7 +304,7 @@ func (w *Well) drawClear(c *twod.Canvas, k float32) {
 	flash := color.Hex("#ffffff").Alpha(1 - ease.OutQuad(k))
 	for _, y := range cleared.Rows {
 		for x := range W {
-			square(c, w.blocks, x, y, 1, color.Hex(look.Cell))
+			empty(c, x, y)
 			square(c, w.blocks, x, y, 1-ease.InQuad(k), colorOf(cleared.Board[y][x]).Lerp(color.Hex("#ffffff"), 1-k))
 			square(c, w.blocks, x, y, 1, flash.Alpha(0.5*(1-k)))
 		}
@@ -277,11 +314,11 @@ func (w *Well) drawClear(c *twod.Canvas, k float32) {
 func drawBoard(c *twod.Canvas, blocks *twod.Texture, board *[H][W]int) {
 	for y, row := range board {
 		for x, kind := range row {
-			col := color.Hex(look.Cell)
-			if kind != 0 {
-				col = colorOf(kind)
+			if kind == 0 {
+				empty(c, x, y)
+				continue
 			}
-			square(c, blocks, x, y, 1, col)
+			square(c, blocks, x, y, 1, colorOf(kind))
 		}
 	}
 }
@@ -302,6 +339,15 @@ func square(c *twod.Canvas, blocks *twod.Texture, x, y int, scale float32, col c
 	size := cell * scale
 	at := geom.V2(float32(4+x*cell)+(cell-size)/2, float32(4+y*cell)+(cell-size)/2)
 	c.Image(geom.Rect{X: at.X, Y: at.Y, W: size, H: size}, blocks, blockUV, col)
+}
+
+// empty draws an empty cell, a faint square sunk into the board.
+func empty(c *twod.Canvas, x, y int) {
+	if y < 0 {
+		return
+	}
+	r := geom.Rect{X: float32(4+x*cell) + 1, Y: float32(4+y*cell) + 1, W: cell - 2, H: cell - 2}
+	c.Rect(r, color.Hex(look.Surface).Alpha(0.45))
 }
 
 func main() {

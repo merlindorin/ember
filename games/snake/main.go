@@ -36,6 +36,7 @@ const askAfter = 0.6
 // Play reads the arrows, steps the snake on time, sounds what happened and
 // keeps the HUD in step.
 type Play struct {
+	controls      *input.Actions[action]
 	game          *Game
 	in            *input.State
 	hud           *ui.Document
@@ -55,15 +56,38 @@ type Play struct {
 	fit           *look.Fit
 }
 
+// An action is what the player asks with a key or a pad button.
+type action int
+
+const (
+	steerLeft action = iota
+	steerRight
+	steerUp
+	steerDown
+	again
+	pause
+)
+
+func newControls() *input.Actions[action] {
+	return input.NewActions(
+		input.Bind(steerLeft, input.KeyLeft, input.KeyA, input.GamepadLeft, input.GamepadLeftStickLeft),
+		input.Bind(steerRight, input.KeyRight, input.KeyD, input.GamepadRight, input.GamepadLeftStickRight),
+		input.Bind(steerUp, input.KeyUp, input.KeyW, input.GamepadUp, input.GamepadLeftStickUp),
+		input.Bind(steerDown, input.KeyDown, input.KeyS, input.GamepadDown, input.GamepadLeftStickDown),
+		input.Bind(again, look.AgainButtons()...),
+		input.Bind(pause, look.MenuButtons()...))
+}
+
 // Pit is the play area, a twod entity drawing the board every frame.
 type Pit struct {
 	twod.Item
 	play *Play
+	skin *look.Skin
 }
 
 func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
 	in := win.Input()
-	p := &Play{game: New(seed()), in: in, hud: look.HUD(), seed: seed, data: data,
+	p := &Play{game: New(seed()), in: in, controls: newControls(), hud: look.HUD(), seed: seed, data: data,
 		sounds: newSounds(), player: sound.NewPlayer(music(), data.Music, data.Effects, !data.MusicOff)}
 	p.before = p.game.Body
 	scoreCard, score := look.Stat("Score", "score")
@@ -75,7 +99,9 @@ func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
 		look.Stats(scoreCard, lengthCard),
 		p.start,
 		look.NewGame(p.hud, p.restart),
-		look.Keys("Arrows", "steer", "N", "new game", "F", "full screen", "Esc", "menu")), p.over)
+		look.Controls(
+			look.Control{Keys: []string{"left", "right", "up", "down"}, Pad: []string{"dpad"}, Does: "steer"},
+			look.AgainControl(), look.MenuControl())), p.over)
 	p.menu = look.NewMenu(p.hud, look.Hooks{NewGame: p.restart, Data: func() *save.Data { return p.data },
 		SoundChanged: func() {
 			p.player.Set(p.data.Music, p.data.Effects, !p.data.MusicOff)
@@ -89,10 +115,10 @@ func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
 	if data.Fullscreen {
 		win.SetFullscreen(true)
 	}
-	p.pit = twod.Build(&Pit{Item: twod.Base(), play: p}, "board", look.Place(boardW, boardH))
+	p.pit = twod.Build(&Pit{Item: twod.Base(), play: p, skin: look.LoadSkin()}, "board", look.Place(boardW, boardH))
 	p.sparks = twod.NewParticles(nil, twod.Rate(0), twod.Velocity(40, 160), twod.Direction(0, geom.Pi),
 		twod.Lifetime(0.3, 0.7), twod.SizeOverLife(5, 0.5), twod.Drag(0.05),
-		twod.ColorOverLife(color.Hex("#ffd6a5"), color.Hex("#ef476f").Alpha(0)), twod.Blend(twod.Add),
+		twod.ColorOverLife(color.Hex("#fff1d2"), color.Hex("#cf5e53").Alpha(0)), twod.Blend(twod.Add),
 		twod.MaxParticles(300))
 	p.show()
 	return p
@@ -103,7 +129,11 @@ func (p *Play) Update(f world.Frame) {
 	if p.menu.Open() {
 		return
 	}
-	if p.in.Pressed(input.KeyN) {
+	if p.controls.Pressed(p.in, pause) {
+		p.menu.Show()
+		return
+	}
+	if p.controls.Pressed(p.in, again) {
 		p.restart()
 		return
 	}
@@ -112,13 +142,10 @@ func (p *Play) Update(f world.Frame) {
 		return
 	}
 	for _, k := range []struct {
-		keys [2]input.Key
-		dir  Dir
-	}{
-		{[2]input.Key{input.KeyRight, input.KeyD}, Right}, {[2]input.Key{input.KeyDown, input.KeyS}, Down},
-		{[2]input.Key{input.KeyLeft, input.KeyA}, Left}, {[2]input.Key{input.KeyUp, input.KeyW}, Up},
-	} {
-		if p.in.Pressed(k.keys[0]) || p.in.Pressed(k.keys[1]) {
+		steer action
+		dir   Dir
+	}{{steerRight, Right}, {steerDown, Down}, {steerLeft, Left}, {steerUp, Up}} {
+		if p.controls.Pressed(p.in, k.steer) {
 			p.started = true
 			p.game.Turn(k.dir)
 			p.player.Play(p.sounds.turn)
@@ -183,17 +210,17 @@ func (p *Play) show() {
 
 func (pit *Pit) Draw(c *twod.Canvas) {
 	p := pit.play
-	c.RoundRect(geom.Rect{W: boardW, H: boardH}, 10, color.Hex(look.Surface))
+	pit.skin.Board(c, geom.Rect{W: boardW, H: boardH})
 	for y := range H {
 		for x := range W {
 			if (x+y)%2 == 0 {
 				square := geom.Rect{X: float32(4 + x*cell), Y: float32(4 + y*cell), W: cell, H: cell}
-				c.Rect(square, color.Hex(look.Cell).Alpha(0.35))
+				c.Rect(square, color.Hex(look.Surface).Alpha(0.3))
 			}
 		}
 	}
 	pulse := 1 + 0.08*float32(math.Sin(float64(p.time)*6))
-	c.Circle(centre(p.game.Apple), cell*0.38*pulse, color.Hex("#ef476f"))
+	c.Circle(centre(p.game.Apple), cell*0.38*pulse, color.Hex("#cf5e53"))
 	c.Circle(centre(p.game.Apple).Add(geom.V2(-2, -2)), cell*0.1, color.Hex("#ffffff").Alpha(0.5))
 
 	k := min(p.clock/p.game.Interval(), 1)
@@ -210,7 +237,7 @@ func (pit *Pit) Draw(c *twod.Canvas) {
 	}
 	for i := n - 1; i >= 0; i-- {
 		t := float32(i) / float32(max(n-1, 1))
-		col := color.Hex("#80ed99").Lerp(color.Hex("#2d6a4f"), t)
+		col := color.Hex("#72b84e").Lerp(color.Hex("#3f6e2b"), t)
 		width := cell - 4 - 4*t
 		if i > 0 {
 			c.Line(at[i-1], at[i], width, col)

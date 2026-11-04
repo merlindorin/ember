@@ -1,36 +1,38 @@
-/* Kenney's UI Pack - Pixel Adventure over the games' layout: parchment
-   cards, a brown button, slate dialogs and menu buttons, each a 16-pixel
-   tile whose 6-pixel frame is drawn 12 points wide and kept sharp, and
-   Silkscreen for the text. */
+/* Kenney's UI Pack - Pixel Adventure over the games' layout: a red banner
+   for the title, parchment cards, wooden buttons, parchment dialogs with
+   metal corners. The large tiles are 32 pixels, cut 8 pixels in (6 for the
+   buttons, 10 for the dialogs' corners), the prompts 16 pixels, all drawn
+   2 points a pixel and kept sharp; the text is Silkscreen. */
 @font-face { font-family: "Silkscreen"; src: url(silkscreen.ttf); }
-body { font-family: "Silkscreen"; }
-.title { color: #fff1d2; font-size: 34px; }
+body { font-family: "Silkscreen"; color: #d8c4a0; }
+* { image-rendering: pixelated; }
 
-.stat, kbd, .new, .item, dialog.over {
+.title { position: relative; background-image: url(banner.png); background-size: 64px 64px; }
+.banner-left, .banner-right { position: absolute; top: 0; width: 64px; height: 64px; background-size: 64px 64px; }
+.banner-left { left: 0; background-image: url(banner-left.png); }
+.banner-right { right: 0; background-image: url(banner-right.png); }
+.name { position: relative; color: #fff1d2; font-size: 26px; }
+
+.stat, .new, .item, dialog.over {
   border-style: solid;
   border-color: transparent;
   background: transparent;
-  image-rendering: pixelated;
 }
-.stat { border-width: 10px; border-image: url(cream.png) 6 fill; padding: 0 2px; }
-.label { color: #a3703a; letter-spacing: 0; }
-.value { color: #6d4b27; }
+.stat { border-width: 16px; border-image: url(parchment.png) 8 fill; padding: 0 2px; }
+.label { color: #a3703a; font-size: 10px; }
+.value { color: #6d4b27; font-size: 20px; }
 
-.new { border-width: 12px; border-image: url(brown.png) 6 fill; color: #fff1d2; padding: 0; }
-.item { border-width: 12px; border-image: url(slate-dark.png) 6 fill; color: #fff1d2; padding: 0; }
-.new:hover, .item:hover { background: transparent; }
+.new, .item { border-width: 12px; border-image: url(wood.png) 6 fill; color: #fff1d2; padding: 0; font-size: 14px;
+  text-align: center; }
+.new:hover, .item:hover { color: #ffffff; }
 .new:active, .item:active { transform: translateY(2px); }
-.new:focus-visible, .item:focus-visible, input.volume:focus-visible { outline-color: #fff1d2; }
+.new:focus-visible, .item:focus-visible, input.volume:focus-visible { outline: 2px solid #fff1d2; outline-offset: 2px; }
 
-dialog.over { border-width: 12px; border-image: url(slate.png) 6 fill; color: #2b3540; }
-.over-body { padding: 4px; gap: 8px; }
-dialog .over-title { color: #fff1d2; }
-dialog .over-message, dialog .place, dialog .when, dialog .setting { color: #2b3540; }
-#side .over-message { color: #fff1d2; }
+.key { font-size: 11px; color: #d8c4a0; }
 
-kbd { border-width: 6px; border-image: url(cream.png) 6 fill; color: #6d4b27; width: auto; min-width: 60px;
-  padding: 0 2px; font-family: "Silkscreen"; font-size: 11px; }
-.key { color: #d8c4a0; font-size: 12px; }
-input.volume { background-color: #647685; color: #fff1d2; accent-color: #c58747; }
-#side { gap: 10px; }
-.keys { gap: 4px; }
+dialog.over { border-width: 20px; border-image: url(plate.png) 10 fill; color: #6d4b27; }
+dialog.over::backdrop { background-color: rgba(10, 16, 12, 0.6); }
+.over-title { font-size: 24px; color: #6d4b27; }
+.over-message, .setting, .rank { font-size: 13px; color: #6d4b27; }
+.place, .when { color: #a3703a; }
+input.volume { background-color: #a3703a; color: #6d4b27; accent-color: #6d4b27; }

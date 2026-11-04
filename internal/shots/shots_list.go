@@ -11,6 +11,7 @@ const (
 	settings       = "{tmp}/settings"
 	seed           = "-seed"
 	gamesDir       = "EMBER_GAMES_DIR"
+	tmp            = "{tmp}"
 )
 
 // Shots are the guide's pictures, by their path under docs/. game-doc-writer
@@ -691,7 +692,7 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 		Run:  "./games/tetris",
 		Args: []string{seed, "7"},
 		Env: map[string]string{
-			gamesDir: "{tmp}",
+			gamesDir: tmp,
 			CaptureKeys: "left:10-11;left:14-15;left:18-19;left:22-23;space:26-27;left:30-31;space:34-35;right:38-39;" +
 				"right:42-43;space:46-47;right:50-51;right:54-55;right:58-59;right:62-63;space:66-67;up:100-101;" +
 				"left:104-105;left:108-109;left:112-113;space:116-117;up:120-121;left:124-125;space:128-129;" +
@@ -708,7 +709,7 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 		Run:  "./games/2048",
 		Args: []string{seed, "3"},
 		Env: map[string]string{
-			gamesDir: "{tmp}",
+			gamesDir: tmp,
 			CaptureKeys: "left:5-6;down:17-18;right:29-30;down:41-42;left:53-54;down:65-66;right:77-78;down:89-90;" +
 				"left:101-102;down:113-114;right:125-126;down:137-138;left:149-150;down:161-162;right:173-174;" +
 				"down:185-186;left:197-198;down:209-210;right:221-222;down:233-234;left:245-246;down:257-258;" +
@@ -722,7 +723,7 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 		Run:  "./games/snake",
 		Args: []string{seed, "2"},
 		Env: map[string]string{
-			gamesDir: "{tmp}",
+			gamesDir: tmp,
 			CaptureKeys: "right:5-6;down:12-13;left:79-80;up:104-105;right:112-113;up:177-178;left:249-250;down:257-258;" +
 				"left:320-321;up:382-383;right:389-390;up:434-435;right:464-465;down:478-479;left:521-522;" +
 				"up:563-564",

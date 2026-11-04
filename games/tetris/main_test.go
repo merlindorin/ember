@@ -99,3 +99,22 @@ func TestTheBoardSitsLeftOfACleanHUD(t *testing.T) {
 		t.Fatalf("CSS warnings: %v", warns)
 	}
 }
+
+func TestEnterAnswersTheGameOverQuestion(t *testing.T) {
+	p, w, press := play(t)
+	for y := 2; y < H; y++ {
+		for x := range W - 1 {
+			p.game.Board[y][x] = Z
+		}
+	}
+	press(input.KeySpace)
+	w.RunFrames(40)
+	if warns := p.hud.Warnings(); len(warns) > 0 {
+		t.Fatalf("the question's CSS: %v", warns)
+	}
+	press(input.KeyEnter)
+	w.RunFrames(1)
+	if _, open := p.over.Attr("open"); open || p.game.Over {
+		t.Fatalf("Enter presses New game: open %v, over %v", open, p.game.Over)
+	}
+}

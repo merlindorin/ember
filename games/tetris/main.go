@@ -16,7 +16,6 @@ import (
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
 	"github.com/merlindorin/ember/world"
 )
 
@@ -113,7 +112,7 @@ func (p *Play) Update(f world.Frame) {
 // ask shows the game-over question once askAfter has passed.
 func (p *Play) ask(dt float32) {
 	if p.ended < askAfter && p.ended+dt >= askAfter {
-		kit.SetAlert(p.over, "Game over", fmt.Sprintf("Score %d, %d lines.", p.game.Score, p.game.Lines))
+		look.SetGameOver(p.over, fmt.Sprintf("Score %d, %d lines.", p.game.Score, p.game.Lines))
 		p.hud.ShowModal(p.over)
 	}
 	p.ended += dt

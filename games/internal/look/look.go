@@ -39,8 +39,15 @@ body { display: flex; align-items: center; justify-content: flex-end; padding-ri
 .value { font-size: 24px; font-weight: 700; color: #e8e6f0; }
 .new { padding: 10px; border: none; border-radius: 8px; background: #ff9e64; color: #1a1b26; font-weight: 700; }
 .new:hover { background: #ffb380; }
+.new:focus-visible { outline: 2px solid #ffb380; outline-offset: 2px; }
 .keys { display: flex; flex-direction: column; gap: 6px; }
 .key { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8b8fa8; }
+dialog.over { width: 280px; padding: 0; border: none; border-radius: 14px; background: #24263a;
+  color: #e8e6f0; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5); }
+dialog.over::backdrop { background-color: rgba(10, 10, 18, 0.6); }
+.over-body { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 24px; }
+.over-title { font-size: 28px; font-weight: 700; color: #ff9e64; text-align: center; }
+.over-message { font-size: 14px; color: #8b8fa8; text-align: center; }
 kbd { width: 44px; padding: 2px 0; border-radius: 4px; background: #2f3148; color: #e8e6f0;
   font-size: 11px; text-align: center; }`
 
@@ -105,14 +112,26 @@ func NewGame(doc *ui.Document, again func()) *ui.Node {
 	}))
 }
 
-// GameOver is the question shown at the end; again runs when the player
-// asks for a new game. Append it to the body and show it with ShowModal.
+// GameOver is the question shown at the end, in the games' own look; again
+// runs when the player asks for a new game. Append it to the body, set its
+// message with SetGameOver and show it with ShowModal.
 func GameOver(again func()) *ui.Node {
-	alert := kit.Alert("Game over", "", kit.Button("New game", kit.Primary(), ui.Value("again")))
-	ui.On(alert, ui.EventClose, func(e ui.Event) {
+	button := ui.Button(ui.Class("new"), ui.Text("New game"), ui.Value("again"),
+		ui.Attr("formmethod", "dialog"), ui.Attr("autofocus", ""))
+	over := ui.Dialog(ui.Class("over"), ui.Attr("aria-label", "Game over"),
+		ui.Div(ui.Class("over-body"),
+			ui.Div(ui.Class("over-title"), ui.Text("Game over")),
+			ui.P(ui.Class("over-message"), ui.ID("over-message")),
+			button))
+	ui.On(over, ui.EventClose, func(e ui.Event) {
 		if e.Value == "again" {
 			again()
 		}
 	})
-	return alert
+	return over
+}
+
+// SetGameOver sets the line under the game-over title.
+func SetGameOver(over *ui.Node, message string) {
+	over.Children()[0].Children()[1].SetText(message)
 }

@@ -19,7 +19,6 @@ import (
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
 	"github.com/merlindorin/ember/world"
 )
 
@@ -84,7 +83,7 @@ func (g *Game) Update(f world.Frame) {
 		g.moved, g.since = moved, 0
 		g.show()
 		if g.board.Over() {
-			kit.SetAlert(g.over, "Game over", fmt.Sprintf("Score %d, best tile %d.", g.board.Score, g.board.Best()))
+			look.SetGameOver(g.over, fmt.Sprintf("Score %d, best tile %d.", g.board.Score, g.board.Best()))
 			g.hud.ShowModal(g.over)
 		}
 		return

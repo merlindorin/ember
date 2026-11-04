@@ -34,7 +34,7 @@ Every screen's test runs `align.Check` and `doc.Warnings`.
 
 ## A test of the skeleton
 
-This is the test of SKILL.md's skeleton, run as is: the rules alone, then the arrows through the World and the panel's count.
+This is the test of SKILL.md's skeleton, run as is: the rules alone, then the arrows through the World and the HUD's count.
 
 ```go
 // main_test.go, beside the skeleton
@@ -46,6 +46,7 @@ import (
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/platform"
+	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/ui"
 	"github.com/merlindorin/ember/ui/align"
 	"github.com/merlindorin/ember/ui/kit"
@@ -60,13 +61,13 @@ func TestTheRulesStayOnTheBoard(t *testing.T) {
 	}
 }
 
-func TestTheArrowsMoveAndThePanelCounts(t *testing.T) {
+func TestTheArrowsMoveAndTheHUDCounts(t *testing.T) {
 	win := platform.NewWindow(platform.Size(640, 360))
-	doc := ui.NewDocument(kit.Theme(), ui.CSS(page))
-	play := &Play{game: &Game{}, in: win.Input(), doc: doc, moves: kit.Label("0")}
-	play.board = ui.Canvas(play.draw, ui.ID("board"))
-	doc.Body().Append(play.board, kit.Panel(kit.Column(play.moves)))
-	win.Add(doc)
+	game := &Game{}
+	hud := ui.NewDocument(kit.Theme(), ui.CSS(page))
+	play := &Play{game: game, in: win.Input(), moves: kit.Label("0", ui.ID("moves"))}
+	hud.Body().Append(kit.Panel(play.moves))
+	win.Add(twod.Build(&Board{Item: twod.Base(), game: game}, "board"), hud)
 	w := ember.New().AddEntities(win).AddSystems(play)
 	w.RunFrames(1)
 
@@ -78,16 +79,13 @@ func TestTheArrowsMoveAndThePanelCounts(t *testing.T) {
 	}
 	press(input.KeyRight)
 	press(input.KeyDown)
-	if play.game.X != 1 || play.game.Y != 1 || play.moves.Text() != "2" {
-		t.Fatalf("game %+v, panel %q", *play.game, play.moves.Text())
+	if game.X != 1 || game.Y != 1 || play.moves.Text() != "2" {
+		t.Fatalf("game %+v, HUD %q", *game, play.moves.Text())
 	}
-	if r, ok := doc.BoxOf(doc.ByID("board")); !ok || r.W != 256 {
-		t.Fatalf("the board is laid out 256 wide: %v", r)
-	}
-	if faults := align.Check(doc); len(faults) > 0 {
+	if faults := align.Check(hud); len(faults) > 0 {
 		t.Fatalf("layout faults: %v", faults)
 	}
-	if warns := doc.Warnings(); len(warns) > 0 {
+	if warns := hud.Warnings(); len(warns) > 0 {
 		t.Fatalf("CSS warnings: %v", warns)
 	}
 }

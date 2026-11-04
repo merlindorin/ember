@@ -25,7 +25,7 @@ import (
 	"github.com/merlindorin/ember/world"
 )
 
-const cell = 19
+const cell = 18
 
 // Held arrows move once, then again every repeat after delay.
 const delay, repeat = 0.17, 0.05
@@ -35,7 +35,7 @@ const delay, repeat = 0.17, 0.05
 const askAfter = 0.6
 
 // The board's size: the cells with a 4-point margin.
-const boardW, boardH = W*cell + 6, H*cell + 6
+const boardW, boardH = W*cell + 8, H*cell + 8
 
 // colorOf is a piece's colour, on the board and in the preview.
 func colorOf(kind int) color.Color {
@@ -83,7 +83,8 @@ type Play struct {
 // Well is the play area, a twod entity drawing the board every frame.
 type Well struct {
 	twod.Item
-	play *Play
+	play   *Play
+	blocks *twod.Texture
 }
 
 func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
@@ -115,7 +116,7 @@ func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
 	if data.Fullscreen {
 		win.SetFullscreen(true)
 	}
-	p.well = twod.Build(&Well{Item: twod.Base(), play: p}, "board", look.Place(boardW, boardH))
+	p.well = twod.Build(&Well{Item: twod.Base(), play: p, blocks: loadBlocks()}, "board", look.Place(boardW, boardH))
 	p.sparks = twod.NewParticles(nil, twod.Rate(0), twod.Velocity(40, 180), twod.Direction(-geom.Pi/2, geom.Pi),
 		twod.Gravity(geom.V2(0, 320)), twod.Lifetime(0.4, 0.9), twod.SizeOverLife(5, 0.5),
 		twod.ColorOverLife(color.Hex("#fff3d6"), color.Hex(look.Accent).Alpha(0)), twod.Blend(twod.Add),
@@ -245,15 +246,15 @@ func (w *Well) Draw(c *twod.Canvas) {
 		w.drawClear(c, p.clearing/clearTime)
 		return
 	}
-	drawBoard(c, &p.game.Board)
+	drawBoard(c, w.blocks, &p.game.Board)
 	if p.game.Over {
 		return
 	}
 	for _, at := range p.game.Ghost().Cells() {
-		square(c, at[0], at[1], 1, colorOf(p.game.Piece.Kind).Alpha(0.25))
+		square(c, w.blocks, at[0], at[1], 1, colorOf(p.game.Piece.Kind).Alpha(0.25))
 	}
 	for _, at := range p.game.Piece.Cells() {
-		square(c, at[0], at[1], 1, colorOf(p.game.Piece.Kind))
+		square(c, w.blocks, at[0], at[1], 1, colorOf(p.game.Piece.Kind))
 	}
 }
 
@@ -261,44 +262,45 @@ func (w *Well) Draw(c *twod.Canvas) {
 // shrinking away, k from 0 to 1.
 func (w *Well) drawClear(c *twod.Canvas, k float32) {
 	cleared := &w.play.game.Cleared
-	drawBoard(c, &cleared.Board)
+	drawBoard(c, w.blocks, &cleared.Board)
 	flash := color.Hex("#ffffff").Alpha(1 - ease.OutQuad(k))
 	for _, y := range cleared.Rows {
 		for x := range W {
-			square(c, x, y, 1, color.Hex(look.Cell))
-			square(c, x, y, 1-ease.InQuad(k), colorOf(cleared.Board[y][x]).Lerp(color.Hex("#ffffff"), 1-k))
-			square(c, x, y, 1, flash.Alpha(0.5*(1-k)))
+			square(c, w.blocks, x, y, 1, color.Hex(look.Cell))
+			square(c, w.blocks, x, y, 1-ease.InQuad(k), colorOf(cleared.Board[y][x]).Lerp(color.Hex("#ffffff"), 1-k))
+			square(c, w.blocks, x, y, 1, flash.Alpha(0.5*(1-k)))
 		}
 	}
 }
 
-func drawBoard(c *twod.Canvas, board *[H][W]int) {
+func drawBoard(c *twod.Canvas, blocks *twod.Texture, board *[H][W]int) {
 	for y, row := range board {
 		for x, kind := range row {
 			col := color.Hex(look.Cell)
 			if kind != 0 {
 				col = colorOf(kind)
 			}
-			square(c, x, y, 1, col)
+			square(c, blocks, x, y, 1, col)
 		}
 	}
 }
 
 func (p *Play) drawNext(c *twod.Canvas) {
 	for _, at := range spawn(p.game.Next).cells {
-		c.RoundRect(geom.Rect{X: float32(at[0] * 16), Y: float32(at[1] * 16), W: 14, H: 14}, 3, colorOf(p.game.Next))
+		r := geom.Rect{X: float32(at[0] * 16), Y: float32(at[1] * 16), W: 16, H: 16}
+		c.Image(r, p.well.blocks, blockUV, colorOf(p.game.Next))
 	}
 }
 
-// square draws a board cell at a scale about its centre; the board has a
-// 4-point margin.
-func square(c *twod.Canvas, x, y int, scale float32, col color.Color) {
+// square draws a board cell, Kenney's block tinted col, at a scale about its
+// centre; the board has a 4-point margin.
+func square(c *twod.Canvas, blocks *twod.Texture, x, y int, scale float32, col color.Color) {
 	if y < 0 || scale <= 0 {
 		return
 	}
-	size := (cell - 2) * scale
-	at := geom.V2(float32(4+x*cell)+(cell-2-size)/2, float32(4+y*cell)+(cell-2-size)/2)
-	c.RoundRect(geom.Rect{X: at.X, Y: at.Y, W: size, H: size}, 3*scale, col)
+	size := cell * scale
+	at := geom.V2(float32(4+x*cell)+(cell-size)/2, float32(4+y*cell)+(cell-size)/2)
+	c.Image(geom.Rect{X: at.X, Y: at.Y, W: size, H: size}, blocks, blockUV, col)
 }
 
 func main() {

@@ -71,8 +71,7 @@ func newGame(win *platform.Window, seed func() uint64, data *save.Data) (*Game, 
 	g.hud.Body().Append(look.Side("2048",
 		look.Stats(scoreCard, bestCard),
 		look.NewGame(g.hud, g.restart),
-		look.Keys("← →", "slide sideways", "↑ ↓", "slide up and down", "N", "new game",
-			"F", "full screen", "Esc", "menu")), g.over)
+		look.Keys("Arrows", "slide", "N", "new game", "F", "full screen", "Esc", "menu")), g.over)
 	g.menu = look.NewMenu(g.hud, look.Hooks{NewGame: g.restart, Data: func() *save.Data { return g.data },
 		SoundChanged: func() {
 			g.player.Set(g.data.Music, g.data.Effects, !g.data.MusicOff)

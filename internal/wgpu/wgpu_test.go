@@ -12,7 +12,8 @@ import (
 func TestTheLibraryIsLookedForWhereTaskWgpuPutsIt(t *testing.T) {
 	t.Setenv(LibraryEnv, "/somewhere/libwgpu.dylib")
 	got := candidatesFor("linux", "/games/survivors/survivors")
-	if len(got) != 3 || got[0] != "/somewhere/libwgpu.dylib" || got[1] != "/games/survivors/libwgpu_native.so" {
+	beside := filepath.FromSlash("/games/survivors/libwgpu_native.so")
+	if len(got) != 3 || got[0] != "/somewhere/libwgpu.dylib" || got[1] != beside {
 		t.Fatalf("the env first, then beside the executable, then the source tree: %v", got)
 	}
 	want := filepath.Join("internal", "wgpu", "lib", runtime.GOOS+"-"+runtime.GOARCH, libraryName())
@@ -24,8 +25,8 @@ func TestTheLibraryIsLookedForWhereTaskWgpuPutsIt(t *testing.T) {
 func TestAMacAppFindsTheLibraryInItsFrameworks(t *testing.T) {
 	t.Setenv(LibraryEnv, "")
 	got := candidatesFor("darwin", "/Applications/Survivors.app/Contents/MacOS/survivors")
-	if len(got) != 3 || got[0] != "/Applications/Survivors.app/Contents/MacOS/libwgpu_native.dylib" ||
-		got[1] != "/Applications/Survivors.app/Contents/Frameworks/libwgpu_native.dylib" {
+	if len(got) != 3 || got[0] != filepath.FromSlash("/Applications/Survivors.app/Contents/MacOS/libwgpu_native.dylib") ||
+		got[1] != filepath.FromSlash("/Applications/Survivors.app/Contents/Frameworks/libwgpu_native.dylib") {
 		t.Fatalf("beside the executable, then the app's Frameworks: %v", got)
 	}
 	if win := candidatesFor(

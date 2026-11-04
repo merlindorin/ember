@@ -170,8 +170,7 @@ func build(path string, opts ...ember.Option) (*world.World, *Tool, error) {
 		platform.MinSize(1100, 700),
 		platform.Background(color.Hex("#101216")),
 	)
-	root := volumeRoot(t.state.startFolder())
-	style := []ui.DocumentOption{kit.Theme(), ui.Stylesheet(previews{root}, previewSheet)}
+	style := []ui.DocumentOption{kit.Theme(), ui.Stylesheet(previews{}, previewSheet)}
 	sheets := fstest.MapFS{
 		"menus.css":     {Data: []byte(menuSheet)},
 		"shell.css":     {Data: []byte(shellSheet)},
@@ -194,7 +193,7 @@ func build(path string, opts ...ember.Option) (*world.World, *Tool, error) {
 		kit.FileType("Tiled tilesets", ".tsj"),
 		kit.Kind("Tiled tileset", ".tsj"),
 		kit.OwnWindow(style...),
-		kit.Describe(func(p string) string { return describeTileset(osPath(root, p)) }),
+		kit.Describe(func(p string) string { return describeTileset(osPath(p)) }),
 		kit.Preview(func(p string) string {
 			if strings.HasSuffix(p, ".tsj") {
 				return previewSrc(p)
@@ -205,15 +204,12 @@ func build(path string, opts ...ember.Option) (*world.World, *Tool, error) {
 	picked := kit.OnChoose(func(e kit.FileChosen) { t.files = append(t.files, e) })
 	t.dialog = newDiskDialog(
 		t.dialogs,
-		root,
 		append([]kit.FileDialogOption{kit.DialogLabel("open"), picked}, tilesets...)...)
 	t.saver = newDiskDialog(
 		t.dialogs,
-		root,
 		append([]kit.FileDialogOption{kit.DialogLabel("save"), picked}, tilesets...)...)
 	t.rooms = newDiskDialog(
 		t.dialogs,
-		root,
 		kit.DialogLabel("room"),
 		picked,
 		kit.FileType("Tiled maps", ".tmj"),

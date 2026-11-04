@@ -61,10 +61,52 @@ func browser() string {
 // Screenshot writes Chrome's picture of page in a viewport of size
 // points to png, to set beside ember's drawing of the same document.
 func Screenshot(page []byte, size geom.Vec2, out string) error {
-	if _, err := run(page, size, "--screenshot="+out); err != nil {
+	shoot := func() ([]byte, error) {
+		if _, err := run(page, size, "--screenshot="+out); err != nil {
+			return nil, err
+		}
+		if err := crop(out, int(size.X*deviceScale+0.5), int(size.Y*deviceScale+0.5)); err != nil {
+			return nil, err
+		}
+		return os.ReadFile(out)
+	}
+	if os.Getenv("CI") == "" {
+		_, err := shoot()
 		return err
 	}
-	return crop(out, int(size.X*deviceScale+0.5), int(size.Y*deviceScale+0.5))
+	// A CI runner without a GPU can shoot before every tile is rasterized,
+	// a picture cut short: there a shot counts once two in a row agree.
+	shot, err := steady(shoot, func(n int) {
+		fmt.Fprintf(os.Stderr, "chrome: shot %d of %s differs from the one before, retaken\n", n, out)
+	})
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(out, shot, 0o600)
+}
+
+// steadyTries is how many shots steady takes at most.
+const steadyTries = 4
+
+// steady takes shots until two in a row are the same picture, at most
+// steadyTries, and returns the last; retaken is told each shot that differed.
+func steady(shoot func() ([]byte, error), retaken func(n int)) ([]byte, error) {
+	last, err := shoot()
+	if err != nil {
+		return nil, err
+	}
+	for n := 2; n <= steadyTries; n++ {
+		next, shotErr := shoot()
+		if shotErr != nil {
+			return nil, shotErr
+		}
+		if bytes.Equal(next, last) {
+			return next, nil
+		}
+		retaken(n)
+		last = next
+	}
+	return last, nil
 }
 
 // ScreenshotScaled is Screenshot on a display of scale device pixels per

@@ -11,6 +11,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
+	"strings"
 	"testing"
 
 	"github.com/merlindorin/ember/geom"
@@ -59,6 +61,17 @@ func Compare(a, b image.Image) Diff {
 	return d
 }
 
+// pageEnv is environ for a page's run: hidden, and at 2 pixels a point
+// unless EMBER_SCALE says otherwise, since the thresholds are measured at
+// 2x and a 1x display (a CI runner) antialiases text and edges coarser.
+func pageEnv(environ []string) []string {
+	env := append(slices.Clone(environ), "EMBER_HIDDEN=1")
+	if !slices.ContainsFunc(environ, func(e string) bool { return strings.HasPrefix(e, "EMBER_SCALE=") }) {
+		env = append(env, "EMBER_SCALE=2")
+	}
+	return env
+}
+
 // nrgba is c in non-premultiplied 8-bit colour.
 func nrgba(c color.Color) color.NRGBA {
 	n, ok := color.NRGBAModel.Convert(c).(color.NRGBA)
@@ -82,7 +95,7 @@ func Pixels(t testing.TB, pkg string, w, h int) Diff {
 	shot, page := filepath.Join(dir, "ember.png"), filepath.Join(dir, "page.html")
 	run := func(env ...string) {
 		cmd := exec.CommandContext(t.Context(), "go", "run", pkg)
-		cmd.Env = append(append(os.Environ(), "EMBER_HIDDEN=1"), env...)
+		cmd.Env = append(pageEnv(os.Environ()), env...)
 		if out, err := cmd.CombinedOutput(); err != nil {
 			t.Fatalf("%s: %v: %s", pkg, err, out)
 		}

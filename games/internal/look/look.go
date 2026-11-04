@@ -5,6 +5,7 @@ package look
 
 import (
 	"github.com/merlindorin/ember/color"
+	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/ui"
@@ -29,8 +30,10 @@ const (
 )
 
 const css = `html, body { height: 100%; }
-body { display: flex; align-items: center; justify-content: flex-end; padding-right: 40px; background: transparent; }
-#side { width: 190px; display: flex; flex-direction: column; gap: 14px; }
+body { display: flex; align-items: center; justify-content: center; background: transparent; }
+#stage { width: 640px; height: 440px; flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 40px; pointer-events: none; }
+#side { width: 190px; display: flex; flex-direction: column; gap: 14px; pointer-events: auto; }
 .title { font-size: 44px; font-weight: 700; color: #ff9e64; line-height: 1; }
 .stats { display: flex; gap: 8px; }
 .stat { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 8px 12px;
@@ -76,16 +79,25 @@ func Place(w, h float32) twod.Option {
 	return twod.At((HUDLeft-w)/2, (height-h)/2)
 }
 
+// Camera keeps the window's 640 by 440 points in view, centred and scaled to
+// fit, so the board grows with the window, full screen too.
+func Camera() *twod.Camera {
+	cam := twod.NewCamera(twod.ViewSize(width, height))
+	cam.SetPosition(geom.V2(width/2, height/2))
+	return cam
+}
+
 // HUD is a game's document for the column beside the board.
 func HUD() *ui.Document {
 	return ui.NewDocument(kit.Theme(), ui.CSS(css))
 }
 
-// Side is the HUD's column: the game's name, then its parts.
+// Side is the HUD's column: the game's name, then its parts, on a stage the
+// window's size that Fit scales with the board.
 func Side(name string, parts ...*ui.Node) *ui.Node {
 	side := ui.Div(ui.ID("side"), ui.Div(ui.Class("title"), ui.Text(name)))
 	side.Append(parts...)
-	return side
+	return ui.Div(ui.ID("stage"), side)
 }
 
 // Stat is a small card with a name and a number; set the value's text to

@@ -24,10 +24,11 @@ type Entry struct {
 
 // Data is what a game keeps between runs.
 type Data struct {
-	Scores   []Entry `json:"scores"`
-	Music    float32 `json:"music"`
-	Effects  float32 `json:"effects"`
-	MusicOff bool    `json:"musicOff"`
+	Scores     []Entry `json:"scores"`
+	Music      float32 `json:"music"`
+	Effects    float32 `json:"effects"`
+	MusicOff   bool    `json:"musicOff"`
+	Fullscreen bool    `json:"fullscreen"`
 }
 
 // Defaults are a first run's settings.

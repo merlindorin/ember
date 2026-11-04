@@ -16,9 +16,9 @@ func play(t *testing.T) (*Game, *world.World, func(input.Key)) {
 	t.Setenv("EMBER_GAMES_DIR", t.TempDir())
 	win := look.Window("2048")
 	data := save.Defaults()
-	g, tiles := newGame(win.Input(), func() uint64 { return 1 }, &data)
-	win.Add(tiles, g.hud)
-	w := ember.New().AddEntities(win, g.player.Mixer).AddSystems(g)
+	g, tiles := newGame(win, func() uint64 { return 1 }, &data)
+	win.Add(look.Camera(), tiles, g.hud)
+	w := ember.New().AddEntities(win, g.player.Mixer).AddSystems(g, g.fit)
 	w.RunFrames(1)
 	press := func(k input.Key) {
 		win.Input().SetKey(k, true)

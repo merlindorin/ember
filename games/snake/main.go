@@ -19,6 +19,7 @@ import (
 	"github.com/merlindorin/ember/games/internal/sound"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/input"
+	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/ui"
 	"github.com/merlindorin/ember/world"
@@ -51,6 +52,7 @@ type Play struct {
 	sounds        *Sounds
 	player        *sound.Player
 	menu          *look.Menu
+	fit           *look.Fit
 }
 
 // Pit is the play area, a twod entity drawing the board every frame.
@@ -59,7 +61,8 @@ type Pit struct {
 	play *Play
 }
 
-func newPlay(in *input.State, seed func() uint64, data *save.Data) *Play {
+func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
+	in := win.Input()
 	p := &Play{game: New(seed()), in: in, hud: look.HUD(), seed: seed, data: data,
 		sounds: newSounds(), player: sound.NewPlayer(music(), data.Music, data.Effects, !data.MusicOff)}
 	p.before = p.game.Body
@@ -72,12 +75,20 @@ func newPlay(in *input.State, seed func() uint64, data *save.Data) *Play {
 		look.Stats(scoreCard, lengthCard),
 		p.start,
 		look.NewGame(p.hud, p.restart),
-		look.Keys("Arrows", "steer", "N", "new game", "Esc", "menu")), p.over)
+		look.Keys("Arrows", "steer", "N", "new game", "F", "full screen", "Esc", "menu")), p.over)
 	p.menu = look.NewMenu(p.hud, look.Hooks{NewGame: p.restart, Data: func() *save.Data { return p.data },
 		SoundChanged: func() {
 			p.player.Set(p.data.Music, p.data.Effects, !p.data.MusicOff)
 			p.store()
-		}})
+		},
+		Fullscreen: func() { p.fit.Toggle() }})
+	p.fit = look.NewFit(win, p.hud, func(on bool) {
+		p.data.Fullscreen = on
+		p.store()
+	})
+	if data.Fullscreen {
+		win.SetFullscreen(true)
+	}
 	p.pit = twod.Build(&Pit{Item: twod.Base(), play: p}, "board", look.Place(boardW, boardH))
 	p.sparks = twod.NewParticles(nil, twod.Rate(0), twod.Velocity(40, 160), twod.Direction(0, geom.Pi),
 		twod.Lifetime(0.3, 0.7), twod.SizeOverLife(5, 0.5), twod.Drag(0.05),
@@ -239,7 +250,7 @@ func main() {
 	if err != nil {
 		log.Print(err)
 	}
-	p := newPlay(win.Input(), seed, &data)
-	win.Add(p.pit, p.sparks, p.hud)
-	ember.New().AddEntities(win, p.player.Mixer).AddSystems(p).MustRun()
+	p := newPlay(win, seed, &data)
+	win.Add(look.Camera(), p.pit, p.sparks, p.hud)
+	ember.New().AddEntities(win, p.player.Mixer).AddSystems(p, p.fit).MustRun()
 }

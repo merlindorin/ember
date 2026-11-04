@@ -17,6 +17,8 @@ type Hooks struct {
 	// SoundChanged runs after the player changed the sound; the new values
 	// are in Data.
 	SoundChanged func()
+	// Fullscreen turns full screen on or off (Fit.Toggle).
+	Fullscreen func()
 }
 
 // Menu is the Escape menu: New game, the leaderboard, music and sound, and
@@ -35,7 +37,7 @@ func NewMenu(doc *ui.Document, hooks Hooks) *Menu {
 	m := &Menu{doc: doc, hooks: hooks}
 	m.main = dialog("Paused",
 		item("Resume", "resume"), item("New game", "new"), item("Leaderboard", "board"),
-		item("Music & sound", "sound"), item("Quit", "quit"))
+		item("Music & sound", "sound"), item("Full screen", "fullscreen"), item("Quit", "quit"))
 	ui.On(m.main, ui.EventClose, func(w *world.World, e ui.Event) {
 		switch e.Value {
 		case "new":
@@ -44,6 +46,8 @@ func NewMenu(doc *ui.Document, hooks Hooks) *Menu {
 			m.showBoard()
 		case "sound":
 			m.showOptions()
+		case "fullscreen":
+			m.hooks.Fullscreen()
 		case "quit":
 			w.Quit()
 		}

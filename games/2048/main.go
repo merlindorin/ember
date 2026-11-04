@@ -22,6 +22,7 @@ import (
 	"github.com/merlindorin/ember/games/internal/sound"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/input"
+	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/ui"
 	"github.com/merlindorin/ember/world"
@@ -50,6 +51,7 @@ type Game struct {
 	sounds      *Sounds
 	player      *sound.Player
 	menu        *look.Menu
+	fit         *look.Fit
 }
 
 // Tiles is the play area, a twod entity drawing the board every frame.
@@ -58,7 +60,8 @@ type Tiles struct {
 	game *Game
 }
 
-func newGame(in *input.State, seed func() uint64, data *save.Data) (*Game, *Tiles) {
+func newGame(win *platform.Window, seed func() uint64, data *save.Data) (*Game, *Tiles) {
+	in := win.Input()
 	g := &Game{board: New(seed()), in: in, hud: look.HUD(), seed: seed, since: slideTime + popTime, data: data,
 		sounds: newSounds(), player: sound.NewPlayer(music(), data.Music, data.Effects, !data.MusicOff)}
 	scoreCard, score := look.Stat("Score", "score")
@@ -68,12 +71,21 @@ func newGame(in *input.State, seed func() uint64, data *save.Data) (*Game, *Tile
 	g.hud.Body().Append(look.Side("2048",
 		look.Stats(scoreCard, bestCard),
 		look.NewGame(g.hud, g.restart),
-		look.Keys("← →", "slide sideways", "↑ ↓", "slide up and down", "N", "new game", "Esc", "menu")), g.over)
+		look.Keys("← →", "slide sideways", "↑ ↓", "slide up and down", "N", "new game",
+			"F", "full screen", "Esc", "menu")), g.over)
 	g.menu = look.NewMenu(g.hud, look.Hooks{NewGame: g.restart, Data: func() *save.Data { return g.data },
 		SoundChanged: func() {
 			g.player.Set(g.data.Music, g.data.Effects, !g.data.MusicOff)
 			g.store()
-		}})
+		},
+		Fullscreen: func() { g.fit.Toggle() }})
+	g.fit = look.NewFit(win, g.hud, func(on bool) {
+		g.data.Fullscreen = on
+		g.store()
+	})
+	if data.Fullscreen {
+		win.SetFullscreen(true)
+	}
 	g.show()
 	return g, twod.Build(&Tiles{Item: twod.Base(), game: g}, "board", look.Place(side, side))
 }
@@ -261,7 +273,7 @@ func main() {
 	if err != nil {
 		log.Print(err)
 	}
-	g, tiles := newGame(win.Input(), seed, &data)
-	win.Add(tiles, g.hud)
-	ember.New().AddEntities(win, g.player.Mixer).AddSystems(g).MustRun()
+	g, tiles := newGame(win, seed, &data)
+	win.Add(look.Camera(), tiles, g.hud)
+	ember.New().AddEntities(win, g.player.Mixer).AddSystems(g, g.fit).MustRun()
 }

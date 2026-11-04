@@ -19,6 +19,7 @@ import (
 	"github.com/merlindorin/ember/games/internal/sound"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/input"
+	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/ui"
 	"github.com/merlindorin/ember/world"
@@ -46,6 +47,7 @@ type Play struct {
 	sounds      *Sounds
 	player      *sound.Player
 	menu        *look.Menu
+	fit         *look.Fit
 }
 
 // Sky is the play area, a twod entity drawing the world every frame.
@@ -54,7 +56,8 @@ type Sky struct {
 	play *Play
 }
 
-func newPlay(in *input.State, seed func() uint64, data *save.Data) *Play {
+func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
+	in := win.Input()
 	p := &Play{game: New(seed()), in: in, hud: look.HUD(), seed: seed, data: data, flapped: 1,
 		sounds: newSounds(), player: sound.NewPlayer(music(), data.Music, data.Effects, !data.MusicOff)}
 	scoreCard, score := look.Stat("Score", "score")
@@ -66,12 +69,20 @@ func newPlay(in *input.State, seed func() uint64, data *save.Data) *Play {
 		look.Stats(scoreCard, bestCard),
 		p.start,
 		look.NewGame(p.hud, p.restart),
-		look.Keys("Space", "flap", "Click", "flap too", "N", "new game", "Esc", "menu")), p.over)
+		look.Keys("Space", "flap", "Click", "flap too", "N", "new game", "F", "full screen", "Esc", "menu")), p.over)
 	p.menu = look.NewMenu(p.hud, look.Hooks{NewGame: p.restart, Data: func() *save.Data { return p.data },
 		SoundChanged: func() {
 			p.player.Set(p.data.Music, p.data.Effects, !p.data.MusicOff)
 			p.store()
-		}})
+		},
+		Fullscreen: func() { p.fit.Toggle() }})
+	p.fit = look.NewFit(win, p.hud, func(on bool) {
+		p.data.Fullscreen = on
+		p.store()
+	})
+	if data.Fullscreen {
+		win.SetFullscreen(true)
+	}
 	p.sky = twod.Build(&Sky{Item: twod.Base(), play: p}, "board", look.Place(Width, Height))
 	p.puffs = twod.NewParticles(nil, twod.Rate(0), twod.Velocity(30, 120), twod.Direction(geom.Pi, 1.2),
 		twod.Lifetime(0.3, 0.7), twod.SizeOverLife(5, 1), twod.Drag(0.08),
@@ -246,7 +257,7 @@ func main() {
 	if err != nil {
 		log.Print(err)
 	}
-	p := newPlay(win.Input(), seed, &data)
-	win.Add(p.sky, p.puffs, p.hud)
-	ember.New().AddEntities(win, p.player.Mixer).AddSystems(p).MustRun()
+	p := newPlay(win, seed, &data)
+	win.Add(look.Camera(), p.sky, p.puffs, p.hud)
+	ember.New().AddEntities(win, p.player.Mixer).AddSystems(p, p.fit).MustRun()
 }

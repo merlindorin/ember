@@ -1,9 +1,0 @@
-apiVersion: v2
-name: ember-docs
-description: ember's guide, a static site served by nginx under /ember/
-type: application
-version: 0.1.0
-appVersion: "latest"
-home: https://github.com/merlindorin/ember
-maintainers:
-  - name: merlindorin

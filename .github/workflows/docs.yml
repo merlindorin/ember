@@ -1,12 +1,9 @@
-# Builds the guide on every push to main, as the homelab serves it at
-# https://ember.vanyda.cloud/ember/: every example built for the browser
-# (task web:guide, at live/ for the "Run in your browser" buttons), the
-# guide's pictures captured headless on lavapipe (task docs:shots, kept
+# Builds the guide on every push to main and publishes it on GitHub Pages,
+# at https://merlindorin.github.io/ember/: every example built for the
+# browser (task web:guide, at live/ for the "Run in your browser" buttons),
+# the guide's pictures captured headless on lavapipe (task docs:shots, kept
 # between runs so only the shots whose code changed are remade), then the
-# Hugo site (task docs:build). The site goes into an nginx image, checked
-# running (deploy/docs/check.sh), then pushed to ghcr.io as sha-<commit> and
-# latest, for linux/amd64 and linux/arm64. The chart that deploys it is
-# published by chart.yml.
+# Hugo site (task docs:build), uploaded as the Pages artifact and deployed.
 name: Docs
 
 on:
@@ -16,17 +13,15 @@ on:
 
 permissions:
   contents: read
-  packages: write
+  pages: write
+  id-token: write
 
 concurrency:
-  group: docs
+  group: pages
   cancel-in-progress: false
 
-env:
-  IMAGE: ghcr.io/${{ github.repository_owner }}/ember-docs
-
 jobs:
-  image:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -71,22 +66,16 @@ jobs:
           EMBER_WGPU_FALLBACK: "1"
         run: xvfb-run -a task docs:build
 
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-
-      - name: The image, checked running
-        run: task docs:image:check IMAGE=ember-docs:check
-
-      - uses: docker/login-action@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          path: public
 
-      - name: Push sha-${{ github.sha }} and latest
-        run: |
-          docker buildx build --push --platform linux/amd64,linux/arm64 \
-            --label org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }} \
-            --label org.opencontainers.image.revision=${{ github.sha }} \
-            -t "$IMAGE:sha-${GITHUB_SHA::7}" -t "$IMAGE:latest" \
-            -f deploy/docs/Dockerfile .
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

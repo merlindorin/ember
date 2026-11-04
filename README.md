@@ -7,7 +7,7 @@
 [![CI](https://github.com/merlindorin/ember/actions/workflows/ci.yml/badge.svg)](https://github.com/merlindorin/ember/actions/workflows/ci.yml)
 [![Go 1.27](https://img.shields.io/badge/go-1.27-00ADD8?logo=go&logoColor=white)](go.mod)
 [![MIT](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
-[![Guide](https://img.shields.io/badge/guide-ember.vanyda.cloud-orange)](https://ember.vanyda.cloud/ember/)
+[![Guide](https://img.shields.io/badge/guide-merlindorin.github.io%2Fember-orange)](https://merlindorin.github.io/ember/)
 
 <img src=".github/readme/horde.png" width="560" alt="A horde closing in on the hero at a crypt door, lit by torches, in Lantervale">
 
@@ -29,35 +29,35 @@
 
 ## Samples from the guide
 
-Each one is an example of [the guide](https://ember.vanyda.cloud/ember/): click it for its page, its code and a live version in the browser.
+Each one is an example of [the guide](https://merlindorin.github.io/ember/): click it for its page, its code and a live version in the browser.
 
 <table>
 <tr>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/2d/lights/point-lights/"><img src=".github/readme/point-lights.gif" alt="A torch casting soft shadows from trees and pillars"></a></td>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/2d/lights/cone-lights/"><img src=".github/readme/cone-light.gif" alt="A flashlight cone aimed at the mouse"></a></td>
+<td width="50%"><a href="https://merlindorin.github.io/ember/docs/2d/lights/point-lights/"><img src=".github/readme/point-lights.gif" alt="A torch casting soft shadows from trees and pillars"></a></td>
+<td width="50%"><a href="https://merlindorin.github.io/ember/docs/2d/lights/cone-lights/"><img src=".github/readme/cone-light.gif" alt="A flashlight cone aimed at the mouse"></a></td>
 </tr>
 <tr>
-<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/2d/lights/point-lights/">Point lights</a></td>
-<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/2d/lights/cone-lights/">Cone lights</a></td>
+<td align="center"><a href="https://merlindorin.github.io/ember/docs/2d/lights/point-lights/">Point lights</a></td>
+<td align="center"><a href="https://merlindorin.github.io/ember/docs/2d/lights/cone-lights/">Cone lights</a></td>
 </tr>
 <tr>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/2d/particles/"><img src=".github/readme/particles.gif" alt="A campfire of flames, sparks and smoke"></a></td>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/2d/2d-shader/"><img src=".github/readme/shader.gif" alt="Ripples from a WGSL shader where the mouse clicks"></a></td>
+<td width="50%"><a href="https://merlindorin.github.io/ember/docs/2d/particles/"><img src=".github/readme/particles.gif" alt="A campfire of flames, sparks and smoke"></a></td>
+<td width="50%"><a href="https://merlindorin.github.io/ember/docs/2d/2d-shader/"><img src=".github/readme/shader.gif" alt="Ripples from a WGSL shader where the mouse clicks"></a></td>
 </tr>
 <tr>
-<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/2d/particles/">Particles</a></td>
-<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/2d/2d-shader/">A 2D shader</a></td>
+<td align="center"><a href="https://merlindorin.github.io/ember/docs/2d/particles/">Particles</a></td>
+<td align="center"><a href="https://merlindorin.github.io/ember/docs/2d/2d-shader/">A 2D shader</a></td>
 </tr>
 <tr>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/ui/walkthroughs/controls/"><img src=".github/readme/ui-controls.gif" alt="A settings panel: text input, slider, progress bar, checkboxes"></a></td>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/text/emoji/"><img src=".github/readme/emoji.png" alt="Monochrome and colour emoji in text and a chat input"></a></td>
+<td width="50%"><a href="https://merlindorin.github.io/ember/docs/ui/walkthroughs/controls/"><img src=".github/readme/ui-controls.gif" alt="A settings panel: text input, slider, progress bar, checkboxes"></a></td>
+<td width="50%"><a href="https://merlindorin.github.io/ember/docs/text/emoji/"><img src=".github/readme/emoji.png" alt="Monochrome and colour emoji in text and a chat input"></a></td>
 </tr>
 <tr>
-<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/ui/walkthroughs/controls/">UI controls</a></td>
-<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/text/emoji/">Emoji</a></td>
+<td align="center"><a href="https://merlindorin.github.io/ember/docs/ui/walkthroughs/controls/">UI controls</a></td>
+<td align="center"><a href="https://merlindorin.github.io/ember/docs/text/emoji/">Emoji</a></td>
 </tr>
 <tr>
-<td colspan="2" align="center"><b><a href="https://ember.vanyda.cloud/ember/docs/">More in the guide →</a></b></td>
+<td colspan="2" align="center"><b><a href="https://merlindorin.github.io/ember/docs/">More in the guide →</a></b></td>
 </tr>
 </table>
 
@@ -65,20 +65,20 @@ Each one is an example of [the guide](https://ember.vanyda.cloud/ember/): click 
 
 <table>
 <tr>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-tetris.wasm.gz"><img src=".github/readme/tetris.png" alt="Tetris made with ember"></a></td>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-2048.wasm.gz"><img src=".github/readme/2048.png" alt="2048 made with ember"></a></td>
+<td width="50%"><a href="https://merlindorin.github.io/ember/live/index.html?wasm=games-tetris.wasm.gz"><img src=".github/readme/tetris.png" alt="Tetris made with ember"></a></td>
+<td width="50%"><a href="https://merlindorin.github.io/ember/live/index.html?wasm=games-2048.wasm.gz"><img src=".github/readme/2048.png" alt="2048 made with ember"></a></td>
 </tr>
 <tr>
-<td align="center"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-tetris.wasm.gz">Play Tetris</a> · <a href="games/tetris">code</a></td>
-<td align="center"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-2048.wasm.gz">Play 2048</a> · <a href="games/2048">code</a></td>
+<td align="center"><a href="https://merlindorin.github.io/ember/live/index.html?wasm=games-tetris.wasm.gz">Play Tetris</a> · <a href="games/tetris">code</a></td>
+<td align="center"><a href="https://merlindorin.github.io/ember/live/index.html?wasm=games-2048.wasm.gz">Play 2048</a> · <a href="games/2048">code</a></td>
 </tr>
 <tr>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-snake.wasm.gz"><img src=".github/readme/snake.png" alt="Snake made with ember"></a></td>
-<td width="50%"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-flap.wasm.gz"><img src=".github/readme/flap.png" alt="Flap made with ember"></a></td>
+<td width="50%"><a href="https://merlindorin.github.io/ember/live/index.html?wasm=games-snake.wasm.gz"><img src=".github/readme/snake.png" alt="Snake made with ember"></a></td>
+<td width="50%"><a href="https://merlindorin.github.io/ember/live/index.html?wasm=games-flap.wasm.gz"><img src=".github/readme/flap.png" alt="Flap made with ember"></a></td>
 </tr>
 <tr>
-<td align="center"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-snake.wasm.gz">Play Snake</a> · <a href="games/snake">code</a></td>
-<td align="center"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-flap.wasm.gz">Play Flap</a> · <a href="games/flap">code</a></td>
+<td align="center"><a href="https://merlindorin.github.io/ember/live/index.html?wasm=games-snake.wasm.gz">Play Snake</a> · <a href="games/snake">code</a></td>
+<td align="center"><a href="https://merlindorin.github.io/ember/live/index.html?wasm=games-flap.wasm.gz">Play Flap</a> · <a href="games/flap">code</a></td>
 </tr>
 </table>
 
@@ -129,7 +129,7 @@ func main() {
 
 ## Learn
 
-- 📖 [The guide](https://ember.vanyda.cloud/ember/): one idea per page, its examples runnable in the page (`task docs` serves it locally)
+- 📖 [The guide](https://merlindorin.github.io/ember/): one idea per page, its examples runnable in the page (`task docs` serves it locally)
 - 🧩 [Tons of examples](examples), written by AI and carefully reviewed by humans: `go run ./examples/NN-name`
 - 🧭 [Design decisions](docs/99-decisions/README.md): each choice and the alternatives it beat
 

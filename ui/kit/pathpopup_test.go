@@ -78,12 +78,12 @@ func TestAPathPopUpNamesItsRootAsRootNameSays(t *testing.T) {
 }
 
 func TestAPathPopUpKeepsItsIDAcrossFoldersAndItsLabelHasNoChevron(t *testing.T) {
-	p := kit.PathPopUp("/crypt/tiled/walls")
+	p := kit.PathPopUp(filepath.FromSlash("/crypt/tiled/walls"))
 	s := show(t, p)
 	e := s.element(t, "walls — tiled › crypt")
 	assert.Equal(t, "path", e.ID)
-	kit.SetFolder(p, "/crypt/props")
+	kit.SetFolder(p, filepath.FromSlash("/crypt/props"))
 	s.frames(2)
-	e = s.element(t, "props — crypt › /")
+	e = s.element(t, "props — crypt › "+string(filepath.Separator))
 	assert.Equal(t, "path", e.ID)
 }

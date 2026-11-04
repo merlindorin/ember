@@ -8,11 +8,11 @@ vars:
   DEFAULT_LICENSE_TYPE: 'mit'
   DEFAULT_LICENSE_FILENAME: 'LICENSE.md'
   DEFAULT_LICENSE_NAME:
-    sh: gh api user -t '{{ "{{ .login }} <{{ .email }}>" }}'
+    sh: gh api user -t '{{ "{{ .login }} <{{ .email }}>" }}' 2>/dev/null || echo "${GITHUB_REPOSITORY_OWNER:-}"
   DEFAULT_LICENSE_YEAR:
     sh: date +'%Y'
   DEFAULT_LICENSE_PROJECT:
-    sh: gh repo view --json name -t '{{ "{{ .name }}" }}'
+    sh: gh repo view --json name -t '{{ "{{ .name }}" }}' 2>/dev/null || echo "${GITHUB_REPOSITORY#*/}"
 
 tasks:
   default:

@@ -37,23 +37,24 @@ const askAfter = 0.6
 // The board's size: the cells with a 4-point margin.
 const boardW, boardH = W*cell + 8, H*cell + 8
 
-// colorOf is a piece's colour, on the board and in the preview.
+// colorOf is a piece's colour, on the board and in the preview: the UI
+// pack's palette (blue, gold, red, green, brown, slate, cream).
 func colorOf(kind int) color.Color {
 	switch kind {
 	case I:
-		return color.Hex("#56cfe1")
+		return color.Hex("#5ca2e0")
 	case O:
-		return color.Hex("#f2cc8f")
+		return color.Hex("#ffb600")
 	case T:
-		return color.Hex("#c77dff")
+		return color.Hex("#cf5e53")
 	case S:
-		return color.Hex("#80ed99")
+		return color.Hex("#72b84e")
 	case Z:
-		return color.Hex("#ef476f")
+		return color.Hex("#c58747")
 	case J:
-		return color.Hex("#4895ef")
+		return color.Hex("#94afc6")
 	default:
-		return color.Hex("#ef8354")
+		return color.Hex("#fff1d2")
 	}
 }
 

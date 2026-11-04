@@ -4,6 +4,9 @@
 package look
 
 import (
+	"embed"
+	"io/fs"
+
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/platform"
@@ -87,9 +90,17 @@ func Camera() *twod.Camera {
 	return cam
 }
 
-// HUD is a game's document for the column beside the board.
+//go:embed adventure
+var skin embed.FS
+
+// HUD is a game's document for the column beside the board, in Kenney's UI
+// Pack - Pixel Adventure (adventure/CREDITS.md) over the layout.
 func HUD() *ui.Document {
-	return ui.NewDocument(kit.Theme(), ui.CSS(css))
+	adventure, err := fs.Sub(skin, "adventure")
+	if err != nil {
+		panic(err) // an embedded folder that is always there
+	}
+	return ui.NewDocument(kit.Theme(), ui.CSS(css), ui.Stylesheet(adventure, "adventure.css"))
 }
 
 // Side is the HUD's column: the game's name, then its parts, on a stage the

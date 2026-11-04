@@ -1,0 +1,36 @@
+/* Kenney's UI Pack - Pixel Adventure over the games' layout: parchment
+   cards, a brown button, slate dialogs and menu buttons, each a 16-pixel
+   tile whose 6-pixel frame is drawn 12 points wide and kept sharp, and
+   Silkscreen for the text. */
+@font-face { font-family: "Silkscreen"; src: url(silkscreen.ttf); }
+body { font-family: "Silkscreen"; }
+.title { color: #fff1d2; font-size: 34px; }
+
+.stat, kbd, .new, .item, dialog.over {
+  border-style: solid;
+  border-color: transparent;
+  background: transparent;
+  image-rendering: pixelated;
+}
+.stat { border-width: 10px; border-image: url(cream.png) 6 fill; padding: 0 2px; }
+.label { color: #a3703a; letter-spacing: 0; }
+.value { color: #6d4b27; }
+
+.new { border-width: 12px; border-image: url(brown.png) 6 fill; color: #fff1d2; padding: 0; }
+.item { border-width: 12px; border-image: url(slate-dark.png) 6 fill; color: #fff1d2; padding: 0; }
+.new:hover, .item:hover { background: transparent; }
+.new:active, .item:active { transform: translateY(2px); }
+.new:focus-visible, .item:focus-visible, input.volume:focus-visible { outline-color: #fff1d2; }
+
+dialog.over { border-width: 12px; border-image: url(slate.png) 6 fill; color: #2b3540; }
+.over-body { padding: 4px; gap: 8px; }
+dialog .over-title { color: #fff1d2; }
+dialog .over-message, dialog .place, dialog .when, dialog .setting { color: #2b3540; }
+#side .over-message { color: #fff1d2; }
+
+kbd { border-width: 6px; border-image: url(cream.png) 6 fill; color: #6d4b27; width: auto; min-width: 60px;
+  padding: 0 2px; font-family: "Silkscreen"; font-size: 11px; }
+.key { color: #d8c4a0; font-size: 12px; }
+input.volume { background-color: #647685; color: #fff1d2; accent-color: #c58747; }
+#side { gap: 10px; }
+.keys { gap: 4px; }

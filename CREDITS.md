@@ -24,6 +24,7 @@ Each beside the files it covers:
 - [examples/internal/crypt/CREDITS.md](examples/internal/crypt/CREDITS.md): 0x72's 16x16 DungeonTileset II (CC0) and HydroGene's music (CC0); `tools/tileset/testdata` holds a copy of the same tilesets.
 - [examples/53-music-and-positional/CREDITS.md](examples/53-music-and-positional/CREDITS.md): four Freesound recordings (CC0), cut into loops.
 - [examples/45-emoji/CREDITS.md](examples/45-emoji/CREDITS.md): Twemoji pictures (CC-BY 4.0) and Noto Emoji (SIL OFL 1.1); [ui/internal/pages/kit-14b-shortcodes/CREDITS.md](ui/internal/pages/kit-14b-shortcodes/CREDITS.md) for four of the same pictures.
+- [games/internal/look/adventure/CREDITS.md](games/internal/look/adventure/CREDITS.md): the games' HUD, four tiles of Kenney's UI Pack - Pixel Adventure (CC0), and Silkscreen (SIL OFL 1.1).
 - [games/tetris/art/CREDITS.md](games/tetris/art/CREDITS.md): a block of Kenney's Pixel Platformer Blocks (CC0).
 - [games/flap/art/CREDITS.md](games/flap/art/CREDITS.md): Megacrash's Flappy Bird Assets v1.6 (CC0): the bird, pipes, ground, sky and clouds.
 - [examples/internal/lucide/CREDITS.md](examples/internal/lucide/CREDITS.md): the Lucide icon font (ISC).

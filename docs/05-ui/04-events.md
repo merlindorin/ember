@@ -22,7 +22,7 @@ func (s *Settings) Update(f world.Frame) {
 
 | Callback | World event | When |
 |---|---|---|
-| `ui.OnClick` | `ui.Clicked{Node, Clicks}` | a button, a summary or an element with a tabindex pressed: by the pointer, a key, a pad or automation; `Clicks` 2 or 3 for a double or triple click |
+| `ui.OnClick` | `ui.Clicked{Node, Clicks}` | a button, a summary, a canvas or an element with a tabindex pressed: by the pointer, a key, a pad or automation; `Clicks` 2 or 3 for a double or triple click |
 | `ui.OnInput` | `ui.Edited{Node}` | a value changing while edited: each keystroke, each step of a range, a checkbox toggled |
 | `ui.OnChange` | `ui.Changed{Node}` | a value committed: a checkbox toggled, an option chosen, a text field left or submitted after an edit |
 | `ui.OnSubmit` | `ui.Submitted{Node}` | Enter in a one-line text field, or a textarea's submit shortcut |

@@ -22,6 +22,8 @@ ember is a Go game engine on its own ECS. Read this page first, then the referen
 - **Options, not structs.** Constructors take options (`platform.Size(640, 360)`, `twod.At(x, y)`); every option has a getter of the same name, setters exist where change at run time is meant.
 - **`Add` returns the parent**, so windows, twod entities and ui containers chain: `win.Add(doc)`, `ember.New().AddEntities(win)`.
 - **ui reacts by callbacks** on the element (`ui.OnClick(fn)`), not by reading `ui.Clicked` events in a loop.
+- **`kit.Theme()` goes first** in `ui.NewDocument`; the game's `ui.CSS` or `Stylesheet` after it.
+- **A plain div takes `OnClick` only with `ui.TabIndex(0)`**; controls, canvases, labels and summaries take it as they are.
 - **A `ui.Canvas` draws again only after `doc.Invalidate(node)`.** Call it whenever what it draws changed.
 - **Input is read in `PreUpdate` or `Update`**; `Pressed` is true for one frame, `Down` while held.
 - **Example windows are fixed size** (`platform.FixedSize()`) unless their layout follows the window.

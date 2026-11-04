@@ -208,7 +208,7 @@ func (s *Sky) Draw(c *twod.Canvas) {
 		c.Rect(geom.Rect{X: x, Y: Height - Ground + 10, W: 12, H: 4}, color.Hex("#3a3d58"))
 	}
 
-	drawBird(c, geom.V2(BirdX, g.Y), g.VY, p.flapped)
+	drawBird(c, geom.V2(BirdX, g.Y), g.VY, p.flapped, p.time)
 }
 
 func drawPipe(c *twod.Canvas, p Pipe) {
@@ -223,22 +223,57 @@ func drawPipe(c *twod.Canvas, p Pipe) {
 }
 
 // drawBird draws the bird at at, tilted up while it rises and down as it
-// falls, its wing beating just after a flap.
-func drawBird(c *twod.Canvas, at geom.Vec2, vy, flapped float32) {
+// falls, its wing fluttering and beating hard just after a flap.
+func drawBird(c *twod.Canvas, at geom.Vec2, vy, flapped, time float32) {
 	tilt := float64(min(max(vy/600, -0.5), 1.1))
+	sin, cos := math.Sincos(tilt)
 	turn := func(v geom.Vec2) geom.Vec2 {
-		sin, cos := math.Sincos(tilt)
 		return at.Add(geom.V2(v.X*float32(cos)-v.Y*float32(sin), v.X*float32(sin)+v.Y*float32(cos)))
 	}
-	c.Circle(at, Radius+1, color.Hex("#ff9e64"))
-	c.Circle(turn(geom.V2(2, 4)), Radius-4, color.Hex("#ffd6a5"))
-	beat := float32(math.Sin(float64(min(flapped*18, math.Pi*2))))
-	wing := []geom.Vec2{turn(geom.V2(-8, 0)), turn(geom.V2(4, 0)), turn(geom.V2(-4, 8-12*beat))}
-	c.Triangles(wing, []int{0, 1, 2}, color.Hex("#e07a3f"))
-	c.Circle(turn(geom.V2(5, -5)), 4, color.Hex("#ffffff"))
-	c.Circle(turn(geom.V2(6.5, -5)), 2, color.Hex(look.Background))
-	beak := []geom.Vec2{turn(geom.V2(10, -1)), turn(geom.V2(19, 2)), turn(geom.V2(10, 5))}
-	c.Triangles(beak, []int{0, 1, 2}, color.Hex("#f2cc8f"))
+	oval := func(centre geom.Vec2, rx, ry, angle float32, col color.Color) {
+		const n = 18
+		points := []geom.Vec2{turn(centre)}
+		var tris []int
+		for i := range n + 1 {
+			a := float64(i) * 2 * math.Pi / n
+			v := geom.V2(rx*float32(math.Cos(a)), ry*float32(math.Sin(a)))
+			s, c := math.Sincos(float64(angle))
+			v = geom.V2(v.X*float32(c)-v.Y*float32(s), v.X*float32(s)+v.Y*float32(c))
+			points = append(points, turn(centre.Add(v)))
+			if i > 0 {
+				tris = append(tris, 0, i, i+1)
+			}
+		}
+		c.Triangles(points, tris, col)
+	}
+	tri := func(a, b, d geom.Vec2, col color.Color) {
+		c.Triangles([]geom.Vec2{turn(a), turn(b), turn(d)}, []int{0, 1, 2}, col)
+	}
+	ink := color.Hex("#3b2a3f")
+
+	tri(geom.V2(-12, -3), geom.V2(-22, -9), geom.V2(-20, 0), ink)
+	tri(geom.V2(-12, 1), geom.V2(-21, 4), geom.V2(-14, 6), ink)
+	tri(geom.V2(-12, -2), geom.V2(-19, -6), geom.V2(-18, 0), color.Hex("#e07a3f"))
+	oval(geom.V2(0, 0), 15, 13, 0, ink)
+	oval(geom.V2(0, 0), 13.5, 11.5, 0, color.Hex("#ff9e64"))
+	oval(geom.V2(2, 4.5), 9, 5.5, 0, color.Hex("#ffe0b8"))
+	c.Circle(turn(geom.V2(4, 3)), 2.2, color.Hex("#ff6b8b").Alpha(0.45))
+
+	beat := -0.4 + 0.25*float32(math.Sin(float64(time*12)))
+	if flapped < 0.25 {
+		beat = -0.4 + 1.3*float32(math.Sin(float64(flapped/0.25*math.Pi)))
+	}
+	oval(geom.V2(-5, 2.5), 7.5, 4.2, beat, color.Hex("#b85a2a"))
+	oval(geom.V2(-5, 2.5), 6.3, 3.2, beat, color.Hex("#f08a4b"))
+
+	c.Circle(turn(geom.V2(6, -4)), 5.2, ink)
+	c.Circle(turn(geom.V2(6, -4)), 4.3, color.Hex("#ffffff"))
+	c.Circle(turn(geom.V2(7.4, -4)), 2.2, ink)
+	c.Circle(turn(geom.V2(6.6, -5.2)), 0.9, color.Hex("#ffffff"))
+
+	tri(geom.V2(11, -3), geom.V2(21, 0.5), geom.V2(11, 2.5), ink)
+	tri(geom.V2(11.5, -2), geom.V2(19.5, 0.5), geom.V2(11.5, 1.5), color.Hex("#ffd166"))
+	tri(geom.V2(11, 1.5), geom.V2(18, 2.5), geom.V2(11, 5.5), color.Hex("#f4a259"))
 }
 
 func wrap(x, n float32) float32 { return x - n*float32(math.Floor(float64(x/n))) }

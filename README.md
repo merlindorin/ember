@@ -9,7 +9,7 @@
 [![MIT](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 [![Guide](https://img.shields.io/badge/guide-ember.vanyda.cloud-orange)](https://ember.vanyda.cloud/ember/)
 
-![A horde closing in on the hero at a crypt door, lit by torches, in Lantervale](.github/readme/horde.png)
+<img src=".github/readme/horde.png" width="560" alt="A horde closing in on the hero at a crypt door, lit by torches, in Lantervale">
 
 <sub>**Lantervale**, our game in development, made with ember.</sub>
 
@@ -27,40 +27,50 @@
 - 🎮 **Input and sound**: keyboard, mouse, gamepads, touch, gestures; music, positional sound, reverb.
 - 🧪 **Headless tests**: no GPU, no real time, every UI element reachable by path.
 
-## Samples
+## Samples from the guide
+
+Each one is an example of [the guide](https://ember.vanyda.cloud/ember/): click it for its page, its code and a live version in the browser.
 
 <table>
 <tr>
-<td width="50%"><a href="docs/06-2d/19-lights/02-point-lights.md"><img src=".github/readme/point-lights.gif" alt="A torch casting soft shadows from trees and pillars"></a></td>
-<td width="50%"><a href="docs/06-2d/19-lights/04-cone-lights.md"><img src=".github/readme/cone-light.gif" alt="A flashlight cone aimed at the mouse"></a></td>
+<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/2d/lights/point-lights/"><img src=".github/readme/point-lights.gif" alt="A torch casting soft shadows from trees and pillars"></a></td>
+<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/2d/lights/cone-lights/"><img src=".github/readme/cone-light.gif" alt="A flashlight cone aimed at the mouse"></a></td>
 </tr>
 <tr>
-<td align="center"><sub>Point lights and soft shadows</sub></td>
-<td align="center"><sub>Cone lights</sub></td>
+<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/2d/lights/point-lights/">Point lights</a></td>
+<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/2d/lights/cone-lights/">Cone lights</a></td>
 </tr>
 <tr>
-<td><a href="docs/06-2d/17-particles.md"><img src=".github/readme/particles.gif" alt="A campfire of flames, sparks and smoke"></a></td>
-<td><a href="docs/06-2d/16-2d-shader.md"><img src=".github/readme/shader.gif" alt="Ripples from a WGSL shader where the mouse clicks"></a></td>
+<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/2d/particles/"><img src=".github/readme/particles.gif" alt="A campfire of flames, sparks and smoke"></a></td>
+<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/2d/2d-shader/"><img src=".github/readme/shader.gif" alt="Ripples from a WGSL shader where the mouse clicks"></a></td>
 </tr>
 <tr>
-<td align="center"><sub>Particles</sub></td>
-<td align="center"><sub>WGSL shaders</sub></td>
+<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/2d/particles/">Particles</a></td>
+<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/2d/2d-shader/">A 2D shader</a></td>
 </tr>
 <tr>
-<td><a href="docs/05-ui/09-walkthroughs/03-controls.md"><img src=".github/readme/ui-controls.gif" alt="A settings panel: text input, slider, progress bar, checkboxes"></a></td>
-<td><a href="docs/07-text/03-emoji.md"><img src=".github/readme/emoji.png" alt="Monochrome and colour emoji in text and a chat input"></a></td>
+<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/ui/walkthroughs/controls/"><img src=".github/readme/ui-controls.gif" alt="A settings panel: text input, slider, progress bar, checkboxes"></a></td>
+<td width="50%"><a href="https://ember.vanyda.cloud/ember/docs/text/emoji/"><img src=".github/readme/emoji.png" alt="Monochrome and colour emoji in text and a chat input"></a></td>
 </tr>
 <tr>
-<td align="center"><sub>UI controls</sub></td>
-<td align="center"><sub>Colour emoji</sub></td>
+<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/ui/walkthroughs/controls/">UI controls</a></td>
+<td align="center"><a href="https://ember.vanyda.cloud/ember/docs/text/emoji/">Emoji</a></td>
 </tr>
 <tr>
-<td><img src=".github/readme/sanctuary.png" alt="Lantervale's sanctuary lit by torches and candles"></td>
-<td><img src=".github/readme/power-ups.png" alt="Lantervale's power-up cards over the paused game"></td>
+<td colspan="2" align="center"><b><a href="https://ember.vanyda.cloud/ember/docs/">More in the guide →</a></b></td>
+</tr>
+</table>
+
+## Made with ember
+
+<table>
+<tr>
+<td width="50%"><img src=".github/readme/sanctuary.png" alt="Lantervale's sanctuary lit by torches and candles"></td>
+<td width="50%"><img src=".github/readme/power-ups.png" alt="Lantervale's power-up cards over the paused game"></td>
 </tr>
 <tr>
-<td align="center"><sub>Lantervale: a lit room</sub></td>
-<td align="center"><sub>Lantervale: a UI screen</sub></td>
+<td align="center"><sub>Lantervale: a room lit by its torches</sub></td>
+<td align="center"><sub>Lantervale: a power-up screen</sub></td>
 </tr>
 </table>
 

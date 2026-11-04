@@ -2,7 +2,7 @@
 
 # ember
 
-**A Go game engine for online games: plain structs, small systems, WebGPU on the desktop and in the browser.**
+**A 2D game engine in plain Go. WebGPU on the desktop and in the browser.**
 
 [![CI](https://github.com/merlindorin/ember/actions/workflows/ci.yml/badge.svg)](https://github.com/merlindorin/ember/actions/workflows/ci.yml)
 [![Go 1.27](https://img.shields.io/badge/go-1.27-00ADD8?logo=go&logoColor=white)](go.mod)
@@ -11,31 +11,71 @@
 
 ![A horde closing in on the hero at a crypt door, lit by torches, in Lantervale](.github/readme/horde.png)
 
-<sub>Lantervale, our game in development, built on ember: 2D lights and shadows, a horde on a flow field, a HUD made of ui elements.</sub>
+<sub>**Lantervale**, our game in development, made with ember.</sub>
 
 </div>
 
-## Why ember
+## Highlights
 
-- **Just Go.** Entities are structs, components are fields, systems are small objects with an `Update`. No code generation, no editor, no scripting language: `go run` and you're in.
-- **Online first.** The same simulation runs on a headless server and a windowed client. The pure packages (`world`, `twod`, `ui`, `collide`, `nav`, `audio`…) never touch cgo, so a server builds anywhere.
-- **WebGPU everywhere.** One renderer on Metal, Vulkan and Direct3D 12, and in the browser through `GOOS=js`: the guide's examples run right in the page.
-- **A real 2D toolkit.** Sprites and animations, tile maps and Tiled levels, point, cone, directional and shape lights with soft shadows, particles, render textures, WGSL effects, pixel-perfect scaling, text with fallback faces and colour emoji.
-- **UI you already know.** HTML elements built from Go and styled by a CSS subset (flex, grid, the cascade), checked pixel for pixel against headless Chrome. Callbacks on the element, focus, gamepad navigation, text editing with undo.
-- **Testable to the bone.** Tests need no GPU and no real time: drive input over `RunFrames`, record sound into a buffer, find any ui element by path. A Connect automation server lets scripts and agents play a running game.
+- 🧱 **Plain Go ECS**: entities are structs, systems are small objects. No codegen, no editor.
+- 🔥 **WebGPU renderer**: Metal, Vulkan, Direct3D 12, and the browser with the same code.
+- 💡 **2D lights**: point, cone, directional and shape lights, soft shadows.
+- ✨ **Effects**: particles, WGSL shaders, blend modes, render textures.
+- 🗺️ **Worlds**: sprites, animations, tile maps, Tiled levels, collision, pathfinding.
+- 🖼️ **UI in HTML + CSS**: flex, grid, the cascade, checked pixel for pixel against Chrome.
+- 🔤 **Text**: font files, bitmap fonts, colour emoji, `:shortcodes:`.
+- 🎮 **Input and sound**: keyboard, mouse, gamepads, touch, gestures; music, positional sound, reverb.
+- 🧪 **Headless tests**: no GPU, no real time, every UI element reachable by path.
+
+## Samples
+
+<table>
+<tr>
+<td width="50%"><a href="docs/06-2d/19-lights/02-point-lights.md"><img src=".github/readme/point-lights.gif" alt="A torch casting soft shadows from trees and pillars"></a></td>
+<td width="50%"><a href="docs/06-2d/19-lights/04-cone-lights.md"><img src=".github/readme/cone-light.gif" alt="A flashlight cone aimed at the mouse"></a></td>
+</tr>
+<tr>
+<td align="center"><sub>Point lights and soft shadows</sub></td>
+<td align="center"><sub>Cone lights</sub></td>
+</tr>
+<tr>
+<td><a href="docs/06-2d/17-particles.md"><img src=".github/readme/particles.gif" alt="A campfire of flames, sparks and smoke"></a></td>
+<td><a href="docs/06-2d/16-2d-shader.md"><img src=".github/readme/shader.gif" alt="Ripples from a WGSL shader where the mouse clicks"></a></td>
+</tr>
+<tr>
+<td align="center"><sub>Particles</sub></td>
+<td align="center"><sub>WGSL shaders</sub></td>
+</tr>
+<tr>
+<td><a href="docs/05-ui/09-walkthroughs/03-controls.md"><img src=".github/readme/ui-controls.gif" alt="A settings panel: text input, slider, progress bar, checkboxes"></a></td>
+<td><a href="docs/07-text/03-emoji.md"><img src=".github/readme/emoji.png" alt="Monochrome and colour emoji in text and a chat input"></a></td>
+</tr>
+<tr>
+<td align="center"><sub>UI controls</sub></td>
+<td align="center"><sub>Colour emoji</sub></td>
+</tr>
+<tr>
+<td><img src=".github/readme/sanctuary.png" alt="Lantervale's sanctuary lit by torches and candles"></td>
+<td><img src=".github/readme/power-ups.png" alt="Lantervale's power-up cards over the paused game"></td>
+</tr>
+<tr>
+<td align="center"><sub>Lantervale: a lit room</sub></td>
+<td align="center"><sub>Lantervale: a UI screen</sub></td>
+</tr>
+</table>
 
 ## Quick start
 
-You need Go 1.27, [Task](https://taskfile.dev) (`brew install go-task`) and a GPU that WebGPU supports ([Getting started](docs/01-getting-started/README.md) lists them).
+Needs Go 1.27, [Task](https://taskfile.dev) (`brew install go-task`) and a [WebGPU-capable GPU](docs/01-getting-started/README.md).
 
 ```sh
 git clone https://github.com/merlindorin/ember
 cd ember
-task wgpu                        # fetches the WebGPU library the renderer loads
+task wgpu                        # the WebGPU library
 go run ./examples/01-hello-cube
 ```
 
-## A window
+## Hello
 
 ```go
 package main
@@ -54,8 +94,6 @@ func main() {
 ```
 
 ## Entities and systems
-
-An entity is a struct embedding `*world.BasicEntity` and its components. A system embeds a `world.Group` of an interface, and the World hands it every entity that matches. No window needed: this one runs anywhere, a server included.
 
 ```go
 package main
@@ -81,7 +119,7 @@ type Burning interface {
 	GetHeat() *Heat
 }
 
-type Cooling struct{ world.Group[Burning] }
+type Cooling struct{ world.Group[Burning] } // receives every entity that is Burning
 
 func (s *Cooling) Update(f world.Frame) {
 	for flame := range s.All() {
@@ -109,25 +147,14 @@ func main() {
 }
 ```
 
-## What it looks like
+## Learn
 
-<table>
-<tr>
-<td width="50%"><img src=".github/readme/sanctuary.png" alt="Lantervale's sanctuary: torches, candles, a fountain and pillars on a stone floor"></td>
-<td width="50%"><img src=".github/readme/power-ups.png" alt="Lantervale's level-up screen: three power-up cards over the paused game"></td>
-</tr>
-<tr>
-<td><sub>Point lights from every torch and candle, shadows from the pillars.</sub></td>
-<td><sub>A power-up screen: ui elements, a stylesheet and pixel fonts over the paused world.</sub></td>
-</tr>
-</table>
+- 📖 [The guide](https://ember.vanyda.cloud/ember/): one idea per page, its examples runnable in the page (`task docs` serves it locally)
+- 🧩 [56 examples](examples): `go run ./examples/NN-name`
+- 🧭 [Design decisions](docs/99-decisions/README.md): each choice and the alternatives it beat
 
-## Learn it
-
-[The guide](https://ember.vanyda.cloud/ember/) is the way in: each page is one idea, a few lines of code and an example you can run in the page or with `go run`. It goes from the World and its systems to windows, UI, 2D, text, input and sound, and `task docs` serves it locally. The engine's design choices, with the alternatives they beat, are in [docs/99-decisions](docs/99-decisions/README.md).
-
-ember is young and its API still moves; the guide only shows what is ready.
+> ember is young: its API still moves, and the guide shows only what is ready.
 
 ## Licence
 
-ember's code is under the [MIT licence](LICENSE). Its pictures, fonts and sounds come with their own licences, listed in [CREDITS.md](CREDITS.md) and in the CREDITS files beside them.
+Code under [MIT](LICENSE). Pictures, fonts and sounds: see [CREDITS.md](CREDITS.md).

@@ -15,8 +15,7 @@ ember.New().AddEntities(win).AddSystems(play).MustRun()
 | `FixedSize()`; else `MinSize(w, h int)`, `MaxSize(w, h int)`, `AspectRatio(w, h int)` | examples are fixed unless their layout follows the window |
 | `Fullscreen()`, `Maximized()`, `Position(x, y int)`, `Undecorated()`, `AlwaysOnTop()`, `Hidden()`, `VSync(on bool)`, `Icon(images ...image.Image)` | |
 
-At run time: `win.SetTitle`, `SetSize(geom.Vec2)`, `SetFullscreen(bool)`, `SetBackground`, `SetCursor(platform.CursorHand)`, `Size()`, `Input()`.
-Gotcha: `platform.Hidden()` and `twod.Hidden()` are different options; qualify both.
+At run time: `win.SetTitle`, `SetSize(geom.Vec2)`, `SetFullscreen(bool)`, `SetBackground`, `SetCursor(platform.CursorHand)`, `Size()`, `Input()`. `platform.Hidden()` and `twod.Hidden()` differ.
 
 ## Draw sprites, shapes and text, and move them
 
@@ -220,8 +219,7 @@ A HUD widget on the same canvas: `examples/17-custom-elements`.
 
 ## Colours
 
-`color.Hex("#ef8354")`, `RGB(r, g, b float32)`, `RGBA(r, g, b, a float32)`, `RGB8(r, g, b uint8)`, `Gray(v)`, `HSV(h, s, v)`, `White`, `Black`; components 0..1.
-Methods: `Alpha(a)`, `Lerp(o, t)`, `Mul(o)`, `Scale(k)`, `Hex()`; `ParseHex(s) (Color, error)` for user input.
+`color.Hex("#ef8354")`, `RGB(r, g, b float32)`, `RGBA(r, g, b, a float32)`, `RGB8(r, g, b uint8)`, `Gray(v)`, `HSV(h, s, v)`, `White`, `Black` (0..1); `Alpha(a)`, `Lerp(o, t)`, `Mul(o)`, `Scale(k)`, `Hex()`, `ParseHex(s) (Color, error)`.
 
 ## Tile maps and Tiled
 
@@ -285,7 +283,9 @@ sparks := twod.NewParticles(nil, twod.At(x, y), twod.Burst(80), twod.OneShot(), 
 night := twod.NewLayer(1, twod.Blend(twod.Multiply))   // Alpha, Add, Multiply, Screen, Lighten
 ripples := twod.NewLayer(0, twod.WithEffect(render.NewEffect(wgsl))) // fn effect(vUV: vec2f) -> vec4f
 ```
-A `nil` texture draws round dots; `Rate(n)` emits continuously, `Emit(n)`/`SetEmitting(bool)` at run time; a finished one-shot emits `twod.ParticlesFinished`. `examples/34-particles`, `examples/31-blend-modes`, `examples/33-2d-shader`.
+A `nil` texture draws round dots; `Emit(n)`/`SetEmitting(bool)` at run time; a finished one-shot emits `twod.ParticlesFinished`. `examples/34-particles`, `examples/31-blend-modes`, `examples/33-2d-shader`.
+- Gotcha: an emitter emits 10 a second by default; one meant only for `Emit(n)` needs `twod.Rate(0)`, or it leaves dots where it stands.
+- Gotcha: an emitter moved with `SetPosition` just before `Emit` needs `Snap()` too, or it draws from where it was.
 
 ## Lights (short)
 

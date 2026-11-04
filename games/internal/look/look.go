@@ -50,12 +50,12 @@ dialog.over::backdrop { background-color: rgba(10, 10, 18, 0.6); }
 .over-message { font-size: 14px; color: #8b8fa8; text-align: center; }
 .item { padding: 9px; border: none; border-radius: 8px; background: #2f3148; color: #e8e6f0; }
 .item:hover { background: #3a3d58; }
-.item:focus-visible, .step:focus-visible { outline: 2px solid #ffb380; outline-offset: 2px; }
+.item:focus-visible, input.volume:focus-visible { outline: 2px solid #ffb380; outline-offset: 2px; }
 .setting { display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
-.stepper { display: flex; align-items: center; gap: 8px; }
-.step { width: 28px; height: 28px; border: none; border-radius: 6px; background: #2f3148; color: #e8e6f0; }
-.step:hover { background: #3a3d58; }
-.level { width: 44px; text-align: center; font-weight: 700; }
+.setting { gap: 10px; }
+.setting-name { width: 60px; }
+input.volume { flex: 1; height: 18px; background-color: #2f3148; color: #ff9e64; accent-color: #ff9e64; }
+.level { width: 40px; text-align: right; font-weight: 700; }
 .ranks { display: flex; flex-direction: column; gap: 4px; }
 .rank { display: flex; gap: 12px; font-size: 14px; }
 .place { width: 20px; color: #8b8fa8; }

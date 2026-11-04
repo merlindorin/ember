@@ -5,6 +5,7 @@ import (
 
 	"github.com/merlindorin/ember/audio"
 	"github.com/merlindorin/ember/games/internal/save"
+	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/ui"
 	"github.com/merlindorin/ember/ui/align"
@@ -24,7 +25,7 @@ func nodes(g *Game) []*ui.Node {
 func choose(t *testing.T, g *Game, w *world.World, text string) {
 	t.Helper()
 	for _, n := range nodes(g) {
-		if n.Text() != text || !n.HasClass("item") && !n.HasClass("step") {
+		if n.Text() != text || !n.HasClass("item") {
 			continue
 		}
 		if r, ok := g.hud.BoxOf(n); ok && r.W > 0 {
@@ -90,20 +91,38 @@ func TestTheLeaderboardShowsTheScoresKept(t *testing.T) {
 	}
 }
 
-func TestTheSoundPageChangesTheMixerAndIsKept(t *testing.T) {
+func TestTheSoundSlidersChangeTheMixerAndAreKept(t *testing.T) {
 	g, w, press := play(t)
 	press(input.KeyEscape)
 	choose(t, g, w, "Music & sound")
-	choose(t, g, w, "−")
-	if g.data.Music != 0.5 || g.player.Mixer.Bus("music").Volume() != 0.5 {
-		t.Fatalf("Music down a step: data %v, bus %v", g.data.Music, g.player.Mixer.Bus("music").Volume())
+	slider := g.hud.ByID("music")
+	r, ok := g.hud.BoxOf(slider)
+	if !ok || r.W == 0 {
+		t.Fatalf("the music slider shows: %v", r)
+	}
+	if g.hud.Value(slider) != "60" {
+		t.Fatalf("it starts at the saved level: %q", g.hud.Value(slider))
+	}
+	in := g.in
+	in.SetMouse(geom.V2(r.X+r.W*0.25, r.Y+r.H/2))
+	w.RunFrames(1)
+	in.SetMouseButton(input.MouseLeft, true)
+	w.RunFrames(1)
+	in.SetMouseButton(input.MouseLeft, false)
+	w.RunFrames(2)
+	if g.data.Music > 0.35 || g.data.Music < 0.15 || g.player.Mixer.Bus("music").Volume() != g.data.Music {
+		t.Fatalf("a click a quarter along sets about 25%%: data %v, bus %v",
+			g.data.Music, g.player.Mixer.Bus("music").Volume())
 	}
 	choose(t, g, w, "Music: on")
 	if !g.data.MusicOff {
-		t.Fatal("the toggle turns the music off")
+		t.Fatal("the switch turns the music off")
 	}
-	if kept, _ := save.Load("2048"); kept.Music != 0.5 || !kept.MusicOff {
+	if kept, _ := save.Load("2048"); kept.Music != g.data.Music || !kept.MusicOff {
 		t.Fatalf("the settings are kept: %+v", kept)
+	}
+	if faults := align.Check(g.hud); len(faults) > 0 {
+		t.Fatalf("the page's layout: %v", faults)
 	}
 }
 

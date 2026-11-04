@@ -25,7 +25,8 @@ type Menu struct {
 	doc                    *ui.Document
 	main, board, options   *ui.Node
 	ranks                  *ui.Node
-	music, effects, toggle *ui.Node
+	music, effects, toggle *ui.Node // the levels' labels and the music switch
+	musicSlider, fxSlider  *ui.Node
 	hooks                  Hooks
 }
 
@@ -58,10 +59,10 @@ func NewMenu(doc *ui.Document, hooks Hooks) *Menu {
 		d.MusicOff = !d.MusicOff
 		m.changed()
 	}))
-	m.options = dialog("Music & sound",
-		m.stepper("Music", "music", m.music, func(d *save.Data, by float32) { d.Music = step(d.Music, by) }),
-		m.stepper("Effects", "effects", m.effects, func(d *save.Data, by float32) { d.Effects = step(d.Effects, by) }),
-		m.toggle, item("Back", "back"))
+	var musicRow, fxRow *ui.Node
+	musicRow, m.musicSlider = m.slider("Music", "music", m.music, func(d *save.Data, v float32) { d.Music = v })
+	fxRow, m.fxSlider = m.slider("Effects", "effects", m.effects, func(d *save.Data, v float32) { d.Effects = v })
+	m.options = dialog("Music & sound", musicRow, fxRow, m.toggle, item("Back", "back"))
 	ui.On(m.options, ui.EventClose, m.Show)
 
 	doc.Body().Append(m.main, m.board, m.options)
@@ -104,6 +105,9 @@ func (m *Menu) showBoard() {
 }
 
 func (m *Menu) showOptions() {
+	d := m.hooks.Data()
+	m.doc.SetValue(m.musicSlider, strconv.Itoa(int(d.Music*100+0.5)))
+	m.doc.SetValue(m.fxSlider, strconv.Itoa(int(d.Effects*100+0.5)))
 	m.show()
 	m.doc.ShowModal(m.options)
 }
@@ -124,20 +128,21 @@ func (m *Menu) show() {
 	}
 }
 
-// stepper is a setting's row: its name, − and + buttons, its level.
-func (m *Menu) stepper(name, id string, level *ui.Node, change func(d *save.Data, by float32)) *ui.Node {
-	button := func(text string, by float32) *ui.Node {
-		return ui.Button(ui.Class("step"), ui.ID(id+"-"+text), ui.Attr("aria-label", name+" "+text), ui.Text(text),
-			ui.OnClick(func() {
-				change(m.hooks.Data(), by)
-				m.changed()
-			}))
-	}
-	return ui.Div(ui.Class("setting"), ui.Span(ui.Text(name)),
-		ui.Div(ui.Class("stepper"), button("−", -0.1), level, button("+", 0.1)))
+// slider is a setting's row: its name, a range from 0 to 100% and its level.
+func (m *Menu) slider(name, id string, level *ui.Node, set func(d *save.Data, v float32)) (*ui.Node, *ui.Node) {
+	var r *ui.Node
+	r = ui.Input(ui.Type("range"), ui.Class("volume"), ui.ID(id), ui.Attr("aria-label", name),
+		ui.Attr("min", "0"), ui.Attr("max", "100"), ui.Attr("step", "5"),
+		ui.OnInput(func() {
+			v, err := strconv.ParseFloat(m.doc.Value(r), 32)
+			if err != nil {
+				return
+			}
+			set(m.hooks.Data(), float32(v/100))
+			m.changed()
+		}))
+	return ui.Div(ui.Class("setting"), ui.Span(ui.Class("setting-name"), ui.Text(name)), r, level), r
 }
-
-func step(v, by float32) float32 { return min(max(float32(int((v+by)*10+0.5))/10, 0), 1) }
 
 // dialog is one of the games' modals: a title over its parts.
 func dialog(title string, parts ...*ui.Node) *ui.Node {

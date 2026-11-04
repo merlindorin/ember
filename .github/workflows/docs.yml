@@ -1,10 +1,13 @@
-# Publishes the guide to GitHub Pages on every push to main: every example
-# built for the browser (task web:guide, served at live/ for the guide's
-# "Run in your browser" buttons, which need the https Pages gives), the
+# Builds the guide on every push to main, as the homelab serves it at
+# https://ember.vanyda.cloud/ember/: every example built for the browser
+# (task web:guide, at live/ for the "Run in your browser" buttons), the
 # guide's pictures captured headless on lavapipe (task docs:shots, kept
 # between runs so only the shots whose code changed are remade), then the
-# Hugo site with its Hextra theme (task docs:build).
-name: Pages
+# Hugo site (task docs:build). The site goes into an nginx image, checked
+# running (deploy/docs/check.sh), then pushed to ghcr.io as sha-<commit> and
+# latest, for linux/amd64 and linux/arm64. The chart that deploys it is
+# published by chart.yml.
+name: Docs
 
 on:
   push:
@@ -13,15 +16,17 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  packages: write
 
 concurrency:
-  group: pages
+  group: docs
   cancel-in-progress: false
 
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/ember-docs
+
 jobs:
-  build:
+  image:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -61,24 +66,27 @@ jobs:
           hugo-version: "0.169.0"
           extended: true
 
-      - id: pages
-        uses: actions/configure-pages@v5
-
       - name: The guide, its pictures and its live examples
         env:
           EMBER_WGPU_FALLBACK: "1"
         run: xvfb-run -a task docs:build
 
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: public
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: The image, checked running
+        run: task docs:image:check IMAGE=ember-docs:check
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push sha-${{ github.sha }} and latest
+        run: |
+          docker buildx build --push --platform linux/amd64,linux/arm64 \
+            --label org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }} \
+            --label org.opencontainers.image.revision=${{ github.sha }} \
+            -t "$IMAGE:sha-${GITHUB_SHA::7}" -t "$IMAGE:latest" \
+            -f deploy/docs/Dockerfile .

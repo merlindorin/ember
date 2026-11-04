@@ -1,4 +1,4 @@
-baseURL: https://merlindorin.github.io/ember/
+baseURL: https://ember.vanyda.cloud/ember/
 locale: en-US
 title: ember
 resourceDir: .hugo/resources

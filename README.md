@@ -2,7 +2,7 @@
 
 ember is a Go game engine built on its own ECS: entities are plain structs, systems are small objects, and the same simulation runs on a headless server and a windowed client. It draws 2D games with WebGPU, sprites, tile maps, lights and shadows, particles and text, has a UI of HTML elements styled by a CSS subset, plays sound, and runs its examples in the browser. A full game built with ember is in development.
 
-**The guide:** [merlindorin.github.io/ember](https://merlindorin.github.io/ember/), every page a small example you can run in the page.
+**The guide:** [ember.vanyda.cloud/ember](https://ember.vanyda.cloud/ember/), every page a small example you can run in the page.
 
 ## Requirements
 
@@ -37,7 +37,7 @@ func main() {
 }
 ```
 
-The [guide](https://merlindorin.github.io/ember/) goes on from here, one example at a time; `task docs` serves it locally.
+The [guide](https://ember.vanyda.cloud/ember/) goes on from here, one example at a time; `task docs` serves it locally.
 
 ## Licence
 

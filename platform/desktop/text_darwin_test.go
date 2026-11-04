@@ -45,6 +45,7 @@ func TestTheEmojiPickersTextReachesTheInputWhole(t *testing.T) {
 			return
 		}
 		glfw.WindowHint(glfw.Visible, glfw.False)
+		glfw.WindowHint(glfw.ClientAPI, glfw.NoAPI)
 		h, err := glfw.CreateWindow(64, 64, "text", nil, nil)
 		if err != nil {
 			failed = err

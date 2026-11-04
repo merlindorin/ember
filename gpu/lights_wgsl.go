@@ -38,8 +38,15 @@ fn shadow_fs(@builtin(position) at: vec4f) -> @location(0) vec4f {
 	let mask = groupMask(l.w - 8.0 * elevation);
 	let steps = i32(ceil(l.z));
 	let scale = 1.0 / max(l.z, 1.0);
-	var out = vec4f(NO_SHADOW);
-	var exits = vec2f(0.0);
+	// The two runs kept, begin and end each, and where each left its
+	// occluder: plain values, never a vector indexed by n, which Direct3D's
+	// compiler can only do by unrolling the march, and it can't.
+	var a0 = NO_SHADOW;
+	var b0 = NO_SHADOW;
+	var a1 = NO_SHADOW;
+	var b1 = NO_SHADOW;
+	var exit0 = 0.0;
+	var exit1 = 0.0;
 	var n = 0;
 	var inside = true;
 	var run = false;
@@ -74,37 +81,55 @@ fn shadow_fs(@builtin(position) at: vec4f) -> @location(0) vec4f {
 		run = false;
 		let a = start * scale;
 		let b = shadowEnd(f32(s), height, elevation) * scale;
-		if (n > 0 && a <= out[2 * n - 1]) {
-			out[2 * n - 1] = max(out[2 * n - 1], b);
-		} else if (n < 2) {
-			out[2 * n] = a;
-			out[2 * n + 1] = b;
-			exits[n] = f32(s) * scale;
-			n++;
+		let exit = f32(s) * scale;
+		if (n == 1 && a <= b0) {
+			b0 = max(b0, b);
+		} else if (n == 2 && a <= b1) {
+			b1 = max(b1, b);
+		} else if (n == 0) {
+			a0 = a;
+			b0 = b;
+			exit0 = exit;
+			n = 1;
+		} else if (n == 1) {
+			a1 = a;
+			b1 = b;
+			exit1 = exit;
+			n = 2;
 		} else {
-			out[3] = max(out[3], b);
+			b1 = max(b1, b);
 		}
-		if (out[2 * n - 1] >= 1.0) {
+		if ((n == 1 && b0 >= 1.0) || (n == 2 && b1 >= 1.0)) {
 			break;
 		}
 	}
 	if (run) {
 		let a = start * scale;
-		if (n > 0 && a <= out[2 * n - 1]) {
-			out[2 * n - 1] = 1e9;
-		} else if (n < 2) {
-			out[2 * n] = a;
-			out[2 * n + 1] = 1e9;
-			exits[n] = a;
-			n++;
+		if (n == 1 && a <= b0) {
+			b0 = 1e9;
+		} else if (n == 2 && a <= b1) {
+			b1 = 1e9;
+		} else if (n == 0) {
+			a0 = a;
+			b0 = 1e9;
+			exit0 = a;
+			n = 1;
+		} else if (n == 1) {
+			a1 = a;
+			b1 = 1e9;
+			exit1 = a;
+			n = 2;
 		} else {
-			out[3] = 1e9;
+			b1 = 1e9;
 		}
 	}
-	for (var i = 0; i < n; i++) {
-		out[2 * i + 1] = packEnd(exits[i], out[2 * i + 1]);
+	if (n >= 1) {
+		b0 = packEnd(exit0, b0);
 	}
-	return out;
+	if (n >= 2) {
+		b1 = packEnd(exit1, b1);
+	}
+	return vec4f(a0, b0, a1, b1);
 }
 `
 

@@ -63,6 +63,8 @@ go run ./examples/51-gestures      # a crate you pinch to zoom, turn and pan wit
 go run ./examples/52-play-a-sound  # Space or a click plays a WAV, with pitch and pan
 go run ./examples/53-music-and-positional  # Ogg music crossfade (M), and 2D emitters heard from the hero
 go run ./examples/54-audio-effects  # sfx bus reverb grows from corridor to hall; a door's low-pass opens on E
+go run ./games/tetris                # small whole games: a ui.Canvas board and a side panel (games/internal/look), rules in plain Go
+go run ./games/2048
 go run ./examples/92-ui-kit -element button   # each ui kit component alone, its events logged (ui: HTML elements + a CSS subset, decision 0049; guide docs/05-ui)
 go run ./examples/93-html-elements -element p   # each ui element alone in its default look (div … canvas); its test runs align.Check on every one
 task test:all                       # vet + tests, GPU goldens, every ui Chrome suite/pixel page/card against its threshold (table last; reports in EMBER_CHROME_REPORTS)

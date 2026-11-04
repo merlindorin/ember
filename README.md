@@ -110,6 +110,7 @@ func main() {
 
 - 📖 [The guide](https://ember.vanyda.cloud/ember/): one idea per page, its examples runnable in the page (`task docs` serves it locally)
 - 🧩 [Tons of examples](examples), written by AI and carefully reviewed by humans: `go run ./examples/NN-name`
+- 🕹️ [Games](games): Tetris and 2048 in a few hundred lines, `go run ./games/tetris`
 - 🧭 [Design decisions](docs/99-decisions/README.md): each choice and the alternatives it beat
 
 > ember is young: its API still moves, and the guide shows only what is ready.

@@ -61,8 +61,8 @@ tasks:
       - go test -p 2 ./...
 
   test:gpu:
-    desc: 'The GPU tests: the golden pictures and the wgpu binding (needs task wgpu; EMBER_WGPU_FALLBACK, EMBER_GPU_OPTIONAL and EMBER_GOLDEN_SHARE tune them for CI)'
-    cmds: [go test -tags gpu -count=1 ./gpu ./internal/wgpu]
+    desc: 'The GPU tests: the golden pictures and the wgpu binding (needs task wgpu; EMBER_WGPU_FALLBACK, EMBER_GPU_OPTIONAL and EMBER_GOLDEN_SHARE tune them for CI); 30 minutes at most, as a software adapter (WARP) draws the goldens slowly'
+    cmds: [go test -tags gpu -count=1 -timeout 30m ./gpu ./internal/wgpu]
 
   test:ember-diff:
     desc: "Capture every kit page, every UI kit example page and the tileset tool's start card in ember at BASE (default wip) and in the working tree, and list each picture that changed (needs task wgpu and a GPU). Chrome can't see a change both engines share, such as a class a rename missed; run it after a refactor meant to change nothing"

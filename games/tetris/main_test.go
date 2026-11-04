@@ -6,6 +6,7 @@ import (
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/games/internal/look"
+	"github.com/merlindorin/ember/games/internal/save"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/ui/align"
 	"github.com/merlindorin/ember/world"
@@ -13,10 +14,12 @@ import (
 
 func play(t *testing.T) (*Play, *world.World, func(input.Key)) {
 	t.Helper()
+	t.Setenv("EMBER_GAMES_DIR", t.TempDir())
 	win := look.Window("tetris")
-	p, well := newPlay(win.Input(), func() uint64 { return 1 })
-	win.Add(well, p.hud)
-	w := ember.New().AddEntities(win).AddSystems(p)
+	data := save.Defaults()
+	p := newPlay(win.Input(), func() uint64 { return 1 }, &data)
+	win.Add(p.well, p.sparks, p.hud)
+	w := ember.New().AddEntities(win, p.player.Mixer).AddSystems(p)
 	w.RunFrames(1)
 	press := func(k input.Key) {
 		win.Input().SetKey(k, true)

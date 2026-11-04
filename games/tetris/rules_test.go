@@ -130,3 +130,39 @@ func TestEverySevenPiecesComeOnce(t *testing.T) {
 		t.Fatalf("a bag of seven: %v", seen)
 	}
 }
+
+func TestAClearSaysWhichRowsWentAndTheBoardBefore(t *testing.T) {
+	g := game(I)
+	for x := range W - 4 {
+		g.Board[H-1][x+4] = T
+	}
+	for range W {
+		g.Move(-1)
+	}
+	g.Drop()
+	if g.Clears != 1 || len(g.Cleared.Rows) != 1 || g.Cleared.Rows[0] != H-1 {
+		t.Fatalf("one clear of the bottom row: clears %d, %+v", g.Clears, g.Cleared.Rows)
+	}
+	for x := range W {
+		if g.Cleared.Board[H-1][x] == 0 {
+			t.Fatalf("Cleared.Board is the full row before it went: %v", g.Cleared.Board[H-1])
+		}
+	}
+}
+
+func TestTwoClearedRowsAreNamedAsTheyWere(t *testing.T) {
+	g := game(I)
+	for _, y := range []int{H - 1, H - 2} {
+		for x := 1; x < W; x++ {
+			g.Board[y][x] = L
+		}
+	}
+	g.Rotate()
+	for range W {
+		g.Move(-1)
+	}
+	g.Drop()
+	if g.Lines != 2 || len(g.Cleared.Rows) != 2 || g.Cleared.Rows[0] != H-1 || g.Cleared.Rows[1] != H-2 {
+		t.Fatalf("the two bottom rows: lines %d, rows %v", g.Lines, g.Cleared.Rows)
+	}
+}

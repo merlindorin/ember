@@ -5,6 +5,7 @@ import (
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/games/internal/look"
+	"github.com/merlindorin/ember/games/internal/save"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/ui/align"
 	"github.com/merlindorin/ember/world"
@@ -12,10 +13,12 @@ import (
 
 func play(t *testing.T) (*Game, *world.World, func(input.Key)) {
 	t.Helper()
+	t.Setenv("EMBER_GAMES_DIR", t.TempDir())
 	win := look.Window("2048")
-	g, tiles := newGame(win.Input(), func() uint64 { return 1 })
+	data := save.Defaults()
+	g, tiles := newGame(win.Input(), func() uint64 { return 1 }, &data)
 	win.Add(tiles, g.hud)
-	w := ember.New().AddEntities(win).AddSystems(g)
+	w := ember.New().AddEntities(win, g.player.Mixer).AddSystems(g)
 	w.RunFrames(1)
 	press := func(k input.Key) {
 		win.Input().SetKey(k, true)

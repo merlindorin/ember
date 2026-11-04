@@ -61,6 +61,13 @@ func (p Piece) Cells() [4][2]int {
 	return out
 }
 
+// Cleared is a clear, for drawing it: the board as it was with its full
+// rows, and those rows.
+type Cleared struct {
+	Board [H][W]int
+	Rows  []int
+}
+
 // Game is Tetris's rules: pieces from a bag of seven fall a row at a time,
 // lock where they land, and full rows clear for points.
 type Game struct {
@@ -69,6 +76,8 @@ type Game struct {
 	Next         int
 	Score, Lines int
 	Over         bool
+	Clears       int     // how many locks have cleared rows
+	Cleared      Cleared // the last of them
 	bag          []int
 	rng          *rand.Rand
 	falling      float32
@@ -179,6 +188,8 @@ func (g *Game) lock() {
 // clear removes the full rows, the rows above falling in, and scores them:
 // 100, 300, 500 or 800 times the level for one to four at once.
 func (g *Game) clear() {
+	before := g.Board
+	var rows []int
 	cleared := 0
 	for y := H - 1; y >= 0; y-- {
 		full := true
@@ -188,6 +199,7 @@ func (g *Game) clear() {
 		if !full {
 			continue
 		}
+		rows = append(rows, y-cleared)
 		copy(g.Board[1:y+1], g.Board[:y])
 		g.Board[0] = [W]int{}
 		cleared++
@@ -195,6 +207,10 @@ func (g *Game) clear() {
 	}
 	g.Score += [5]int{0, 100, 300, 500, 800}[cleared] * g.Level()
 	g.Lines += cleared
+	if cleared > 0 {
+		g.Clears++
+		g.Cleared = Cleared{Board: before, Rows: rows}
+	}
 }
 
 // take is the next kind from a shuffled bag of the seven.

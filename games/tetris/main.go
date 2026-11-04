@@ -5,13 +5,18 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/color"
+	"github.com/merlindorin/ember/ease"
 	"github.com/merlindorin/ember/games/internal/look"
+	"github.com/merlindorin/ember/games/internal/save"
+	"github.com/merlindorin/ember/games/internal/sound"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/twod"
@@ -51,7 +56,11 @@ func colorOf(kind int) color.Color {
 	}
 }
 
-// Play reads the keys, lets time pass and keeps the HUD in step.
+// A clear flashes its rows and sends sparks for clearTime, the game waiting.
+const clearTime = 0.35
+
+// Play reads the keys, lets time pass, sounds what happened and keeps the
+// HUD in step.
 type Play struct {
 	game                *Game
 	in                  *input.State
@@ -60,6 +69,13 @@ type Play struct {
 	score, lines, level *ui.Node
 	seed                func() uint64
 	held, ended         float32
+	clearing            float32 // since the last clear
+	well                *Well
+	sparks              *twod.Particles
+	data                *save.Data
+	sounds              *Sounds
+	player              *sound.Player
+	menu                *look.Menu
 }
 
 // Well is the play area, a twod entity drawing the board every frame.
@@ -68,8 +84,9 @@ type Well struct {
 	play *Play
 }
 
-func newPlay(in *input.State, seed func() uint64) (*Play, *Well) {
-	p := &Play{game: New(seed()), in: in, hud: look.HUD(), seed: seed}
+func newPlay(in *input.State, seed func() uint64, data *save.Data) *Play {
+	p := &Play{game: New(seed()), in: in, hud: look.HUD(), seed: seed, clearing: clearTime, data: data,
+		sounds: newSounds(), player: sound.NewPlayer(music(), data.Music, data.Effects, !data.MusicOff)}
 	p.next = ui.Canvas(p.drawNext, ui.ID("next"), ui.Style("width: 64px; height: 32px"))
 	scoreCard, score := look.Stat("Score", "score")
 	linesCard, lines := look.Stat("Lines", "lines")
@@ -80,13 +97,27 @@ func newPlay(in *input.State, seed func() uint64) (*Play, *Well) {
 		look.Stats(scoreCard, look.Card("Next", p.next)),
 		look.Stats(linesCard, levelCard),
 		look.NewGame(p.hud, p.restart),
-		look.Keys("← →", "move", "↑", "turn", "↓", "faster", "Space", "drop", "N", "new game"))
+		look.Keys("← →", "move", "↑", "turn", "↓", "faster", "Space", "drop", "Esc", "menu"))
 	p.hud.Body().Append(side, p.over)
+	p.menu = look.NewMenu(p.hud, look.Hooks{NewGame: p.restart, Data: func() *save.Data { return p.data },
+		SoundChanged: func() {
+			p.player.Set(p.data.Music, p.data.Effects, !p.data.MusicOff)
+			p.store()
+		}})
+	p.well = twod.Build(&Well{Item: twod.Base(), play: p}, "board", look.Place(boardW, boardH))
+	p.sparks = twod.NewParticles(nil, twod.Rate(0), twod.Velocity(40, 180), twod.Direction(-geom.Pi/2, geom.Pi),
+		twod.Gravity(geom.V2(0, 320)), twod.Lifetime(0.4, 0.9), twod.SizeOverLife(5, 0.5),
+		twod.ColorOverLife(color.Hex("#fff3d6"), color.Hex(look.Accent).Alpha(0)), twod.Blend(twod.Add),
+		twod.MaxParticles(800))
 	p.show()
-	return p, twod.Build(&Well{Item: twod.Base(), play: p}, "board", look.Place(boardW, boardH))
+	return p
 }
 
 func (p *Play) Update(f world.Frame) {
+	p.clearing += f.DT
+	if p.menu.Open() {
+		return
+	}
 	if p.in.Pressed(input.KeyN) {
 		p.restart()
 		return
@@ -95,27 +126,71 @@ func (p *Play) Update(f world.Frame) {
 		p.ask(f.DT)
 		return
 	}
+	if p.clearing < clearTime {
+		return
+	}
 	before := *p.game
 	switch {
 	case p.in.Pressed(input.KeyUp):
-		p.game.Rotate()
+		if p.game.Rotate() {
+			p.player.Play(p.sounds.turn)
+		}
 	case p.in.Pressed(input.KeySpace):
 		p.game.Drop()
+		p.player.Play(p.sounds.drop)
 	}
 	p.steer(f.DT)
+	if p.game.Piece.X != before.Piece.X && p.game.Next == before.Next {
+		p.player.Play(p.sounds.move)
+	}
 	p.game.Step(f.DT, p.in.Down(input.KeyDown))
+	p.heard(before)
 	if p.game.Next != before.Next || p.game.Score != before.Score || p.game.Lines != before.Lines {
 		p.show()
 	}
 }
 
-// ask shows the game-over question once askAfter has passed.
+// heard sounds a lock and starts a clear's flash and sparks.
+func (p *Play) heard(before Game) {
+	switch {
+	case p.game.Clears != before.Clears:
+		rows := p.game.Cleared.Rows
+		p.player.Play(p.sounds.clear[min(len(rows), 4)])
+		p.clearing = 0
+		origin := p.well.Position()
+		for _, y := range rows {
+			for x := range W {
+				p.sparks.SetPosition(origin.Add(geom.V2(float32(4+x*cell+cell/2), float32(4+y*cell+cell/2))))
+				p.sparks.Snap()
+				p.sparks.Emit(6)
+			}
+		}
+	case p.game.Over:
+		p.player.Play(p.sounds.over)
+	case p.game.Next != before.Next && p.game.Score-before.Score < 2:
+		p.player.Play(p.sounds.lock)
+	}
+}
+
+// ask records the score and shows the game-over question once askAfter has
+// passed.
 func (p *Play) ask(dt float32) {
 	if p.ended < askAfter && p.ended+dt >= askAfter {
-		look.SetGameOver(p.over, fmt.Sprintf("Score %d, %d lines.", p.game.Score, p.game.Lines))
+		message := fmt.Sprintf("Score %d, %d lines.", p.game.Score, p.game.Lines)
+		if p.data.Add(p.game.Score, time.Now()) == 1 {
+			message = fmt.Sprintf("New best: %d!", p.game.Score)
+		}
+		p.store()
+		look.SetGameOver(p.over, message)
 		p.hud.ShowModal(p.over)
 	}
 	p.ended += dt
+}
+
+func (p *Play) store() {
+	if err := save.Store("tetris", *p.data); err != nil {
+		log.Print(err)
+	}
 }
 
 // steer moves the piece on an arrow's press, then repeats while it's held.
@@ -141,7 +216,7 @@ func (p *Play) steer(dt float32) {
 }
 
 func (p *Play) restart() {
-	p.game, p.ended = New(p.seed()), 0
+	p.game, p.ended, p.clearing = New(p.seed()), 0, clearTime
 	p.show()
 }
 
@@ -155,23 +230,46 @@ func (p *Play) show() {
 func (w *Well) Draw(c *twod.Canvas) {
 	p := w.play
 	c.RoundRect(geom.Rect{W: boardW, H: boardH}, 10, color.Hex(look.Surface))
-	for y, row := range p.game.Board {
+	if p.clearing < clearTime {
+		w.drawClear(c, p.clearing/clearTime)
+		return
+	}
+	drawBoard(c, &p.game.Board)
+	if p.game.Over {
+		return
+	}
+	for _, at := range p.game.Ghost().Cells() {
+		square(c, at[0], at[1], 1, colorOf(p.game.Piece.Kind).Alpha(0.25))
+	}
+	for _, at := range p.game.Piece.Cells() {
+		square(c, at[0], at[1], 1, colorOf(p.game.Piece.Kind))
+	}
+}
+
+// drawClear draws the board as it was, its full rows flashing white and
+// shrinking away, k from 0 to 1.
+func (w *Well) drawClear(c *twod.Canvas, k float32) {
+	cleared := &w.play.game.Cleared
+	drawBoard(c, &cleared.Board)
+	flash := color.Hex("#ffffff").Alpha(1 - ease.OutQuad(k))
+	for _, y := range cleared.Rows {
+		for x := range W {
+			square(c, x, y, 1, color.Hex(look.Cell))
+			square(c, x, y, 1-ease.InQuad(k), colorOf(cleared.Board[y][x]).Lerp(color.Hex("#ffffff"), 1-k))
+			square(c, x, y, 1, flash.Alpha(0.5*(1-k)))
+		}
+	}
+}
+
+func drawBoard(c *twod.Canvas, board *[H][W]int) {
+	for y, row := range board {
 		for x, kind := range row {
 			col := color.Hex(look.Cell)
 			if kind != 0 {
 				col = colorOf(kind)
 			}
-			square(c, x, y, col)
+			square(c, x, y, 1, col)
 		}
-	}
-	if p.game.Over {
-		return
-	}
-	for _, at := range p.game.Ghost().Cells() {
-		square(c, at[0], at[1], colorOf(p.game.Piece.Kind).Alpha(0.25))
-	}
-	for _, at := range p.game.Piece.Cells() {
-		square(c, at[0], at[1], colorOf(p.game.Piece.Kind))
 	}
 }
 
@@ -181,17 +279,32 @@ func (p *Play) drawNext(c *twod.Canvas) {
 	}
 }
 
-// square draws a board cell; the board has a 4-point margin.
-func square(c *twod.Canvas, x, y int, col color.Color) {
-	if y < 0 {
+// square draws a board cell at a scale about its centre; the board has a
+// 4-point margin.
+func square(c *twod.Canvas, x, y int, scale float32, col color.Color) {
+	if y < 0 || scale <= 0 {
 		return
 	}
-	c.RoundRect(geom.Rect{X: float32(4 + x*cell), Y: float32(4 + y*cell), W: cell - 2, H: cell - 2}, 3, col)
+	size := (cell - 2) * scale
+	at := geom.V2(float32(4+x*cell)+(cell-2-size)/2, float32(4+y*cell)+(cell-2-size)/2)
+	c.RoundRect(geom.Rect{X: at.X, Y: at.Y, W: size, H: size}, 3*scale, col)
 }
 
 func main() {
+	fixed := flag.Uint64("seed", 0, "replay the game this seed deals (0: a new game each time)")
+	flag.Parse()
+	seed := func() uint64 {
+		if *fixed != 0 {
+			return *fixed
+		}
+		return uint64(time.Now().UnixNano())
+	}
 	win := look.Window("tetris")
-	p, well := newPlay(win.Input(), func() uint64 { return uint64(time.Now().UnixNano()) })
-	win.Add(well, p.hud)
-	ember.New().AddEntities(win).AddSystems(p).MustRun()
+	data, err := save.Load("tetris")
+	if err != nil {
+		log.Print(err)
+	}
+	p := newPlay(win.Input(), seed, &data)
+	win.Add(p.well, p.sparks, p.hud)
+	ember.New().AddEntities(win, p.player.Mixer).AddSystems(p).MustRun()
 }

@@ -5,16 +5,21 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 	"math"
 	"math/bits"
 	"strconv"
 	"time"
 
 	"github.com/merlindorin/ember"
+	"github.com/merlindorin/ember/audio"
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/ease"
 	"github.com/merlindorin/ember/games/internal/look"
+	"github.com/merlindorin/ember/games/internal/save"
+	"github.com/merlindorin/ember/games/internal/sound"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/twod"
@@ -41,6 +46,10 @@ type Game struct {
 	seed        func() uint64
 	moved       Moved
 	since       float32 // since the last move, in seconds
+	data        *save.Data
+	sounds      *Sounds
+	player      *sound.Player
+	menu        *look.Menu
 }
 
 // Tiles is the play area, a twod entity drawing the board every frame.
@@ -49,8 +58,9 @@ type Tiles struct {
 	game *Game
 }
 
-func newGame(in *input.State, seed func() uint64) (*Game, *Tiles) {
-	g := &Game{board: New(seed()), in: in, hud: look.HUD(), seed: seed, since: slideTime + popTime}
+func newGame(in *input.State, seed func() uint64, data *save.Data) (*Game, *Tiles) {
+	g := &Game{board: New(seed()), in: in, hud: look.HUD(), seed: seed, since: slideTime + popTime, data: data,
+		sounds: newSounds(), player: sound.NewPlayer(music(), data.Music, data.Effects, !data.MusicOff)}
 	scoreCard, score := look.Stat("Score", "score")
 	bestCard, best := look.Stat("Best tile", "best")
 	g.score, g.best = score, best
@@ -58,13 +68,21 @@ func newGame(in *input.State, seed func() uint64) (*Game, *Tiles) {
 	g.hud.Body().Append(look.Side("2048",
 		look.Stats(scoreCard, bestCard),
 		look.NewGame(g.hud, g.restart),
-		look.Keys("← →", "slide sideways", "↑ ↓", "slide up and down", "N", "new game")), g.over)
+		look.Keys("← →", "slide sideways", "↑ ↓", "slide up and down", "N", "new game", "Esc", "menu")), g.over)
+	g.menu = look.NewMenu(g.hud, look.Hooks{NewGame: g.restart, Data: func() *save.Data { return g.data },
+		SoundChanged: func() {
+			g.player.Set(g.data.Music, g.data.Effects, !g.data.MusicOff)
+			g.store()
+		}})
 	g.show()
 	return g, twod.Build(&Tiles{Item: twod.Base(), game: g}, "board", look.Place(side, side))
 }
 
 func (g *Game) Update(f world.Frame) {
 	g.since += f.DT
+	if g.menu.Open() {
+		return
+	}
 	if g.in.Pressed(input.KeyN) {
 		g.restart()
 		return
@@ -82,11 +100,41 @@ func (g *Game) Update(f world.Frame) {
 		}
 		g.moved, g.since = moved, 0
 		g.show()
+		g.play(moved)
 		if g.board.Over() {
-			look.SetGameOver(g.over, fmt.Sprintf("Score %d, best tile %d.", g.board.Score, g.board.Best()))
-			g.hud.ShowModal(g.over)
+			g.end()
 		}
 		return
+	}
+}
+
+// play sounds a move: a slide, and the biggest of its merges.
+func (g *Game) play(m Moved) {
+	g.player.Play(g.sounds.slide, audio.Volume(0.6))
+	biggest := 0
+	for _, at := range m.Merged {
+		biggest = max(biggest, g.board.Cells[at[0]][at[1]])
+	}
+	if biggest > 0 {
+		g.player.Play(g.sounds.mergeOf(biggest))
+	}
+}
+
+// end records the score and asks for a new game.
+func (g *Game) end() {
+	g.player.Play(g.sounds.over)
+	message := fmt.Sprintf("Score %d, best tile %d.", g.board.Score, g.board.Best())
+	if g.data.Add(g.board.Score, time.Now()) == 1 {
+		message = fmt.Sprintf("New best: %d!", g.board.Score)
+	}
+	g.store()
+	look.SetGameOver(g.over, message)
+	g.hud.ShowModal(g.over)
+}
+
+func (g *Game) store() {
+	if err := save.Store("2048", *g.data); err != nil {
+		log.Print(err)
 	}
 }
 
@@ -200,8 +248,20 @@ func fontSize(v int) float32 {
 }
 
 func main() {
+	fixed := flag.Uint64("seed", 0, "replay the game this seed deals (0: a new game each time)")
+	flag.Parse()
+	seed := func() uint64 {
+		if *fixed != 0 {
+			return *fixed
+		}
+		return uint64(time.Now().UnixNano())
+	}
 	win := look.Window("2048")
-	g, tiles := newGame(win.Input(), func() uint64 { return uint64(time.Now().UnixNano()) })
+	data, err := save.Load("2048")
+	if err != nil {
+		log.Print(err)
+	}
+	g, tiles := newGame(win.Input(), seed, &data)
 	win.Add(tiles, g.hud)
-	ember.New().AddEntities(win).AddSystems(g).MustRun()
+	ember.New().AddEntities(win, g.player.Mixer).AddSystems(g).MustRun()
 }

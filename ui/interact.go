@@ -504,6 +504,8 @@ func (d *Document) click(n *Node) {
 		d.fire(n, m.Click())
 	case *control.Select:
 		d.fire(n, m.Click())
+	case *control.Canvas:
+		d.fire(n, control.Clicked)
 	case nil:
 		if _, ok := n.Attr("tabindex"); ok {
 			d.fire(n, control.Clicked)

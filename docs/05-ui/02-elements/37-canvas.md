@@ -21,6 +21,7 @@ doc.Invalidate(minimap) // when what it draws changes
 | the drawing | in its content box: the origin its top-left, `c.Size()` its size in points, clipped |
 | when draw runs | first shown, after `doc.Invalidate(n)`, and when its box moves or resizes; otherwise its last drawing is replayed, so a redraw costs only its own draw |
 | `doc.PointerOn(n)` | the pointer in its content box, in points; false off it |
+| `ui.OnClick(fn)` | runs on a click on it, with `doc.PointerOn(n)` where it was clicked |
 | `c.Image(r, tex, uv, tint)` | a texture over `r`, a render texture included: what a camera draws `twod.Into` it |
 | not yet | an ancestor's `opacity` below 1 doesn't fade it |
 

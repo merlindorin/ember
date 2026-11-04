@@ -6,6 +6,7 @@ import (
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
+	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/internal/draw"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
@@ -63,6 +64,41 @@ func TestPointerOnIsInTheCanvasContentBox(t *testing.T) {
 	assert.False(t, ok, "off it")
 	_, ok = d.PointerOn(Div())
 	assert.False(t, ok, "and never on what isn't a canvas")
+}
+
+func TestAClickOnACanvasRunsItsOnClickWithThePointerOnIt(t *testing.T) {
+	var got []geom.Vec2
+	var d *Document
+	cv := Canvas(func(*twod.Canvas) {}, Attr("width", "100"), Attr("height", "50"),
+		Style("position: absolute; left: 20px; top: 30px"),
+		OnClick(func() {
+			at, ok := d.PointerOn(d.ByID("board"))
+			require.True(t, ok, "the pointer is on the canvas it clicked")
+			got = append(got, at)
+		}), ID("board"))
+	d, win, frames := quietDoc(t, geom.V2(30, 40), cv)
+	in := win.Input()
+	in.SetMouseButton(input.MouseLeft, true)
+	frames(1)
+	in.SetMouseButton(input.MouseLeft, false)
+	frames(1)
+	assert.Equal(t, []geom.Vec2{geom.V2(10, 10)}, got, "once, where it was clicked")
+}
+
+func TestACanvasInvalidatedByItsOwnClickDrawsAgain(t *testing.T) {
+	draws := 0
+	var d *Document
+	var cv *Node
+	cv = Canvas(func(*twod.Canvas) { draws++ }, Attr("width", "100"), Attr("height", "50"),
+		OnClick(func() { d.Invalidate(cv) }))
+	d, win, frames := quietDoc(t, geom.V2(30, 30), cv)
+	n := draws
+	in := win.Input()
+	in.SetMouseButton(input.MouseLeft, true)
+	frames(1)
+	in.SetMouseButton(input.MouseLeft, false)
+	frames(3)
+	assert.Greater(t, draws, n, "the click's Invalidate draws it again")
 }
 
 func TestACoveredCanvasRepaintsTheDocumentOnlyWhenInvalidated(t *testing.T) {

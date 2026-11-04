@@ -105,6 +105,12 @@ jobs:
         with:
           chrome-version: ${{ env.CHROME_VERSION }}
 
+      # Ubuntu 24.04 keeps unprivileged user namespaces from the AppArmor
+      # profile Chrome's sandbox needs ("No usable sandbox!"): allow them.
+      - name: Chrome's sandbox on Linux
+        if: runner.os == 'Linux'
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: ui pages against Chrome ${{ env.CHROME_VERSION }}
         env:
           EMBER_CHROME: ${{ steps.chrome.outputs.chrome-path }}

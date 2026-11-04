@@ -54,9 +54,14 @@ type Play struct {
 type Sky struct {
 	twod.Item
 	play *Play
+	art  *Art
 }
 
 func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
+	pictures, err := loadArt()
+	if err != nil {
+		panic(err) // embedded files that always decode
+	}
 	in := win.Input()
 	p := &Play{game: New(seed()), in: in, hud: look.HUD(), seed: seed, data: data, flapped: 1,
 		sounds: newSounds(), player: sound.NewPlayer(music(), data.Music, data.Effects, !data.MusicOff)}
@@ -83,7 +88,7 @@ func newPlay(win *platform.Window, seed func() uint64, data *save.Data) *Play {
 	if data.Fullscreen {
 		win.SetFullscreen(true)
 	}
-	p.sky = twod.Build(&Sky{Item: twod.Base(), play: p}, "board", look.Place(Width, Height))
+	p.sky = twod.Build(&Sky{Item: twod.Base(), play: p, art: pictures}, "board", look.Place(Width, Height))
 	p.puffs = twod.NewParticles(nil, twod.Rate(0), twod.Velocity(30, 120), twod.Direction(geom.Pi, 1.2),
 		twod.Lifetime(0.3, 0.7), twod.SizeOverLife(5, 1), twod.Drag(0.08),
 		twod.ColorOverLife(color.Hex("#ffffff").Alpha(0.7), color.Hex("#ffffff").Alpha(0)), twod.MaxParticles(400))
@@ -175,105 +180,80 @@ func (p *Play) show() {
 	p.best.SetText(strconv.Itoa(max(best, p.game.Score)))
 }
 
+// The sheets' regions, in pixels: a pipe's cap and body, the ground strip,
+// a bird's frame. Everything draws at px points a pixel.
+const (
+	px                   = 2
+	capH, pipeW          = 16, 32
+	bodyTop, bodyEnd     = 16, 64
+	groundY, groundW     = 80, 64
+	birdSize, frames     = 16, 4
+	sheetW, sheetH       = 128, 112
+	birdsW, birdsH       = 64, 112
+	skyW, skyH, skyShown = 256, 256, 165 // the sky and clouds, above the picture's city
+)
+
+// uv is a region of a sheet w by h pixels, as the 0 to 1 a canvas takes.
+func uv(x, y, w, h, sheetW, sheetH float32) geom.Rect {
+	return geom.Rect{X: x / sheetW, Y: y / sheetH, W: w / sheetW, H: h / sheetH}
+}
+
 func (s *Sky) Draw(c *twod.Canvas) {
 	p := s.play
 	g := p.game
 	board := geom.Rect{W: Width, H: Height}
 	c.PushClipRounded(board, [4]float32{10, 10, 10, 10})
 	defer c.PopClip()
-	c.Gradient(board, color.Hex("#1f2135"), color.Hex("#3a3557"))
+	white := color.Hex("#ffffff")
 
-	// The far layers scroll slower than the pipes: clouds, then hills.
-	for i := range 5 {
-		x := wrap(float32(i)*90-g.Travel*0.15, Width+80) - 40
-		y := float32(50 + (i*37)%90)
-		for j, r := range []float32{18, 24, 16} {
-			c.Circle(geom.V2(x+float32(j)*20, y), r, color.Hex("#ffffff").Alpha(0.05))
-		}
-	}
-	for i := range 6 {
-		x := wrap(float32(i)*80-g.Travel*0.4, Width+80) - 40
-		c.Circle(geom.V2(x, Height-Ground+30), 70, color.Hex("#2a2c45"))
+	// The sky and its clouds scroll slower than the pipes, standing on the
+	// ground, the sky's top colour above them.
+	sky := geom.Rect{Y: Height - Ground - skyShown*px, W: skyW * px, H: skyShown * px}
+	c.Rect(geom.Rect{W: Width, H: sky.Y + 1}, color.Hex("#0cf1ff"))
+	for x := -wrap(g.Travel*0.25, sky.W); x < Width; x += sky.W {
+		c.Image(geom.Rect{X: x, Y: sky.Y, W: sky.W, H: sky.H}, s.art.sky, uv(0, 0, skyW, skyShown, skyW, skyH), white)
 	}
 
 	for _, pipe := range g.Pipes {
-		drawPipe(c, pipe)
+		s.drawPipe(c, pipe)
 	}
 
-	ground := geom.Rect{Y: Height - Ground, W: Width, H: Ground}
-	c.Rect(ground, color.Hex("#2f3148"))
-	c.Rect(geom.Rect{Y: Height - Ground, W: Width, H: 4}, color.Hex("#80ed99").Alpha(0.6))
-	for i := range Width/24 + 2 {
-		x := wrap(float32(i)*24-g.Travel, Width+24) - 24
-		c.Rect(geom.Rect{X: x, Y: Height - Ground + 10, W: 12, H: 4}, color.Hex("#3a3d58"))
+	strip := uv(0, groundY, groundW, sheetH-groundY, sheetW, sheetH)
+	for x := -wrap(g.Travel, groundW*px); x < Width; x += groundW * px {
+		c.Image(geom.Rect{X: x, Y: Height - Ground, W: groundW * px, H: Ground}, s.art.pipes, strip, white)
 	}
 
-	drawBird(c, geom.V2(BirdX, g.Y), g.VY, p.flapped, p.time)
+	s.drawBird(c, geom.V2(BirdX, g.Y), g.VY, p.flapped, p.time)
 }
 
-func drawPipe(c *twod.Canvas, p Pipe) {
-	body, rim := color.Hex("#56cfe1"), color.Hex("#3fa7b8")
-	c.Rect(geom.Rect{X: p.X, W: PipeWidth, H: p.Gap}, body)
-	c.RoundRect(geom.Rect{X: p.X - 4, Y: p.Gap - 18, W: PipeWidth + 8, H: 18}, 4, rim)
+// drawPipe draws a pair, each cap at the gap and the body stretched to the
+// sky and to the ground.
+func (s *Sky) drawPipe(c *twod.Canvas, p Pipe) {
+	white := color.Hex("#ffffff")
+	body := uv(0, bodyTop, pipeW, bodyEnd-bodyTop, sheetW, sheetH)
+	rim := float32(capH * px)
+	c.Image(geom.Rect{X: p.X, W: PipeWidth, H: p.Gap - rim}, s.art.pipes, body, white)
+	bottomCap := uv(0, bodyEnd, pipeW, capH, sheetW, sheetH)
+	c.Image(geom.Rect{X: p.X, Y: p.Gap - rim, W: PipeWidth, H: rim}, s.art.pipes, bottomCap, white)
 	bottom := p.Gap + GapHeight
-	c.Rect(geom.Rect{X: p.X, Y: bottom, W: PipeWidth, H: Height - Ground - bottom}, body)
-	c.RoundRect(geom.Rect{X: p.X - 4, Y: bottom, W: PipeWidth + 8, H: 18}, 4, rim)
-	c.Rect(geom.Rect{X: p.X + 8, W: 6, H: p.Gap - 18}, color.Hex("#ffffff").Alpha(0.15))
-	c.Rect(geom.Rect{X: p.X + 8, Y: bottom + 18, W: 6, H: Height - Ground - bottom - 18}, color.Hex("#ffffff").Alpha(0.15))
+	c.Image(geom.Rect{X: p.X, Y: bottom, W: PipeWidth, H: rim}, s.art.pipes, uv(0, 0, pipeW, capH, sheetW, sheetH), white)
+	c.Image(geom.Rect{X: p.X, Y: bottom + rim, W: PipeWidth, H: Height - Ground - bottom - rim}, s.art.pipes, body, white)
 }
 
 // drawBird draws the bird at at, tilted up while it rises and down as it
-// falls, its wing fluttering and beating hard just after a flap.
-func drawBird(c *twod.Canvas, at geom.Vec2, vy, flapped, time float32) {
-	tilt := float64(min(max(vy/600, -0.5), 1.1))
-	sin, cos := math.Sincos(tilt)
-	turn := func(v geom.Vec2) geom.Vec2 {
-		return at.Add(geom.V2(v.X*float32(cos)-v.Y*float32(sin), v.X*float32(sin)+v.Y*float32(cos)))
+// falls, its wings beating fast just after a flap and slowly in between.
+func (s *Sky) drawBird(c *twod.Canvas, at geom.Vec2, vy, flapped, time float32) {
+	tilt := min(max(vy/600, -0.5), 1.1)
+	frame := int(time/0.12) % frames
+	if flapped < 0.24 {
+		frame = int(flapped/0.06) % frames
 	}
-	oval := func(centre geom.Vec2, rx, ry, angle float32, col color.Color) {
-		const n = 18
-		points := []geom.Vec2{turn(centre)}
-		var tris []int
-		for i := range n + 1 {
-			a := float64(i) * 2 * math.Pi / n
-			v := geom.V2(rx*float32(math.Cos(a)), ry*float32(math.Sin(a)))
-			s, c := math.Sincos(float64(angle))
-			v = geom.V2(v.X*float32(c)-v.Y*float32(s), v.X*float32(s)+v.Y*float32(c))
-			points = append(points, turn(centre.Add(v)))
-			if i > 0 {
-				tris = append(tris, 0, i, i+1)
-			}
-		}
-		c.Triangles(points, tris, col)
-	}
-	tri := func(a, b, d geom.Vec2, col color.Color) {
-		c.Triangles([]geom.Vec2{turn(a), turn(b), turn(d)}, []int{0, 1, 2}, col)
-	}
-	ink := color.Hex("#3b2a3f")
-
-	tri(geom.V2(-12, -3), geom.V2(-22, -9), geom.V2(-20, 0), ink)
-	tri(geom.V2(-12, 1), geom.V2(-21, 4), geom.V2(-14, 6), ink)
-	tri(geom.V2(-12, -2), geom.V2(-19, -6), geom.V2(-18, 0), color.Hex("#e07a3f"))
-	oval(geom.V2(0, 0), 15, 13, 0, ink)
-	oval(geom.V2(0, 0), 13.5, 11.5, 0, color.Hex("#ff9e64"))
-	oval(geom.V2(2, 4.5), 9, 5.5, 0, color.Hex("#ffe0b8"))
-	c.Circle(turn(geom.V2(4, 3)), 2.2, color.Hex("#ff6b8b").Alpha(0.45))
-
-	beat := -0.4 + 0.25*float32(math.Sin(float64(time*12)))
-	if flapped < 0.25 {
-		beat = -0.4 + 1.3*float32(math.Sin(float64(flapped/0.25*math.Pi)))
-	}
-	oval(geom.V2(-5, 2.5), 7.5, 4.2, beat, color.Hex("#b85a2a"))
-	oval(geom.V2(-5, 2.5), 6.3, 3.2, beat, color.Hex("#f08a4b"))
-
-	c.Circle(turn(geom.V2(6, -4)), 5.2, ink)
-	c.Circle(turn(geom.V2(6, -4)), 4.3, color.Hex("#ffffff"))
-	c.Circle(turn(geom.V2(7.4, -4)), 2.2, ink)
-	c.Circle(turn(geom.V2(6.6, -5.2)), 0.9, color.Hex("#ffffff"))
-
-	tri(geom.V2(11, -3), geom.V2(21, 0.5), geom.V2(11, 2.5), ink)
-	tri(geom.V2(11.5, -2), geom.V2(19.5, 0.5), geom.V2(11.5, 1.5), color.Hex("#ffd166"))
-	tri(geom.V2(11, 1.5), geom.V2(18, 2.5), geom.V2(11, 5.5), color.Hex("#f4a259"))
+	saved := c.Transform()
+	c.SetTransform(saved.Mul(geom.Transform2DFrom(at, tilt, 0, geom.V2(1, 1))))
+	size := float32(birdSize * px)
+	c.Image(geom.Rect{X: -size / 2, Y: -size / 2, W: size, H: size}, s.art.birds,
+		uv(float32(frame*birdSize), 0, birdSize, birdSize, birdsW, birdsH), color.Hex("#ffffff"))
+	c.SetTransform(saved)
 }
 
 func wrap(x, n float32) float32 { return x - n*float32(math.Floor(float64(x/n))) }

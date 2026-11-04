@@ -16,7 +16,7 @@ Drawn for ember in this repository, with no outside source, and given to the pub
 ## From others
 
 - `.github/readme/horde.png`, `sanctuary.png`, `power-ups.png`: captures of Lantervale, our game built on ember, drawing 0x72's [16x16 DungeonTileset II](https://0x72.itch.io/dungeontileset-ii) (CC0), icons from [496 pixel art icons for medieval/fantasy RPG](https://opengameart.org/content/496-pixel-art-icons-for-medievalfantasy-rpg) by Henrique Lazarini (CC0 1.0), and the [Cinzel](https://github.com/NDISCOVER/Cinzel) and [Silkscreen](https://github.com/googlefonts/silkscreen) fonts (SIL Open Font License 1.1); the HUD's frames and cursor are the game's own (CC0 1.0).
-- `.github/readme/tetris.png`, `2048.png`, `snake.png`, `flap.png` and `hello.png`: captures of ember's own games and sample, ember's own work (CC0 1.0).
+- `.github/readme/tetris.png`, `2048.png`, `snake.png`, `flap.png` and `hello.png`: captures of ember's own games and sample, ember's own work (CC0 1.0), Flap's drawing Megacrash's art (CC0, see games/flap/art).
 - `.github/readme/*.gif` and `emoji.png`: copies of the guide's pictures of the examples, under the licences of what they draw: ember's own (above), [examples/internal/crypt/CREDITS.md](examples/internal/crypt/CREDITS.md), and for `emoji.png` the Twemoji pictures (CC-BY 4.0) and Noto Emoji (OFL 1.1) of [examples/45-emoji/CREDITS.md](examples/45-emoji/CREDITS.md).
 
 Each beside the files it covers:
@@ -24,6 +24,7 @@ Each beside the files it covers:
 - [examples/internal/crypt/CREDITS.md](examples/internal/crypt/CREDITS.md): 0x72's 16x16 DungeonTileset II (CC0) and HydroGene's music (CC0); `tools/tileset/testdata` holds a copy of the same tilesets.
 - [examples/53-music-and-positional/CREDITS.md](examples/53-music-and-positional/CREDITS.md): four Freesound recordings (CC0), cut into loops.
 - [examples/45-emoji/CREDITS.md](examples/45-emoji/CREDITS.md): Twemoji pictures (CC-BY 4.0) and Noto Emoji (SIL OFL 1.1); [ui/internal/pages/kit-14b-shortcodes/CREDITS.md](ui/internal/pages/kit-14b-shortcodes/CREDITS.md) for four of the same pictures.
+- [games/flap/art/CREDITS.md](games/flap/art/CREDITS.md): Megacrash's Flappy Bird Assets v1.6 (CC0): the bird, pipes, ground, sky and clouds.
 - [examples/internal/lucide/CREDITS.md](examples/internal/lucide/CREDITS.md): the Lucide icon font (ISC).
 - Silkscreen (SIL OFL 1.1): its `Silkscreen-OFL.txt` beside each copy.
 - Source Code Pro (SIL OFL 1.1), the engine's Mono face: [internal/draw/fonts/SourceCodePro-OFL.txt](internal/draw/fonts/SourceCodePro-OFL.txt).

@@ -5,10 +5,10 @@ import "math/rand/v2"
 // The world, in points: the bird stays at BirdX while the pipes come.
 const (
 	Width, Height = 340, 400
-	Ground        = 40 // the ground's height at the bottom
+	Ground        = 64 // the ground's height at the bottom
 	BirdX         = 90
 	Radius        = 12 // the bird's, for collisions
-	PipeWidth     = 52
+	PipeWidth     = 64
 	GapHeight     = 120
 	Spacing       = 190 // between two pipes
 	Margin        = 50  // a gap's least distance from the sky and the ground

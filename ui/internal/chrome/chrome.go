@@ -21,7 +21,6 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"syscall"
 	"testing"
 	"time"
 
@@ -159,8 +158,7 @@ func lockChrome() (func(), error) {
 	if err != nil {
 		return nil, err
 	}
-	fd := int(f.Fd())
-	if err = syscall.Flock(fd, syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+	if err = lockFile(f, false); err != nil {
 		done := make(chan struct{})
 		go func() {
 			start := time.Now()
@@ -175,7 +173,7 @@ func lockChrome() (func(), error) {
 				}
 			}
 		}()
-		err = syscall.Flock(fd, syscall.LOCK_EX)
+		err = lockFile(f, true)
 		close(done)
 		if err != nil {
 			f.Close()
@@ -195,7 +193,7 @@ func lockChrome() (func(), error) {
 	return func() {
 		_ = f.Truncate(0)
 		// Closing the file releases the lock too, should unlocking fail.
-		_ = syscall.Flock(fd, syscall.LOCK_UN)
+		_ = unlockFile(f)
 		f.Close()
 	}, nil
 }

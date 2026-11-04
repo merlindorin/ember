@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1060" font-family="-apple-system, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12">
+  <defs>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.5"/></filter>
+    <linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0a450"/><stop offset="1" stop-color="#c88a36"/></linearGradient>
+    <linearGradient id="r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9644f"/><stop offset="1" stop-color="#b84a37"/></linearGradient>
+    <!-- window frame as a reusable look -->
+  </defs>
+  <rect width="1500" height="1060" fill="#16130f"/>
+  <text x="30" y="36" fill="#eee4d6" font-size="18" font-weight="700">One window frame, many uses</text>
+  <text x="30" y="58" fill="#8e8475" font-size="12">Every panel below is the same ui.Window: a title bar with close · minimise · zoom, a toolbar slot, a body, a footer slot.</text>
+
+  <!-- ===== A: Open (list) ===== -->
+  <g transform="translate(30,80)">
+    <text x="0" y="-6" fill="#e0a450" font-weight="700">A · Open a file (list)</text>
+    <g filter="url(#sh)"><rect width="700" height="420" rx="10" fill="#26221d" stroke="#3a342c"/></g>
+    <path d="M0,10 a10,10 0 0 1 10,-10 h680 a10,10 0 0 1 10,10 v34 h-700 z" fill="#2d2822"/>
+    <circle cx="18" cy="22" r="6" fill="#ff5f57"/><circle cx="36" cy="22" r="6" fill="#febc2e"/><circle cx="54" cy="22" r="6" fill="#28c840"/>
+    <rect x="170" y="9" width="46" height="26" rx="6" fill="#36302a"/><text x="181" y="27" fill="#cbbfae" font-size="14">‹  ›</text>
+    <rect x="226" y="9" width="200" height="26" rx="6" fill="#36302a"/><rect x="236" y="17" width="13" height="10" rx="2" fill="#d79b48"/><text x="256" y="27" fill="#eee4d6" font-weight="600">tiled</text><text x="290" y="27" fill="#8e8475">— crypt › demo</text>
+    <rect x="530" y="9" width="156" height="26" rx="7" fill="#1e1b17" stroke="#3f382f"/><text x="548" y="27" fill="#6d6457">⌕  Search</text>
+    <line x1="0" y1="44" x2="700" y2="44" stroke="#3a342c"/>
+    <rect x="0" y="45" width="150" height="320" fill="#221e1a"/><line x1="150" y1="45" x2="150" y2="365" stroke="#3a342c"/>
+    <text x="14" y="70" fill="#7a7062" font-size="10" font-weight="700">FAVOURITES</text>
+    <rect x="8" y="78" width="134" height="22" rx="5" fill="#4a3a24"/><text x="20" y="93" fill="#f2e6d2">▪ tiled</text>
+    <text x="20" y="119" fill="#d9cdbc">▪ rooms</text><text x="20" y="143" fill="#d9cdbc">▪ Home</text>
+    <text x="14" y="176" fill="#7a7062" font-size="10" font-weight="700">RECENT</text>
+    <text x="20" y="198" fill="#d9cdbc">▫ props.tsj</text><text x="20" y="222" fill="#d9cdbc">▫ walls.tsj</text>
+    <text x="166" y="66" fill="#8e8475" font-size="10" font-weight="600">Name ▾</text><text x="450" y="66" fill="#8e8475" font-size="10" font-weight="600">Modified</text><text x="570" y="66" fill="#8e8475" font-size="10" font-weight="600">Size</text><text x="630" y="66" fill="#8e8475" font-size="10" font-weight="600">Kind</text>
+    <line x1="158" y1="72" x2="692" y2="72" stroke="#3a342c"/>
+    <text x="166" y="92" fill="#a89d8e">▸ ▪ old</text><text x="450" y="92" fill="#7a7062">Today</text><text x="630" y="92" fill="#7a7062">Folder</text>
+    <text x="166" y="116" fill="#eee4d6">▫ flags.tsj</text><text x="450" y="116" fill="#a89d8e">Yesterday</text><text x="570" y="116" fill="#a89d8e">4 KB</text><text x="630" y="116" fill="#a89d8e">Tileset</text>
+    <rect x="158" y="124" width="534" height="22" rx="5" fill="url(#p)"/><text x="166" y="139" fill="#1e1610" font-weight="700">▫ props.tsj</text><text x="450" y="139" fill="#2a1e12">Today</text><text x="570" y="139" fill="#2a1e12">21 KB</text><text x="630" y="139" fill="#2a1e12">Tileset</text>
+    <text x="166" y="163" fill="#eee4d6">▫ walls.tsj</text><text x="450" y="163" fill="#a89d8e">Today</text><text x="570" y="163" fill="#a89d8e">18 KB</text><text x="630" y="163" fill="#a89d8e">Tileset</text>
+    <text x="166" y="187" fill="#5b5348">▫ dungeon.png</text><text x="630" y="187" fill="#5b5348">PNG</text>
+    <rect x="158" y="300" width="534" height="56" rx="7" fill="#201c18" stroke="#3a342c"/><rect x="166" y="308" width="40" height="40" rx="5" fill="#2d2822"/><text x="216" y="324" fill="#eee4d6" font-weight="600">props.tsj</text><text x="216" y="342" fill="#a89d8e" font-size="11">Tileset · 42 tiles · 16×16</text>
+    <line x1="0" y1="365" x2="700" y2="365" stroke="#3a342c"/>
+    <text x="16" y="397" fill="#a89d8e" font-size="11">Show</text><rect x="48" y="382" width="150" height="24" rx="6" fill="#36302a"/><text x="58" y="398" fill="#eee4d6" font-size="11">Tiled tilesets (.tsj) ⌃</text>
+    <rect x="510" y="380" width="84" height="26" rx="7" fill="#36302a" stroke="#4a4238"/><text x="532" y="397" fill="#eee4d6">Cancel</text>
+    <rect x="604" y="380" width="84" height="26" rx="7" fill="url(#p)"/><text x="630" y="397" fill="#1e1610" font-weight="700">Open</text>
+  </g>
+
+  <!-- ===== B: Save (grid view) ===== -->
+  <g transform="translate(770,80)">
+    <text x="0" y="-6" fill="#e0a450" font-weight="700">B · Save as (grid view, name field)</text>
+    <g filter="url(#sh)"><rect width="700" height="420" rx="10" fill="#26221d" stroke="#3a342c"/></g>
+    <path d="M0,10 a10,10 0 0 1 10,-10 h680 a10,10 0 0 1 10,10 v34 h-700 z" fill="#2d2822"/>
+    <circle cx="18" cy="22" r="6" fill="#ff5f57"/><circle cx="36" cy="22" r="6" fill="#febc2e"/><circle cx="54" cy="22" r="6" fill="#28c840"/>
+    <text x="300" y="27" fill="#cbbfae" font-weight="600">Save tileset</text>
+    <line x1="0" y1="44" x2="700" y2="44" stroke="#3a342c"/>
+    <text x="20" y="76" fill="#a89d8e">Save as</text><rect x="90" y="60" width="300" height="26" rx="6" fill="#1e1b17" stroke="#e0a450"/><text x="100" y="78" fill="#eee4d6">props-v2|</text><text x="356" y="78" fill="#6d6457">.tsj</text>
+    <text x="20" y="110" fill="#a89d8e">Where</text><rect x="90" y="94" width="300" height="26" rx="6" fill="#36302a"/><text x="100" y="112" fill="#eee4d6">▪ tiled  — crypt › demo</text><text x="374" y="112" fill="#8e8475">⌃</text>
+    <rect x="404" y="94" width="34" height="26" rx="6" fill="#36302a"/><text x="414" y="112" fill="#cbbfae">▾</text>
+    <line x1="0" y1="134" x2="700" y2="134" stroke="#3a342c"/>
+    <g>
+      <rect x="20" y="150" width="96" height="96" rx="8" fill="#2d2822"/><rect x="34" y="162" width="68" height="52" rx="3" fill="#6a4f35"/><text x="38" y="234" fill="#d9cdbc" font-size="11">flags.tsj</text>
+      <rect x="132" y="150" width="96" height="96" rx="8" fill="#2d2822"/><rect x="146" y="162" width="68" height="52" rx="3" fill="#5a4330"/><text x="152" y="234" fill="#d9cdbc" font-size="11">floor.tsj</text>
+      <rect x="244" y="150" width="96" height="96" rx="8" fill="#4a3a24" stroke="#e0a450"/><rect x="258" y="162" width="68" height="52" rx="3" fill="#b0825a"/><text x="262" y="234" fill="#f2e6d2" font-size="11" font-weight="700">props.tsj</text>
+      <rect x="356" y="150" width="96" height="96" rx="8" fill="#2d2822"/><rect x="370" y="162" width="68" height="52" rx="3" fill="#8a6a46"/><text x="374" y="234" fill="#d9cdbc" font-size="11">walls.tsj</text>
+      <rect x="468" y="150" width="96" height="96" rx="8" fill="#2d2822"/><rect x="490" y="168" width="52" height="40" rx="3" fill="#a3988a"/><text x="500" y="234" fill="#a89d8e" font-size="11">old</text>
+    </g>
+    <line x1="0" y1="365" x2="700" y2="365" stroke="#3a342c"/>
+    <rect x="16" y="380" width="110" height="26" rx="7" fill="#36302a" stroke="#4a4238"/><text x="30" y="397" fill="#eee4d6">New folder</text>
+    <rect x="510" y="380" width="84" height="26" rx="7" fill="#36302a" stroke="#4a4238"/><text x="532" y="397" fill="#eee4d6">Cancel</text>
+    <rect x="604" y="380" width="84" height="26" rx="7" fill="url(#p)"/><text x="632" y="397" fill="#1e1610" font-weight="700">Save</text>
+  </g>
+
+  <!-- ===== C: Alert ===== -->
+  <g transform="translate(30,560)">
+    <text x="0" y="-6" fill="#e0a450" font-weight="700">C · Alert (unsaved changes, overwrite, errors)</text>
+    <g filter="url(#sh)"><rect width="420" height="210" rx="12" fill="#2a2520" stroke="#3f382f"/></g>
+    <rect x="186" y="22" width="48" height="48" rx="10" fill="#36302a"/><text x="203" y="56" fill="#e0a450" font-size="28" font-weight="700">!</text>
+    <text x="210" y="98" fill="#eee4d6" font-weight="700" text-anchor="middle" font-size="14">Save changes to props.tsj?</text>
+    <text x="210" y="120" fill="#a89d8e" text-anchor="middle">Your changes are lost if you don't save them.</text>
+    <rect x="20" y="158" width="116" height="28" rx="7" fill="url(#r)"/><text x="78" y="177" fill="#fff" text-anchor="middle" font-weight="600">Don't save</text>
+    <rect x="186" y="158" width="100" height="28" rx="7" fill="#36302a" stroke="#4a4238"/><text x="236" y="177" fill="#eee4d6" text-anchor="middle">Cancel</text>
+    <rect x="298" y="158" width="100" height="28" rx="7" fill="url(#p)"/><text x="348" y="177" fill="#1e1610" text-anchor="middle" font-weight="700">Save</text>
+  </g>
+
+  <!-- ===== D: Preferences ===== -->
+  <g transform="translate(480,560)">
+    <text x="0" y="-6" fill="#e0a450" font-weight="700">D · Preferences / settings (tabs + form)</text>
+    <g filter="url(#sh)"><rect width="520" height="440" rx="10" fill="#26221d" stroke="#3a342c"/></g>
+    <path d="M0,10 a10,10 0 0 1 10,-10 h500 a10,10 0 0 1 10,10 v66 h-520 z" fill="#2d2822"/>
+    <circle cx="18" cy="22" r="6" fill="#ff5f57"/><circle cx="36" cy="22" r="6" fill="#5b5348"/><circle cx="54" cy="22" r="6" fill="#5b5348"/>
+    <text x="230" y="27" fill="#cbbfae" font-weight="600">Settings</text>
+    <g font-size="11"><rect x="128" y="40" width="70" height="30" rx="7" fill="#4a3a24"/><text x="146" y="60" fill="#f2e6d2">◐ Video</text><text x="220" y="60" fill="#cbbfae">♪ Audio</text><text x="290" y="60" fill="#cbbfae">⌨ Controls</text><text x="372" y="60" fill="#cbbfae">⚙ Game</text></g>
+    <line x1="0" y1="76" x2="520" y2="76" stroke="#3a342c"/>
+    <g font-size="12">
+      <text x="170" y="112" fill="#a89d8e" text-anchor="end">Window</text><rect x="186" y="96" width="196" height="26" rx="6" fill="#36302a"/><text x="196" y="114" fill="#eee4d6">Fullscreen ⌃</text>
+      <text x="170" y="148" fill="#a89d8e" text-anchor="end">Resolution</text><rect x="186" y="132" width="196" height="26" rx="6" fill="#36302a"/><text x="196" y="150" fill="#eee4d6">2560 × 1440 ⌃</text>
+      <text x="170" y="184" fill="#a89d8e" text-anchor="end">VSync</text><rect x="186" y="170" width="40" height="22" rx="11" fill="url(#p)"/><circle cx="214" cy="181" r="9" fill="#fff4e0"/>
+      <text x="170" y="220" fill="#a89d8e" text-anchor="end">Brightness</text><rect x="186" y="214" width="230" height="4" rx="2" fill="#4a4238"/><rect x="186" y="214" width="140" height="4" rx="2" fill="#e0a450"/><circle cx="326" cy="216" r="8" fill="#eee4d6"/><text x="430" y="220" fill="#8e8475">60 %</text>
+      <text x="170" y="256" fill="#a89d8e" text-anchor="end">UI scale</text><rect x="186" y="242" width="150" height="24" rx="6" fill="#36302a"/><rect x="188" y="244" width="48" height="20" rx="5" fill="#4a3a24"/><text x="200" y="258" fill="#f2e6d2">1×</text><text x="252" y="258" fill="#cbbfae">1.5×</text><text x="304" y="258" fill="#cbbfae">2×</text>
+      <line x1="30" y1="290" x2="490" y2="290" stroke="#3a342c"/>
+      <text x="170" y="320" fill="#a89d8e" text-anchor="end">Sharp pixels</text><rect x="186" y="306" width="18" height="18" rx="4" fill="url(#p)"/><text x="190" y="320" fill="#1e1610" font-weight="700">✓</text><text x="214" y="320" fill="#a89d8e" font-size="11">draws the world at 1 px per point</text>
+    </g>
+    <line x1="0" y1="390" x2="520" y2="390" stroke="#3a342c"/>
+    <rect x="16" y="402" width="110" height="26" rx="7" fill="#36302a" stroke="#4a4238"/><text x="28" y="419" fill="#eee4d6">Reset to default</text>
+    <rect x="418" y="402" width="86" height="26" rx="7" fill="url(#p)"/><text x="445" y="419" fill="#1e1610" font-weight="700">Done</text>
+  </g>
+
+  <!-- ===== E: Tool window ===== -->
+  <g transform="translate(1040,560)">
+    <text x="0" y="-6" fill="#e0a450" font-weight="700">E · Tool / inspector window (small, floating)</text>
+    <g filter="url(#sh)"><rect width="430" height="440" rx="8" fill="#26221d" stroke="#3a342c"/></g>
+    <path d="M0,8 a8,8 0 0 1 8,-8 h414 a8,8 0 0 1 8,8 v22 h-430 z" fill="#2d2822"/>
+    <circle cx="14" cy="15" r="4.5" fill="#ff5f57"/><circle cx="28" cy="15" r="4.5" fill="#febc2e"/><circle cx="42" cy="15" r="4.5" fill="#28c840"/>
+    <text x="215" y="19" fill="#cbbfae" font-size="11" font-weight="600" text-anchor="middle">Inspector</text>
+    <line x1="0" y1="30" x2="430" y2="30" stroke="#3a342c"/>
+    <text x="16" y="54" fill="#eee4d6" font-weight="700">▾ Tile 5 · wall_left</text>
+    <g font-size="11">
+      <text x="110" y="80" fill="#a89d8e" text-anchor="end">solid</text><rect x="122" y="68" width="16" height="16" rx="4" fill="url(#p)"/>
+      <text x="230" y="80" fill="#a89d8e" text-anchor="end">tall</text><rect x="242" y="68" width="16" height="16" rx="4" fill="#36302a" stroke="#4a4238"/>
+      <text x="110" y="108" fill="#a89d8e" text-anchor="end">shadow</text><rect x="122" y="94" width="160" height="22" rx="6" fill="#36302a"/><rect x="124" y="96" width="78" height="18" rx="5" fill="#4a3a24"/><text x="148" y="109" fill="#f2e6d2">cast</text><text x="226" y="109" fill="#cbbfae">none</text>
+      <text x="110" y="136" fill="#a89d8e" text-anchor="end">height</text><rect x="122" y="122" width="160" height="22" rx="5" fill="#1e1b17" stroke="#3f382f"/><text x="130" y="137" fill="#6d6457">48 (picture)</text>
+    </g>
+    <line x1="16" y1="158" x2="414" y2="158" stroke="#3a342c"/>
+    <text x="16" y="180" fill="#eee4d6" font-weight="700">▾ Shape 2 of 3 · rectangle</text>
+    <g font-size="11">
+      <text x="24" y="206" fill="#a89d8e">x</text><rect x="36" y="194" width="74" height="22" rx="5" fill="#1e1b17" stroke="#3f382f"/><text x="44" y="209" fill="#eee4d6">0</text>
+      <text x="122" y="206" fill="#a89d8e">y</text><rect x="134" y="194" width="74" height="22" rx="5" fill="#1e1b17" stroke="#3f382f"/><text x="142" y="209" fill="#eee4d6">12</text>
+      <text x="220" y="206" fill="#a89d8e">w</text><rect x="232" y="194" width="74" height="22" rx="5" fill="#1e1b17" stroke="#3f382f"/><text x="240" y="209" fill="#eee4d6">16</text>
+      <text x="318" y="206" fill="#a89d8e">h</text><rect x="330" y="194" width="74" height="22" rx="5" fill="#1e1b17" stroke="#3f382f"/><text x="338" y="209" fill="#eee4d6">4</text>
+      <rect x="36" y="228" width="200" height="22" rx="6" fill="#36302a"/><rect x="38" y="230" width="96" height="18" rx="5" fill="#4a3a24"/><text x="58" y="243" fill="#f2e6d2">collision</text><text x="150" y="243" fill="#cbbfae">light only</text>
+    </g>
+    <line x1="16" y1="266" x2="414" y2="266" stroke="#3a342c"/>
+    <text x="16" y="288" fill="#8e8475" font-weight="700">▸ Preview</text>
+    <line x1="16" y1="304" x2="414" y2="304" stroke="#3a342c"/>
+    <text x="16" y="326" fill="#8e8475" font-weight="700">▸ Other properties (3)</text>
+    <rect x="0" y="414" width="430" height="26" fill="#221e1a"/><text x="12" y="431" fill="#7a7062" font-size="10">props.tsj · 42 tiles · edited</text>
+    <circle cx="412" cy="427" r="4" fill="#e0a450"/>
+  </g>
+
+  <!-- footer legend -->
+  <text x="30" y="1040" fill="#8e8475" font-size="11">C is a sheet: it slides from the parent window's title bar and blocks only that window. E's title bar is the compact variant; its footer is a status bar.</text>
+</svg>

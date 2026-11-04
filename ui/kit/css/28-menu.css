@@ -1,0 +1,22 @@
+/* Menu: a dark box, items hovered in the hover colour with the accent text. */
+.kit-menu {
+  position: absolute; top: 100%; left: 0; z-index: 200; display: flex; flex-direction: column; min-width: 150px;
+  padding: 4px; background-color: rgb(52, 48, 44); border: 1px solid var(--border-color); border-radius: 4px;
+  color: var(--light-text); font-size: var(--font-size); font-weight: normal; text-align: left; white-space: nowrap;
+}
+/* Author rules outrank the user-agent's: a closed menu is hidden here too. */
+.kit-menu:not([open]) { display: none; }
+.kit-menu-item {
+  position: relative; display: flex; align-items: center; gap: 24px; padding: 2px 8px;
+  border: 1px solid transparent; border-radius: 3px; color: var(--light-text); cursor: default;
+}
+.kit-menu-item > .kit-menu-label { flex: 1; }
+.kit-menu-item[aria-checked="false"] > .kit-menu-check { visibility: hidden; }
+.kit-menu.kit-checks > .kit-menu-item:not([aria-checked]) { padding-left: 46px; }
+.kit-menu-item > .kit-shortcut, .kit-menu-item > .kit-submenu-arrow { color: var(--muted-color); }
+.kit-menu-item:hover, .kit-menu-item[aria-expanded="true"] { background-color: var(--hover-color); border-color: var(--border-color); color: var(--accent-color); }
+.kit-menu-item:focus-visible { outline: 1px solid var(--accent-color); outline-offset: -1px; }
+.kit-menu-item[aria-disabled="true"] { color: var(--muted-color); background-color: transparent; border-color: transparent; }
+.kit-menu .kit-menu { top: -5px; left: 100%; }
+.kit-menu > .kit-separator { margin: 4px 2px; }
+.kit-menu-button { position: relative; }

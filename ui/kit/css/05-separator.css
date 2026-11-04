@@ -1,0 +1,6 @@
+/* hr's own look, Chrome's included, is replaced: a line of the border colour. */
+.kit-separator { border: 0; height: 1px; margin: 4px 6px; padding: 0; background-color: var(--border-color); overflow: visible; }
+.kit-separator.kit-divider { margin: 0; }
+/* An hr doesn't stretch across a flex line, in Chrome as in ui: a vertical one is a line tall. */
+.kit-separator.kit-vertical { width: 1px; height: 1em; margin: 0 4px; flex-shrink: 0; }
+.kit-separator.kit-vertical.kit-divider { margin: 0; }

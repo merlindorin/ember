@@ -1,0 +1,6 @@
+/* MenuBar: titles on the dark button colour, the open one hovered. */
+.kit-menu-bar { display: flex; padding: 2px 4px; background-color: var(--button-color); color: var(--light-text); }
+.kit-menu-bar-item { position: relative; padding: 2px 8px; border-radius: 3px; cursor: default; }
+.kit-menu-bar-item:hover, .kit-menu-bar-item[aria-expanded="true"] { background-color: var(--hover-color); color: var(--accent-color); }
+.kit-menu-bar-item:focus-visible { outline: 1px solid var(--accent-color); outline-offset: -1px; }
+.kit-menu-bar-item > .kit-menu { color: var(--light-text); }

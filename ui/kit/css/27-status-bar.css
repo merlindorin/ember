@@ -1,0 +1,4 @@
+/* StatusBar: a muted 12px line, cut at its end, an accent dot at its right while something is unsaved. */
+.kit-status-bar { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.kit-status-bar > .kit-status { flex: 1; font-size: 12px; color: var(--muted-color); }
+.kit-status-dot { flex: none; width: 8px; height: 8px; margin: 2px; border-radius: 50%; background-color: var(--accent-color); }

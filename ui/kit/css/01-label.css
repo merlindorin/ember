@@ -1,0 +1,10 @@
+.kit-label { white-space: nowrap; }
+.kit-label.kit-wrap { display: block; white-space: normal; overflow-wrap: anywhere; }
+.kit-label.kit-truncate { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.kit-label.kit-center { display: block; text-align: center; }
+.kit-label.kit-right { display: block; text-align: right; }
+
+.kit-caps { font-size: 11px; color: var(--muted-color); text-transform: uppercase; }
+.kit-form-label { font-size: 13px; color: var(--muted-color); }
+.kit-alert-title { font-size: 16px; font-weight: bold; color: var(--light-text); }
+.kit-alert-message { font-size: 13px; color: var(--muted-color); }

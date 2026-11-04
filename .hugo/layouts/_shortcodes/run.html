@@ -1,0 +1,15 @@
+{{- $dir := .Get 0 -}}
+{{- if not (resources.Match (printf "examples/%s/*.go" $dir)) -}}
+  {{- errorf "%s: example %q has no Go files" .Position $dir -}}
+{{- end -}}
+<div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code">
+  {{- partial "components/codeblock" (dict "lang" "sh" "content" (printf "go run ./examples/%s" $dir)) -}}
+  {{- partialCached "components/codeblock-copy-button" (dict "filename" "") "run" -}}
+</div>
+{{- with resources.Get (printf "examples/%s/output.txt" $dir) -}}
+<div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code">
+  {{- partial "components/codeblock" (dict "filename" "output" "lang" "text" "content" .Content) -}}
+</div>
+{{- end -}}
+{{- partial "ember/live.html" (dict "dir" $dir) -}}
+<p>Source: <a href="{{ site.Params.examples }}/{{ $dir }}" target="_blank" rel="noopener">examples/{{ $dir }}</a></p>

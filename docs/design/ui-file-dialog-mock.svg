@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 600" font-family="-apple-system, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13">
+  <defs>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+    <linearGradient id="prim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0a450"/><stop offset="1" stop-color="#c88a36"/>
+    </linearGradient>
+  </defs>
+  <rect width="980" height="600" fill="#16130f"/>
+
+  <!-- window -->
+  <g filter="url(#sh)">
+    <rect x="40" y="30" width="900" height="540" rx="12" fill="#26221d" stroke="#3a342c"/>
+  </g>
+  <!-- titlebar / toolbar -->
+  <path d="M40,42 a12,12 0 0 1 12,-12 h876 a12,12 0 0 1 12,12 v40 h-900 z" fill="#2d2822"/>
+  <line x1="40" y1="82" x2="940" y2="82" stroke="#3a342c"/>
+  <circle cx="62" cy="56" r="6" fill="#ff5f57"/><circle cx="82" cy="56" r="6" fill="#febc2e"/><circle cx="102" cy="56" r="6" fill="#28c840"/>
+  <!-- back/forward -->
+  <rect x="236" y="42" width="56" height="28" rx="6" fill="#36302a"/>
+  <text x="248" y="61" fill="#cbbfae" font-size="15">‹</text><line x1="264" y1="46" x2="264" y2="66" stroke="#4a4238"/><text x="275" y="61" fill="#6d6457" font-size="15">›</text>
+  <!-- path popup -->
+  <rect x="304" y="42" width="250" height="28" rx="6" fill="#36302a"/>
+  <rect x="314" y="50" width="14" height="11" rx="2" fill="#d79b48"/>
+  <text x="336" y="61" fill="#eee4d6" font-weight="600">tiled</text>
+  <text x="372" y="61" fill="#8e8475" font-size="12">— crypt › demo › ember</text>
+  <text x="538" y="61" fill="#8e8475" font-size="11">⌃</text>
+  <!-- view toggles -->
+  <rect x="566" y="42" width="58" height="28" rx="6" fill="#36302a"/>
+  <rect x="574" y="48" width="20" height="16" rx="3" fill="#4a4238"/>
+  <g fill="#cbbfae"><rect x="578" y="51" width="12" height="2"/><rect x="578" y="55" width="12" height="2"/><rect x="578" y="59" width="12" height="2"/></g>
+  <g fill="#8e8475"><rect x="602" y="50" width="5" height="5"/><rect x="610" y="50" width="5" height="5"/><rect x="602" y="58" width="5" height="5"/><rect x="610" y="58" width="5" height="5"/></g>
+  <!-- search -->
+  <rect x="726" y="42" width="196" height="28" rx="7" fill="#1e1b17" stroke="#3f382f"/>
+  <circle cx="744" cy="55" r="5" fill="none" stroke="#8e8475" stroke-width="1.6"/><line x1="748" y1="59" x2="752" y2="63" stroke="#8e8475" stroke-width="1.6"/>
+  <text x="760" y="60" fill="#6d6457">Search</text>
+
+  <!-- sidebar -->
+  <rect x="40" y="83" width="184" height="430" fill="#221e1a"/>
+  <line x1="224" y1="83" x2="224" y2="513" stroke="#3a342c"/>
+  <text x="58" y="112" fill="#7a7062" font-size="11" font-weight="700">FAVOURITES</text>
+  <g>
+    <rect x="50" y="122" width="164" height="26" rx="6" fill="#4a3a24"/>
+    <rect x="62" y="130" width="14" height="11" rx="2" fill="#e0a450"/><text x="84" y="140" fill="#f2e6d2">tiled</text>
+    <rect x="62" y="158" width="14" height="11" rx="2" fill="#a3988a"/><text x="84" y="168" fill="#d9cdbc">rooms</text>
+    <rect x="62" y="186" width="14" height="11" rx="2" fill="#a3988a"/><text x="84" y="196" fill="#d9cdbc">sanctuary</text>
+    <rect x="62" y="214" width="14" height="11" rx="2" fill="#a3988a"/><text x="84" y="224" fill="#d9cdbc">Home</text>
+  </g>
+  <text x="58" y="262" fill="#7a7062" font-size="11" font-weight="700">RECENT</text>
+  <g>
+    <rect x="62" y="273" width="11" height="13" rx="1.5" fill="#6f9fd8"/><text x="84" y="284" fill="#d9cdbc">props.tsj</text>
+    <rect x="62" y="301" width="11" height="13" rx="1.5" fill="#6f9fd8"/><text x="84" y="312" fill="#d9cdbc">walls.tsj</text>
+    <rect x="62" y="329" width="11" height="13" rx="1.5" fill="#6f9fd8"/><text x="84" y="340" fill="#d9cdbc">floor.tsj</text>
+    <rect x="62" y="357" width="11" height="13" rx="1.5" fill="#6f9fd8"/><text x="84" y="368" fill="#d9cdbc">flags.tsj</text>
+  </g>
+
+  <!-- list header -->
+  <text x="252" y="104" fill="#8e8475" font-size="11" font-weight="600">Name</text>
+  <text x="640" y="104" fill="#8e8475" font-size="11" font-weight="600">Date modified</text>
+  <text x="800" y="104" fill="#8e8475" font-size="11" font-weight="600">Size</text>
+  <text x="866" y="104" fill="#8e8475" font-size="11" font-weight="600">Kind</text>
+  <line x1="236" y1="112" x2="928" y2="112" stroke="#3a342c"/>
+  <!-- rows -->
+  <g>
+    <text x="252" y="136" fill="#8e8475">▸</text><rect x="266" y="126" width="15" height="11" rx="2" fill="#a3988a"/><text x="290" y="136" fill="#a89d8e">old</text>
+    <text x="640" y="136" fill="#7a7062">Today, 18:42</text><text x="800" y="136" fill="#7a7062">—</text><text x="866" y="136" fill="#7a7062">Folder</text>
+
+    <rect x="236" y="148" width="692" height="26" rx="5" fill="#ffffff" fill-opacity="0.025"/>
+    <rect x="268" y="154" width="11" height="13" rx="1.5" fill="#6f9fd8"/><text x="290" y="165" fill="#eee4d6">flags.tsj</text>
+    <text x="640" y="165" fill="#a89d8e">Yesterday, 22:10</text><text x="800" y="165" fill="#a89d8e">4 KB</text><text x="866" y="165" fill="#a89d8e">Tileset</text>
+
+    <rect x="268" y="183" width="11" height="13" rx="1.5" fill="#6f9fd8"/><text x="290" y="194" fill="#eee4d6">floor.tsj</text>
+    <text x="640" y="194" fill="#a89d8e">Yesterday, 22:10</text><text x="800" y="194" fill="#a89d8e">6 KB</text><text x="866" y="194" fill="#a89d8e">Tileset</text>
+
+    <rect x="236" y="206" width="692" height="26" rx="5" fill="url(#prim)"/>
+    <rect x="268" y="212" width="11" height="13" rx="1.5" fill="#fff4e0"/><text x="290" y="223" fill="#1e1610" font-weight="600">props.tsj</text>
+    <text x="640" y="223" fill="#2a1e12">Today, 09:31</text><text x="800" y="223" fill="#2a1e12">21 KB</text><text x="866" y="223" fill="#2a1e12">Tileset</text>
+
+    <rect x="268" y="241" width="11" height="13" rx="1.5" fill="#6f9fd8"/><text x="290" y="252" fill="#eee4d6">walls.tsj</text>
+    <text x="640" y="252" fill="#a89d8e">Today, 09:12</text><text x="800" y="252" fill="#a89d8e">18 KB</text><text x="866" y="252" fill="#a89d8e">Tileset</text>
+
+    <rect x="236" y="264" width="692" height="26" rx="5" fill="#ffffff" fill-opacity="0.025"/>
+    <rect x="268" y="270" width="11" height="13" rx="1.5" fill="#5b5348"/><text x="290" y="281" fill="#6d6457">0x72_DungeonTilesetII_v1.7.png</text>
+    <text x="640" y="281" fill="#5b5348">12 Oct 2026</text><text x="800" y="281" fill="#5b5348">48 KB</text><text x="866" y="281" fill="#5b5348">PNG</text>
+  </g>
+  <text x="290" y="320" fill="#6d6457" font-size="11">Files that aren't tilesets are dimmed and can't be chosen.</text>
+
+  <!-- preview / info strip -->
+  <rect x="236" y="430" width="692" height="72" rx="8" fill="#201c18" stroke="#3a342c"/>
+  <rect x="248" y="440" width="52" height="52" rx="6" fill="#2d2822"/>
+  <g fill="#8a6a46"><rect x="256" y="448" width="12" height="12"/><rect x="270" y="448" width="12" height="12" fill="#b0825a"/><rect x="284" y="448" width="10" height="12" fill="#6a4f35"/><rect x="256" y="462" width="12" height="12" fill="#6a4f35"/><rect x="270" y="462" width="12" height="12"/><rect x="284" y="462" width="10" height="12" fill="#b0825a"/><rect x="256" y="476" width="38" height="10" fill="#5a4330"/></g>
+  <text x="314" y="458" fill="#eee4d6" font-weight="600">props.tsj</text>
+  <text x="314" y="476" fill="#a89d8e" font-size="12">Tileset · 42 tiles · 16×16 · uses 0x72_DungeonTilesetII_v1.7.png</text>
+  <text x="314" y="493" fill="#7a7062" font-size="11">/Users/merlin/…/ember/demo/crypt/tiled/props.tsj</text>
+
+  <!-- bottom bar -->
+  <line x1="40" y1="513" x2="940" y2="513" stroke="#3a342c"/>
+  <text x="60" y="546" fill="#a89d8e" font-size="12">Show</text>
+  <rect x="96" y="530" width="190" height="26" rx="6" fill="#36302a"/>
+  <text x="108" y="547" fill="#eee4d6" font-size="12">Tiled tilesets (.tsj)</text><text x="270" y="547" fill="#8e8475" font-size="10">⌃</text>
+  <rect x="718" y="530" width="96" height="28" rx="7" fill="#36302a" stroke="#4a4238"/>
+  <text x="745" y="548" fill="#eee4d6">Cancel</text>
+  <rect x="826" y="530" width="96" height="28" rx="7" fill="url(#prim)"/>
+  <text x="857" y="548" fill="#1e1610" font-weight="700">Open</text>
+
+  <!-- callouts -->
+  <g font-size="11" fill="#e0a450">
+    <text x="236" y="590">① toolbar: back/forward, a path pop-up (click a parent to jump), view toggle, search</text>
+  </g>
+</svg>

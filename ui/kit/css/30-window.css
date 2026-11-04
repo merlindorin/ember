@@ -1,0 +1,28 @@
+/* Window: a window-coloured box, radius 10, a soft dark glow, a darker title bar with traffic lights and a centred title. */
+/* Centred in the game window until dragged; author rules outrank the user agent's, so a closed one is hidden here too. */
+.kit-window {
+  position: fixed; inset: 0; margin: auto; width: max-content; height: max-content; padding: 0;
+  display: flex; flex-direction: column;
+  background-color: var(--window-color); border: 1px solid var(--window-edge); border-radius: 10px;
+  box-shadow: 0 0 12px 4px rgba(0, 0, 0, 0.45); color: var(--light-text); text-shadow: none;
+}
+.kit-window:not([open]) { display: none; }
+/* Once dragged, left and top in its style place it. */
+.kit-window[data-placed] { inset: auto; margin: 0; }
+.kit-window-bar { position: relative; display: flex; justify-content: center; padding: 10px 72px; background-color: var(--window-bar); border-radius: 9px 9px 0 0; }
+.kit-window-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kit-window-lights { position: absolute; left: 8px; top: 0; bottom: 0; display: flex; align-items: center; gap: 8px; }
+.kit-light { width: 12px; height: 12px; padding: 0; border: none; border-radius: 50%; cursor: pointer; }
+.kit-light.kit-close { background-color: #ff5f57; }
+.kit-light.kit-minimise { background-color: #febc2e; }
+.kit-light.kit-zoom { background-color: #28c840; }
+.kit-window.kit-compact > .kit-window-bar { padding: 6px 58px; }
+.kit-window.kit-compact .kit-window-title { font-size: 12px; }
+.kit-window.kit-compact .kit-window-lights { left: 6px; gap: 6px; }
+.kit-window.kit-compact .kit-light { width: 10px; height: 10px; }
+.kit-window[data-minimised]:not([data-zoomed]) > :not(.kit-window-bar) { display: none; }
+.kit-window[data-minimised]:not([data-zoomed]) > .kit-window-bar { border-radius: 9px; }
+.kit-window[data-zoomed] { inset: 0; width: auto; height: auto; margin: 0; border-radius: 0; }
+.kit-window[data-zoomed] > .kit-window-bar { border-radius: 0; }
+.kit-window.kit-unified > .kit-toolbar { padding: 10px 12px; background-color: var(--window-bar); border-radius: 9px 9px 0 0; }
+.kit-window.kit-unified .kit-window-lights { position: static; margin-right: 16px; }

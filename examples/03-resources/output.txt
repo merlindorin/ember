@@ -1,0 +1,2 @@
+1.0s  candle went out in a wind of 2
+2.0s  campfire went out in a wind of 4

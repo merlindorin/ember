@@ -1,0 +1,48 @@
+# Guide
+
+Every page walks through a complete example from [examples](../examples), file by file, and ends with how to run it. Read them in order.
+
+1. [Getting started](01-getting-started/README.md)
+   - [Hello cube](01-getting-started/01-hello-cube.md)
+2. [The World](02-world/README.md)
+   - [Entities and systems](02-world/01-entities-and-systems.md)
+   - [Resources](02-world/02-resources.md)
+   - [Events](02-world/03-events.md)
+   - [Parents and children](02-world/04-children.md)
+   - [Views](02-world/05-views.md)
+   - [Fixed step](02-world/06-fixed-step.md)
+   - [Time](02-world/07-time.md)
+3. [Windows](03-windows/README.md)
+   - [A window](03-windows/01-a-window.md)
+   - [Multiple windows](03-windows/02-multiple-windows.md)
+4. [UI](05-ui/README.md)
+   - [Document](05-ui/01-document.md), [Elements](05-ui/02-elements/README.md), [CSS](05-ui/03-css.md), [Events](05-ui/04-events.md), [Focus and keys](05-ui/05-focus-and-keys.md), [Automation](05-ui/06-automation.md)
+   - [Kit](05-ui/07-kit/README.md), [Matches Chrome](05-ui/08-chrome.md)
+   - [Walkthroughs](05-ui/09-walkthroughs/README.md): [UI elements](05-ui/09-walkthroughs/01-ui-elements.md), [Layout](05-ui/09-walkthroughs/02-layout.md), [Controls](05-ui/09-walkthroughs/03-controls.md), [Text editing](05-ui/09-walkthroughs/04-text-editing.md), [Themes](05-ui/09-walkthroughs/05-themes.md), [HUD over the world](05-ui/09-walkthroughs/06-hud-over-the-world.md), [Custom elements](05-ui/09-walkthroughs/07-custom-elements.md), [Testing UI](05-ui/09-walkthroughs/08-testing-ui.md)
+5. [2D](06-2d/README.md)
+   - Drawing: [Sprites](06-2d/01-sprites.md), [Sprite sheets](06-2d/02-sprite-sheets.md), [Lines and shapes](06-2d/03-lines-and-shapes.md), [Nine-patch](06-2d/04-nine-patch.md)
+   - Layers and cameras: [A 2D camera](06-2d/05-a-2d-camera.md), [Many sprites](06-2d/06-many-sprites.md), [Clipping](06-2d/07-clipping.md)
+   - Levels: [Tile maps](06-2d/08-tile-maps.md), [Collision](06-2d/09-collision.md), [Y-sorting](06-2d/10-y-sorting.md), [Tiled maps](06-2d/11-tiled.md), [Tile properties](06-2d/12-tile-properties.md)
+   - Effects: [Pixel-perfect](06-2d/13-pixel-perfect.md), [Blend modes and masks](06-2d/14-blend-modes.md), [Render to texture](06-2d/15-render-to-texture.md), [2D shaders](06-2d/16-2d-shader.md), [Particles](06-2d/17-particles.md)
+   - Motion: [Easing and paths](06-2d/18-easing.md)
+   - [Light](06-2d/19-lights/README.md): [Lit layers and ambient](06-2d/19-lights/01-lit-layers.md), [Point lights](06-2d/19-lights/02-point-lights.md), [Shadows](06-2d/19-lights/03-shadows.md), [Cone lights](06-2d/19-lights/04-cone-lights.md), [Directional lights](06-2d/19-lights/05-directional-lights.md), [Shape lights and Emissive](06-2d/19-lights/06-shape-lights.md), [Probes](06-2d/19-lights/07-probes.md), [Debugging and performance](06-2d/19-lights/08-debugging.md)
+   - Pictures: [Tiled pictures](06-2d/20-tiled-pictures.md)
+6. [Text](07-text/README.md)
+   - [Text](07-text/01-text.md)
+   - [Bitmap font](07-text/02-bitmap-font.md)
+   - [Emoji](07-text/03-emoji.md)
+7. [Input](08-input/README.md)
+   - [Keyboard](08-input/01-keyboard.md)
+   - [Mouse](08-input/02-mouse.md)
+   - [Actions](08-input/03-actions.md)
+   - [Gamepads](08-input/04-gamepads.md)
+   - [Touch](08-input/05-touch.md)
+   - [Gestures](08-input/06-gestures.md)
+8. [Audio](09-audio/README.md)
+   - [Play a sound](09-audio/01-play-a-sound.md)
+   - [Music and positional sound](09-audio/02-music-and-positional.md)
+   - [Effects](09-audio/03-effects.md)
+
+[Decisions](99-decisions/README.md) records why the engine is the way it is.
+
+`task docs`, run from `ember`, serves this guide as a website on http://localhost:1313/ember/.

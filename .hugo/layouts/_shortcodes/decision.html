@@ -1,0 +1,13 @@
+{{- with .Page.Params -}}
+<div class="ember-decision not-prose">
+  {{- if eq .state "superseded" -}}
+    <span class="ember-status ember-status-superseded">{{ $.Page.RenderString (printf "[Superseded by %s →](%s)" .replacedBy .replacedAt) }}</span>
+  {{- else -}}
+    <span class="ember-status ember-status-accepted">Accepted</span>
+  {{- end -}}
+  {{- with .note -}}<span class="ember-decision-note">{{ $.Page.RenderString . }}</span>{{- end -}}
+  <time datetime="{{ time.Format "2006-01-02" .date }}">{{ time.Format "2 Jan 2006" .date }}</time>
+  <span class="ember-tag">{{ .area }}</span>
+  <span class="ember-tag">{{ .owner }}</span>
+</div>
+{{- end -}}

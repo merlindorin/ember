@@ -1,0 +1,14 @@
+/* Frost: a cool look, read from this file, so it changes without a rebuild. */
+.frost {
+  --panel-color: rgba(26, 43, 69, 0.96);
+  --border-color: #8cc7f2;
+  --button-color: #336a9e;
+  --hover-color: #4d8cc7;
+  --accent-color: #8cc7f2;
+  color: #dbedff;
+  font-size: 16px;
+  padding: 22px;
+  border-width: 2px;
+  border-radius: 14px;
+}
+.frost .kit-button { border-radius: 16px; padding: 6px 14px; color: #e6f5ff; }

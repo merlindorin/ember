@@ -1,0 +1,18 @@
+/* Choice: cells on the dark button box, the selected one hovered-coloured, ringed in the accent. */
+.kit-choice { display: inline-flex; gap: 4px; padding: 0; background-color: var(--button-color); border: 1px solid var(--border-color); border-radius: 4px; }
+.kit-choice-item {
+  padding: 3px 7px; border: 1px solid var(--border-color); border-radius: 4px; background-color: transparent;
+  color: var(--light-text); font-size: var(--font-size); line-height: normal; text-align: center;
+}
+.kit-choice-item:hover { background-color: var(--hover-color); }
+.kit-choice-item:active { background-color: var(--active-color); }
+.kit-choice-item[aria-checked="true"] { background-color: var(--hover-color); border: 2px solid var(--accent-color); padding: 2px 6px; color: var(--accent-color); }
+.kit-choice-item:disabled { background-color: transparent; color: var(--muted-color); border-color: rgba(173, 151, 115, 0.45); }
+.kit-choice-item:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 1px; }
+.kit-choice.kit-segmented { gap: 0; }
+.kit-choice.kit-segmented > .kit-choice-item { border-color: transparent; }
+.kit-choice.kit-segmented > .kit-choice-item[aria-checked="true"] { border-color: var(--accent-color); }
+.kit-choice-item { cursor: pointer; }
+.kit-choice-item:disabled { cursor: default; }
+.kit-choice.kit-fill { display: flex; }
+.kit-choice.kit-fill > .kit-choice-item { flex: 1 1 0; white-space: nowrap; }

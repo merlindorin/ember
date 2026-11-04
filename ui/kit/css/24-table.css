@@ -1,0 +1,31 @@
+/* Table: a dark rounded well, muted 11px titles, 13px rows striped faintly, the selected one an amber band. */
+.kit-table { overflow: auto; background-color: #1f1b18; border: 1px solid var(--window-edge); border-radius: 6px; color: var(--light-text); font-size: 13px; text-shadow: none; }
+.kit-table > table { width: 100%; border-spacing: 0; }
+.kit-table > table:focus-visible { outline: 2px solid var(--accent-color); outline-offset: -2px; }
+.kit-table.kit-no-header thead { display: none; }
+/* A caption over the titles, or under the rows with Below, ruled off; a footer's rows ruled off under the body, muted. */
+.kit-table caption { padding: 6px 8px; border-bottom: 1px solid var(--window-edge); font-size: 12px; text-align: start; }
+.kit-table caption.kit-below { caption-side: bottom; border-bottom: none; border-top: 1px solid var(--window-edge); }
+.kit-table tfoot td { border-top: 1px solid var(--window-edge); color: var(--muted-color); }
+.kit-table th { padding: 5px 8px; color: var(--muted-color); font-size: 11px; font-weight: normal; text-align: left; white-space: nowrap; }
+.kit-table td { padding: 4px 8px; white-space: nowrap; }
+.kit-table th.kit-right, .kit-table td.kit-right { text-align: right; }
+.kit-table th.kit-center, .kit-table td.kit-center { text-align: center; }
+.kit-table tbody > tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.025); }
+.kit-table tbody > tr:hover { background-color: rgba(255, 255, 255, 0.05); }
+.kit-table tbody > tr[aria-selected="true"] > td { background-color: #e0a040; color: #2a1a08; }
+.kit-table tbody > tr[aria-selected="true"] > td:first-child { border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
+.kit-table tbody > tr[aria-selected="true"] > td:last-child { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+.kit-table tbody > tr[aria-disabled="true"] > td { color: #6b635a; }
+.kit-table th[aria-sort="ascending"], .kit-table th[aria-sort="descending"] { color: var(--light-text); }
+/* The sort arrow, the old ember/ui's 8×4 triangle at the title's right, drawn from a 2x picture; the title keeps clear of it. */
+.kit-table th[aria-sort] { padding-right: 22px; }
+.kit-table th[aria-sort="ascending"], .kit-table th[aria-sort="descending"] {
+  background-repeat: no-repeat; background-size: 8px 4px; background-position: right 10px center;
+}
+.kit-table th[aria-sort="ascending"] { background-image: url(images/sort-up.png); }
+.kit-table th[aria-sort="descending"] { background-image: url(images/sort-down.png); }
+/* The old ember/ui's 1px separators between the titles. */
+.kit-table th:not(:first-child) { border-left: 1px solid var(--window-edge); }
+/* The titles stay above the rows as they scroll, as the old ember/ui's do. */
+.kit-table thead th { position: sticky; top: 0; z-index: 1; background-color: #1f1b18; }

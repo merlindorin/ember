@@ -1,0 +1,17 @@
+{{- /* A windowed example runs in the browser too, from the WebAssembly builds task web:guide puts in live/: a button loads it on click at its window's size, or a line says why it can't run here (no WebGPU, or a page that isn't https or localhost). args are its command line, as arg= values. */ -}}
+{{- $size := slice -}}
+{{- range resources.Match (printf "examples/%s/*.go" .dir) -}}
+  {{- if strings.HasSuffix .Name "_test.go" -}}{{- continue -}}{{- end -}}
+  {{- with findRESubmatch `platform\.Size\((\d+), (\d+)\)` .Content 1 -}}
+    {{- $size = index . 0 -}}
+  {{- end -}}
+{{- end -}}
+{{- $query := printf "wasm=%s.wasm.gz" .dir -}}
+{{- range .args -}}
+  {{- $query = printf "%s&arg=%s" $query (urlquery .) -}}
+{{- end -}}
+{{- with $size -}}
+<div class="ember-live not-prose" hidden data-example="{{ $.dir }}" data-src="{{ printf "live/index.html?%s" $query | relURL | safeURL }}" style="--w: {{ index . 1 }}; --h: {{ index . 2 }}">
+  <button type="button">Run in your browser</button>
+</div>
+{{- end -}}

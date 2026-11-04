@@ -1,0 +1,9 @@
+/* Form: muted labels right-aligned in the first column, fields stretched across the second, 10px apart. */
+.kit-form { display: grid; grid-template-columns: minmax(var(--label-width, 0px), max-content) minmax(0, 1fr); gap: 10px; align-items: center; }
+.kit-form-row { display: contents; }
+.kit-form .kit-form-label { text-align: right; }
+.kit-form .kit-form-field { width: auto; min-width: 0; justify-self: stretch; }
+.kit-form.kit-fixed-fields .kit-form-field { width: var(--field-width); justify-self: start; }
+.kit-form > .kit-separator { grid-column: 1 / -1; margin: 0; }
+.kit-form .kit-choice.kit-form-field { justify-self: start; }
+.kit-form .kit-choice.kit-form-field.kit-fill { justify-self: stretch; }

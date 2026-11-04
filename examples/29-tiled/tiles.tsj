@@ -1,0 +1,8 @@
+{
+  "image": "tiles.png",
+  "tilewidth": 16, "tileheight": 16,
+  "tiles": [
+   {"id": 1, "properties": [{"name": "solid", "type": "bool", "value": true}]},
+   {"id": 2, "animation": [{"tileid": 2, "duration": 500}, {"tileid": 3, "duration": 500}]}
+  ]
+}

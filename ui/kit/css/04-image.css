@@ -1,0 +1,9 @@
+.kit-color-rect { min-width: 0; }
+.kit-nine-patch { display: block; }
+.kit-image { object-fit: fill; }
+.kit-image.kit-keep { object-fit: none; object-position: left top; }
+.kit-image.kit-keep-centered { object-fit: none; }
+.kit-image.kit-keep-aspect { object-fit: contain; object-position: left top; }
+.kit-image.kit-keep-aspect-centered { object-fit: contain; }
+.kit-image.kit-keep-aspect-covered { object-fit: cover; }
+.kit-tile-image { background-repeat: repeat; background-position: left top; }

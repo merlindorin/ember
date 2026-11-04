@@ -1,0 +1,8 @@
+normal speed: 1.00 s simulated, ball at 60
+half speed: 0.50 s simulated, ball at 90
+paused: 0.00 s simulated, ball at 90
+a frame at 144 fps: alpha 0.42, ball drawn at 89.42
+a frame at 144 fps: alpha 0.83, ball drawn at 89.83
+a frame at 144 fps: alpha 0.25, ball drawn at 90.25
+a frame at 144 fps: alpha 0.67, ball drawn at 90.67
+a frame at 144 fps: alpha 0.08, ball drawn at 91.08

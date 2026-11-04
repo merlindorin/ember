@@ -1,0 +1,14 @@
+<div class="ember-feature-body">
+  <h3>{{ with .icon }}{{ partial "utils/icon.html" (dict "name" . "attributes" "height=1.25rem") }}{{ end }}<span>{{ .title }}</span></h3>
+  <p>{{ .text }}</p>
+</div>
+{{- with .image -}}
+  {{- partial "ember/image" (dict "src" . "alt" $.title "width" 640 "class" "ember-feature-image") -}}
+{{- end -}}
+{{- with .output -}}
+  {{- with resources.Get (printf "examples/%s" .) -}}
+<pre class="ember-feature-output">{{ .Content }}</pre>
+  {{- else -}}
+    {{- errorf "no example output %q" . -}}
+  {{- end -}}
+{{- end -}}

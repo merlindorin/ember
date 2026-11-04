@@ -1,0 +1,90 @@
+:root {
+  --page: #16130f;
+  --panel: #26221d;
+  --line: #3a342c;
+  --field: #1e1b17;
+  --pop: #36302a;
+  --edge: #4a4238;
+  --text: #eee4d6;
+  --soft: #cbbfae;
+  --muted: #7a7062;
+  --group: #a89d8e;
+  --pick: rgb(74 56 38 / 45%);
+  --danger: #7a2f28;
+  --name: 122px;
+  --type: 52px;
+}
+
+html, body { margin: 0; background-color: var(--page); }
+body { padding: 20px; font-family: "Go"; font-size: 13px; color: var(--soft); }
+
+.panel {
+  width: 440px;
+  padding: 12px 16px 16px;
+  background-color: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+summary { color: var(--text); font-weight: 700; padding: 4px 0 10px; }
+
+.row {
+  display: grid;
+  grid-template-columns: var(--name) 1fr var(--type);
+  column-gap: 12px;
+  align-items: center;
+  min-height: 32px;
+}
+.row > * { min-width: 0; }
+
+.head { min-height: 22px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+.head span { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; }
+
+.group { font-size: 11px; font-weight: 700; color: var(--group); padding: 8px 0 4px; }
+
+.name { padding-left: 12px; }
+.object .name { padding-left: 24px; }
+.type { color: var(--muted); }
+
+select, input {
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--edge);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: "Go";
+  font-size: 13px;
+}
+select { background-color: var(--pop); }
+input { background-color: var(--field); }
+
+.pair { display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px; }
+.pair > input { min-width: 0; }
+
+.none { padding-left: 10px; color: var(--muted); }
+
+hr { border: 0; border-top: 1px solid var(--line); margin: 10px 0; }
+
+.object {
+  margin: 4px -6px;
+  padding: 6px 6px 8px;
+  background-color: var(--pick);
+  border-radius: 6px;
+}
+.object .title { color: var(--text); font-weight: 600; padding: 2px 0 4px 12px; }
+
+.line { color: var(--soft); }
+.line .summary { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 10px; }
+
+.actions { display: flex; justify-content: space-between; align-items: center; }
+.actions select { width: 140px; }
+.danger {
+  height: 28px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 6px;
+  background-color: var(--danger);
+  color: #f6dcd6;
+  font-family: "Go";
+  font-size: 13px;
+}

@@ -1,0 +1,21 @@
+.kit-text-area {
+  width: 240px; min-width: 120px; height: 102px;
+  padding: 5px 7px;
+  line-height: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: rgba(40, 33, 25, 0.95);
+  color: var(--light-text);
+  caret-color: var(--accent-color);
+  white-space: pre-wrap;
+  overflow: auto;
+  resize: none;
+}
+.kit-text-area.kit-no-wrap { white-space: pre; }
+.kit-text-area::placeholder { color: var(--muted-color); }
+.kit-text-area:hover { border-color: #cdb58f; }
+.kit-text-area:focus { border-color: var(--accent-color); }
+/* A read-only field keeps a dimmed border and shows no caret; a disabled one is greyed as a disabled button. */
+.kit-text-area[readonly] { border-color: rgba(173, 151, 115, 0.45); caret-color: transparent; }
+.kit-text-area:disabled { border-color: rgba(173, 151, 115, 0.45); background-color: var(--disabled-color); color: var(--muted-color); }
+.kit-text-area:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 0; }

@@ -1,0 +1,65 @@
+{
+    "automappingRulesFile": "",
+    "commands": [],
+    "compatibilityVersion": 1100,
+    "extensionsPath": "extensions",
+    "folders": [
+        "."
+    ],
+    "propertyTypes": [
+        {
+            "id": 1,
+            "name": "shadow",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "cast",
+                "none"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 2,
+            "members": [
+                {
+                    "name": "solid",
+                    "type": "bool",
+                    "value": false
+                },
+                {
+                    "name": "tall",
+                    "type": "bool",
+                    "value": false
+                },
+                {
+                    "name": "shadow",
+                    "propertyType": "shadow",
+                    "type": "string",
+                    "value": "cast"
+                },
+                {
+                    "name": "occluder_group",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "height",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "emissive",
+                    "type": "float",
+                    "value": 0
+                }
+            ],
+            "name": "ember.Tile",
+            "type": "class",
+            "useAs": [
+                "tile"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package ember.scene.v1;
+
+import "google/protobuf/struct.proto";
+
+option go_package = "github.com/merlindorin/ember/automation/scenepb";
+
+// SceneService inspects and edits the live scene tree of a running ember
+// app, game or shard. Node paths are node paths such as
+// "/root/Level/Camp". Every request runs on the main loop between frames.
+service SceneService {
+  // GetTree returns the tree under a node, the whole tree by default.
+  rpc GetTree(GetTreeRequest) returns (GetTreeResponse);
+  // WatchTree streams the nodes added, removed or changed under a node.
+  rpc WatchTree(WatchTreeRequest) returns (stream WatchTreeResponse);
+  // GetNode returns a node with its properties, by name.
+  rpc GetNode(GetNodeRequest) returns (GetNodeResponse);
+  // SetProperty sets a property of a node, by name.
+  rpc SetProperty(SetPropertyRequest) returns (SetPropertyResponse);
+  // Isolate pauses everything but a subtree, or ends the isolation.
+  rpc Isolate(IsolateRequest) returns (IsolateResponse);
+  // Snapshot streams a subtree, or the nodes within a radius, as a .glb
+  // scene in chunks.
+  rpc Snapshot(SnapshotRequest) returns (stream SnapshotResponse);
+}
+
+message Node {
+  // id is the node's scene ID, empty for nodes no scene saved.
+  string id = 1;
+  string name = 2;
+  string path = 3;
+  // type is the node class, package.Type, empty for unregistered nodes.
+  string type = 4;
+  string behaviour = 5;
+  repeated string groups = 6;
+  string process_mode = 7;
+  // scene is the ID of the scene this node is an instance of.
+  string scene = 8;
+  repeated Node children = 9;
+}
+
+message GetTreeRequest {
+  string path = 1;
+  // depth limits the levels returned below the node; 0 means all.
+  uint32 depth = 2;
+}
+
+message GetTreeResponse {
+  Node root = 1;
+}
+
+message WatchTreeRequest {
+  string path = 1;
+}
+
+message WatchTreeResponse {
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    KIND_ADDED = 1;
+    KIND_REMOVED = 2;
+    KIND_CHANGED = 3;
+  }
+  message Change {
+    Kind kind = 1;
+    // node has no children; for a removal only its path is set.
+    Node node = 2;
+  }
+  repeated Change changes = 1;
+}
+
+message GetNodeRequest {
+  string path = 1;
+}
+
+message GetNodeResponse {
+  Node node = 1;
+  map<string, google.protobuf.Value> properties = 2;
+  repeated string signals = 3;
+}
+
+message SetPropertyRequest {
+  string path = 1;
+  string name = 2;
+  google.protobuf.Value value = 3;
+}
+
+message SetPropertyResponse {}
+
+message IsolateRequest {
+  // path is the subtree that keeps running; empty ends the isolation.
+  string path = 1;
+}
+
+message IsolateResponse {}
+
+message SnapshotRequest {
+  string path = 1;
+  // radius, when positive, keeps only the nodes within it of center, with
+  // their ancestors.
+  float radius = 2;
+  Vec3 center = 3;
+  // chunk_size is the size of each chunk in bytes, 64 KiB by default.
+  uint32 chunk_size = 4;
+}
+
+message Vec3 {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message SnapshotResponse {
+  bytes data = 1;
+  // total is the size of the whole .glb, set on every chunk.
+  uint64 total = 2;
+}

@@ -1,0 +1,10 @@
+{{- $page := "" -}}
+{{- with .Get "link" -}}
+  {{- $page = site.GetPage . -}}
+{{- end -}}
+{{- $body := partial "ember/feature-body" (dict "title" (.Get "title") "icon" (.Get "icon") "image" (.Get "image") "output" (.Get "output") "text" (.Inner | markdownify)) -}}
+{{- with $page -}}
+  <a href="{{ .RelPermalink }}" class="ember-feature not-prose">{{ $body }}</a>
+{{- else -}}
+  <div class="ember-feature not-prose">{{ $body }}</div>
+{{- end -}}

@@ -1,0 +1,32 @@
+{{- /* Images in ember/docs are relative to the Markdown file, as on GitHub. An image with a title is a window capture: it is drawn inside a window frame with that title, at a size proportional to the capture. */ -}}
+{{- $source := .PageInner.Params.source -}}
+{{- $src := .Destination -}}
+{{- with and $source (resources.Get (path.Join "docs" (path.Dir $source) .Destination)) -}}
+  {{- $small := . -}}
+  {{- $img := "" -}}
+  {{- if eq .MediaType.SubType "svg" -}}
+    {{- /* A diagram: vector, served as it is at the page's width. */ -}}
+    {{- $img = printf `<img class="ember-diagram" src="%s" alt="%s" loading="lazy" style="width:100%%;height:auto" />` .RelPermalink ($.PlainText | htmlEscape) -}}
+  {{- else if eq .MediaType.SubType "gif" -}}
+    {{- /* An animated capture: served as it is, since resizing would drop its frames. */ -}}
+    {{- $img = printf `<img src="%s" width="%d" height="%d" alt="%s" loading="lazy" />` .RelPermalink .Width .Height ($.PlainText | htmlEscape) -}}
+  {{- else if le .Width 128 -}}
+    {{- /* Pixel art, such as a sprite sheet: served as is and scaled up with sharp pixels. */ -}}
+    {{- $img = printf `<img class="ember-pixels" src="%s" width="%d" height="%d" alt="%s" loading="lazy" />` .RelPermalink (mul .Width 4) (mul .Height 4) ($.PlainText | htmlEscape) -}}
+  {{- else -}}
+    {{- $small = .Resize (printf "%dx webp q82" (cond (lt .Width 960) .Width 960)) -}}
+    {{- $large := .Resize (printf "%dx webp q82" .Width) -}}
+    {{- $img = printf `<img src="%s" srcset="%s 1x, %s 2x" width="%d" height="%d" alt="%s" loading="lazy" />` $small.RelPermalink $small.RelPermalink $large.RelPermalink $small.Width $small.Height ($.PlainText | htmlEscape) -}}
+  {{- end -}}
+  {{- with $.Title -}}
+    <span class="ember-shot not-prose" style="--w: {{ $small.Width }}"><span class="ember-shot-bar"><span class="ember-shot-lights"><i></i><i></i><i></i></span><span class="ember-shot-title">{{ . }}</span></span>{{ $img | safeHTML }}</span>
+  {{- else -}}
+    {{- $img | safeHTML -}}
+  {{- end -}}
+{{- else -}}
+  {{- /* A picture task docs:shots hasn't made yet is a plain link when the build allows it (shotsOptional, the guide's tests), an error otherwise. */ -}}
+  {{- if and $source (not site.Params.shotsOptional) -}}
+    {{- errorf "%s: no image %q" $source .Destination -}}
+  {{- end -}}
+  <img src="{{ $src | safeURL }}" alt="{{ .PlainText }}" loading="lazy" />
+{{- end -}}

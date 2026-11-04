@@ -1,0 +1,261 @@
+# Tests ember on macOS, Windows and Linux through its Taskfile: the
+# GPU-free tests, the GPU tests on a software adapter where the runner has
+# no GPU (lavapipe on Linux, WARP on Windows; skipped, saying so, when a
+# macOS runner's Metal is out of reach), the ui pages against a pinned
+# Chrome, and every example built for the browser and run in Chrome;
+# golangci-lint on the whole tree, on each OS and on the browser's build;
+# and a scan for leaked secrets.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # The Chrome the ui pages are checked against, the version the
+  # thresholds were measured with.
+  CHROME_VERSION: 156.0.8078.79
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            gpu: lavapipe
+            golden-share: "0.05"
+            run: xvfb-run -a
+          - os: macos-latest
+            gpu: metal
+            golden-share: ""
+            run: ""
+          - os: windows-latest
+            gpu: warp
+            golden-share: "0.05"
+            run: ""
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Linux libraries (GLFW's X11 and Wayland headers, ALSA, Vulkan with lavapipe, Xvfb)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxxf86vm-dev \
+            libgl1-mesa-dev libwayland-dev libxkbcommon-dev libasound2-dev \
+            libvulkan-dev mesa-vulkan-drivers xvfb
+
+      - name: Tool settings and reports in the runner's temp
+        run: |
+          {
+            echo "EMBER_TILESET_DIR=$RUNNER_TEMP/tileset"
+            echo "EMBER_CHROME_REPORTS=$RUNNER_TEMP/chrome-reports"
+            case "${{ matrix.gpu }}" in
+              lavapipe | warp) echo "EMBER_WGPU_FALLBACK=1" ;;
+              metal) echo "EMBER_GPU_OPTIONAL=1" ;;
+            esac
+            if [ -n "${{ matrix.golden-share }}" ]; then
+              echo "EMBER_GOLDEN_SHARE=${{ matrix.golden-share }}"
+            fi
+          } >> "$GITHUB_ENV"
+
+      - name: wgpu-native
+        run: task wgpu
+
+      - name: Tests
+        run: task test
+
+      - name: GPU tests (${{ matrix.gpu }})
+        run: |
+          status=0
+          EMBER_GOLDEN_REPORT="$RUNNER_TEMP/golden.md" ${{ matrix.run }} task test:gpu 2>&1 | tee "$RUNNER_TEMP/gpu.log" || status=$?
+          {
+            echo "### GPU tests on ${{ matrix.os }} (${{ matrix.gpu }})"
+            cat "$RUNNER_TEMP/golden.md" 2>/dev/null || grep -E "no GPU adapter" "$RUNNER_TEMP/gpu.log" || echo "no goldens compared"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
+
+      - name: ui pages against Chrome ${{ env.CHROME_VERSION }}
+        env:
+          EMBER_CHROME: ${{ steps.chrome.outputs.chrome-path }}
+        run: |
+          status=0
+          ${{ matrix.run }} task test:chrome || status=$?
+          {
+            echo "### ui against Chrome $CHROME_VERSION on ${{ matrix.os }}"
+            cat "$EMBER_CHROME_REPORTS/summary.md" 2>/dev/null || echo "no summary.md: the pages didn't run"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+
+      - name: Chrome reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-reports-${{ matrix.os }}
+          path: ${{ env.EMBER_CHROME_REPORTS }}
+          if-no-files-found: ignore
+
+  web:
+    name: web (Chrome, WebGPU)
+    # Allowed to fail until the first run on GitHub shows how a runner's
+    # Chrome draws WebGPU without a GPU (decision 0054).
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Linux libraries (GLFW headers for the native goldens' package, Vulkan with lavapipe)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxxf86vm-dev \
+            libgl1-mesa-dev libwayland-dev libxkbcommon-dev libasound2-dev libvulkan-dev mesa-vulkan-drivers
+
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
+
+      - name: Every example builds for js/wasm
+        env:
+          CGO_ENABLED: "0"
+          GOOS: js
+          GOARCH: wasm
+        run: |
+          for p in ./examples/*/; do
+            case "$p" in *internal*) continue ;; esac
+            go build -o /dev/null "$p" || echo "::warning::$p doesn't build for js/wasm"
+          done
+
+      - name: The 2D goldens, saves, input and every example in Chrome
+        env:
+          EMBER_CHROME: ${{ steps.chrome.outputs.chrome-path }}
+          EMBER_CHROME_FLAGS: --enable-unsafe-swiftshader --use-webgpu-adapter=swiftshader --use-angle=swiftshader
+          EMBER_GOLDEN_SHARE: "0.05"
+        run: |
+          export EMBER_GOLDEN_REPORT="$RUNNER_TEMP/golden-web.md" EMBER_GOLDEN_WEB_OUT="$RUNNER_TEMP/golden-web"
+          mkdir -p "$EMBER_GOLDEN_WEB_OUT"
+          status=0
+          go test -tags 'chrome gpu' -count=1 ./gpu -run GoldenInTheBrowser || status=$?
+          EMBER_WEB_EXAMPLES=1 go test -tags chrome -count=1 -timeout 40m ./internal/chrome || status=$?
+          {
+            echo "### 2D goldens in Chrome $CHROME_VERSION"
+            cat "$EMBER_GOLDEN_REPORT" 2>/dev/null || echo "no goldens compared"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+
+      - name: Web golden pictures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-web
+          path: ${{ runner.temp }}/golden-web
+          if-no-files-found: ignore
+
+  lint:
+    name: lint (${{ matrix.os }})
+    # ember lints at zero: every push and pull request is held to it, on
+    # each desktop's build, with the Chrome and GPU tests, and on the
+    # browser's.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Linux libraries (GLFW's X11 and Wayland headers, ALSA, Vulkan)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxxf86vm-dev \
+            libgl1-mesa-dev libwayland-dev libxkbcommon-dev libasound2-dev libvulkan-dev
+
+      - name: golangci-lint, plain and with the chrome and gpu tests
+        run: |
+          task golangci:boilerplate
+          task golangci:lint
+          task golangci:lint -- --build-tags chrome,gpu
+
+      # go tool would build the linter itself for the browser, so the js
+      # pass runs one built for the runner; platform/desktop has no
+      # browser build.
+      - name: golangci-lint on the browser's build (js/wasm)
+        if: runner.os == 'Linux'
+        run: |
+          go build -o "$RUNNER_TEMP/golangci-lint" github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+          GOOS=js GOARCH=wasm CGO_ENABLED=0 go list ./... | sed 's|^github.com/merlindorin/ember|.|' |
+            grep -v '^\./platform/desktop' |
+            GOOS=js GOARCH=wasm CGO_ENABLED=0 xargs "$RUNNER_TEMP/golangci-lint" run -c .golangci.yaml
+
+  secrets:
+    name: secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: trufflehog, verified secrets only
+        run: |
+          task trufflehog:install
+          "$(go env GOPATH)/bin/trufflehog" git file://. --only-verified --fail

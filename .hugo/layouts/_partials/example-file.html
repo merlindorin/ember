@@ -1,0 +1,5 @@
+{{- $dir := path.Dir (strings.TrimPrefix "/examples/" (printf "/%s" (strings.TrimPrefix "/" .Name))) -}}
+<div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code">
+  {{- partial "components/codeblock" (dict "filename" (path.Base .Name) "lang" (cond (eq (path.Ext .Name) ".go") "go" "text") "base_url" (printf "%s/%s" site.Params.examples $dir) "content" .Content) -}}
+  {{- partialCached "components/codeblock-copy-button" (dict "filename" (path.Base .Name)) (path.Base .Name) -}}
+</div>

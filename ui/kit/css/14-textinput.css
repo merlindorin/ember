@@ -1,0 +1,30 @@
+.kit-text-input {
+  width: 200px; min-width: 80px;
+  padding: 4px 7px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: rgba(40, 33, 25, 0.95);
+  color: var(--light-text);
+  caret-color: var(--accent-color);
+}
+.kit-text-input::placeholder { color: var(--muted-color); }
+.kit-text-input:hover { border-color: #cdb58f; }
+.kit-text-input:focus { border-color: var(--accent-color); }
+/* A read-only field keeps a dimmed border and shows no caret; a disabled one is greyed as a disabled button. */
+.kit-text-input[readonly] { border-color: rgba(173, 151, 115, 0.45); caret-color: transparent; }
+.kit-text-input:disabled { border-color: rgba(173, 151, 115, 0.45); background-color: var(--disabled-color); color: var(--muted-color); }
+.kit-text-input:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 0; }
+.kit-text-input.kit-search {
+  padding-left: 25px;
+  background-image: url(images/magnifier.png);
+  background-repeat: no-repeat;
+  background-position: left 6px center;
+}
+/* The search field's clear button: a muted disc with an × in the window colour, at the field's right. */
+.kit-search-field { position: relative; display: inline-block; }
+.kit-search-field > .kit-text-input.kit-search { padding-right: 25px; }
+.kit-search-clear {
+  position: absolute; right: 6px; top: 50%; margin-top: -7px; width: 14px; height: 14px;
+  padding: 0; border: 0; border-radius: 50%; background-color: var(--muted-color);
+  color: var(--window-color); font-size: 13px; line-height: 14px; text-align: center; text-shadow: none;
+}

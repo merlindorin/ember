@@ -1,0 +1,37 @@
+/* The palette, under its theme's names. */
+:root {
+  --panel-color: rgba(29, 25, 25, 0.86);
+  --border-color: #ad9773;
+  --light-text: #f7efdd;
+  --muted-color: #b8b1a6;
+  --accent-color: #ffce76;
+  --hover-color: rgba(111, 89, 63, 0.95);
+  --active-color: #957345;
+  --window-color: #26221f;
+  --window-bar: #2e2a26;
+  --window-edge: rgba(255, 255, 255, 0.08);
+  --button-color: rgba(63, 53, 44, 0.95);
+  --disabled-color: rgba(48, 48, 48, 0.8);
+  --font-size: 15px;
+}
+
+html {
+  font-family: "Go", sans-serif;
+  font-size: var(--font-size);
+  color: var(--light-text);
+}
+
+/* Kit screens fill their window: no default 8px round the body. */
+body { margin: 0; }
+
+/* Plain controls take kit's accent rather than Chrome's blue: ranges and progress bars through accent-color, checked checkboxes and switches in it, a switch off and a progress bar's track in kit's dark. */
+:root { accent-color: var(--accent-color); }
+input[type="checkbox"]:checked { background-color: var(--accent-color); border-color: var(--accent-color); color: var(--window-color); }
+input[type="checkbox"][switch] { border: 0; background-color: #3a332c; color: #f4ede4; }
+input[type="checkbox"][switch]:checked { background-color: var(--accent-color); color: #f4ede4; }
+progress { border: 1px solid var(--border-color); border-radius: 4px; background-color: rgba(0, 0, 0, 0.7); }
+
+::selection { background-color: rgba(255, 158, 46, 0.35); }
+
+/* Controls sharing a row are one height (kit's TestKitPagesLineUp checks it); a control, or a row of them, keeping its own height carries class "own-height". */
+.own-height { }

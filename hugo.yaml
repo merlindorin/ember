@@ -1,0 +1,93 @@
+baseURL: https://merlindorin.github.io/ember/
+locale: en-US
+title: ember
+resourceDir: .hugo/resources
+
+module:
+  imports:
+    - path: github.com/imfing/hextra
+  mounts:
+    - source: .hugo/content
+      target: content
+    - source: docs
+      target: assets/docs
+    - source: .hugo/layouts
+      target: layouts
+    - source: .hugo/assets
+      target: assets
+    - source: .hugo/static
+      target: static
+    - source: dist/live
+      target: static/live
+    - source: docs
+      target: assets/images
+      files: ["*.png", "*/*.png", "*/*/*.png", "*.gif", "*/*.gif", "*/*/*.gif"]
+    - source: examples
+      target: assets/examples
+
+outputs:
+  page: [html, markdown]
+  section: [html, markdown, rss]
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    noClasses: false
+
+menu:
+  main:
+    - name: Guide
+      pageRef: /docs
+      weight: 1
+    - name: Search
+      weight: 2
+      params:
+        type: search
+    - name: Theme
+      weight: 3
+      params:
+        type: theme-toggle
+    - name: GitHub
+      weight: 4
+      url: https://github.com/merlindorin/ember
+      params:
+        icon: github
+
+params:
+  navbar:
+    displayTitle: true
+    displayLogo: true
+    logo:
+      path: images/logo.svg
+      width: 26
+      height: 26
+  footer:
+    displayCopyright: false
+    displayPoweredBy: false
+  theme:
+    default: system
+    displayToggle: true
+  search:
+    enable: true
+    type: flexsearch
+  page:
+    width: wide
+    contextMenu:
+      enable: true
+  banner:
+    key: experimental
+    message: "ember is **experimental**: its API can still move."
+  editURL:
+    enable: true
+  edit: https://github.com/merlindorin/ember/edit/main
+  repository: https://github.com/merlindorin/ember/blob/main
+  examples: https://github.com/merlindorin/ember/blob/main/examples
+
+# The live builds change under the same names (task web:guide), so the local site makes browsers check them each time.
+server:
+  headers:
+    - for: /**/live/**
+      values:
+        Cache-Control: no-cache

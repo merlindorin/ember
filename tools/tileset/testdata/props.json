@@ -1,0 +1,9 @@
+[
+  {"name": "name", "kind": "string", "default": "", "doc": "what the game calls the tile"},
+  {"name": "reach_down", "kind": "int", "default": 0, "doc": "how many pixels the wall's box reaches under its picture"},
+  {"name": "reach", "kind": "int", "default": 0, "doc": "how far the piece reaches, in cells"},
+  {"name": "cells", "kind": "string", "default": "", "doc": "the cells a piece covers"},
+  {"name": "door", "kind": "string", "default": "", "doc": "a door's state"},
+  {"name": "pair", "kind": "string", "default": "", "doc": "the tile this one pairs with"},
+  {"name": "light", "kind": "string", "default": "", "doc": "the light the tile carries"}
+]

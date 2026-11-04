@@ -1,0 +1,172 @@
+{
+ "type": "tileset",
+ "version": "1.10",
+ "tiledversion": "1.12.2",
+ "name": "floor",
+ "columns": 0,
+ "margin": 0,
+ "spacing": 0,
+ "tilecount": 9,
+ "tilewidth": 16,
+ "tileheight": 16,
+ "grid": {
+  "orientation": "orthogonal",
+  "width": 16,
+  "height": 16
+ },
+ "tiles": [
+  {
+   "id": 0,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 16,
+   "y": 64,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_1"
+    }
+   ]
+  },
+  {
+   "id": 1,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 32,
+   "y": 64,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_2"
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 48,
+   "y": 64,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_3"
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 16,
+   "y": 80,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_4"
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 32,
+   "y": 80,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_5"
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 48,
+   "y": 80,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_6"
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 16,
+   "y": 96,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_7"
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 32,
+   "y": 96,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_8"
+    }
+   ]
+  },
+  {
+   "id": 8,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 64,
+   "y": 96,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_goo_base"
+    }
+   ]
+  }
+ ]
+}

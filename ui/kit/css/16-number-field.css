@@ -1,0 +1,17 @@
+/* NumberField: a narrow text input, without Chrome's spin buttons. */
+.kit-number-field {
+  width: 72px; min-width: 56px;
+  padding: 4px 7px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: rgba(40, 33, 25, 0.95);
+  color: var(--light-text);
+  appearance: textfield;
+}
+.kit-number-field::placeholder { color: var(--muted-color); }
+.kit-number-field:hover { border-color: #cdb58f; }
+.kit-number-field:focus { border-color: var(--accent-color); }
+/* A read-only field keeps a dimmed border and shows no caret; a disabled one is greyed as a disabled button. */
+.kit-number-field[readonly] { border-color: rgba(173, 151, 115, 0.45); caret-color: transparent; }
+.kit-number-field:disabled { border-color: rgba(173, 151, 115, 0.45); background-color: var(--disabled-color); color: var(--muted-color); }
+.kit-number-field:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 0; }

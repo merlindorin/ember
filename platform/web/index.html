@@ -1,0 +1,57 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ember</title>
+<style>
+  html, body { margin: 0; background: #101216; color: #c8c8c8; font: 14px system-ui, sans-serif; }
+  canvas { display: block; outline: none; }
+  .note { max-width: 36em; margin: 48px auto; padding: 20px 24px; border: 1px solid #3a3530; border-radius: 8px; background: #1a1714; line-height: 1.5; }
+  .note h1 { margin: 0 0 8px; font-size: 17px; color: #e8a33d; }
+  #crash { position: fixed; inset: 0; overflow: auto; background: rgba(16, 18, 22, 0.94); }
+  #crash pre { white-space: pre-wrap; font: 12px ui-monospace, monospace; color: #e0c0b8; }
+  [hidden] { display: none !important; }
+</style>
+<canvas id="ember"></canvas>
+<div id="nogpu" class="note" hidden>
+  <h1>This browser can't run ember</h1>
+  <p id="nogpu-browser">ember draws through WebGPU, which this browser doesn't offer. Chrome, Edge and recent versions of Safari and Firefox have it.</p>
+  <p id="nogpu-insecure" hidden>ember draws through WebGPU, which browsers offer only to pages served over https or from localhost; this one came from <code id="nogpu-origin"></code>.</p>
+</div>
+<div id="crash" hidden><div class="note"><h1>The game stopped</h1><pre id="crash-text"></pre><p>The details are in the browser's console too.</p></div></div>
+<script src="fs.js"></script>
+<script src="wasm_exec.js"></script>
+<script>
+  // The query's EMBER_* settings become the game's environment and its arg=
+  // values its command line, in order, as on the desktop; wasm= names the
+  // build, main.wasm by default, gzipped when it ends in .gz. HOME is where os.UserConfigDir puts saves,
+  // which fs.js keeps in localStorage.
+  const query = new URLSearchParams(location.search);
+  window.emberShowCrash = text => {
+    window.emberError = text;
+    document.getElementById("crash-text").textContent = text;
+    document.getElementById("crash").hidden = false;
+  };
+  if (!navigator.gpu) {
+    document.getElementById("nogpu").hidden = false;
+    if (!window.isSecureContext) {
+      document.getElementById("nogpu-browser").hidden = true;
+      document.getElementById("nogpu-insecure").hidden = false;
+      document.getElementById("nogpu-origin").textContent = location.origin;
+    }
+  } else {
+    const go = new Go();
+    go.env.HOME = "/home/player";
+    go.argv = ["ember", ...query.getAll("arg")];
+    for (const [k, v] of query) if (k.startsWith("EMBER_")) go.env[k] = v;
+    // A .wasm.gz build, as the guide hosts them, is unpacked as it comes.
+    const wasm = query.get("wasm") || "main.wasm";
+    const fetched = fetch(wasm).then(r => {
+      if (!r.ok) throw new Error(wasm + ": " + r.status + " " + r.statusText);
+      if (!wasm.endsWith(".gz")) return r;
+      return new Response(r.body.pipeThrough(new DecompressionStream("gzip")), { headers: { "Content-Type": "application/wasm" } });
+    });
+    WebAssembly.instantiateStreaming(fetched, go.importObject)
+      .then(r => go.run(r.instance))
+      .catch(e => window.emberShowCrash(String(e && e.stack || e)));
+  }
+</script>

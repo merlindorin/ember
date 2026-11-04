@@ -1,0 +1,14 @@
+{{- $img := resources.Get (printf "images/%s" .src) -}}
+{{- if not $img -}}
+  {{- /* Not made yet by task docs:shots: allowed only in the guide's tests (shotsOptional). */ -}}
+  {{- if not site.Params.shotsOptional -}}
+    {{- errorf "no image %q under docs" .src -}}
+  {{- end -}}
+<img src="" alt="{{ .alt }}" class="{{ .class }}" />
+{{- else if eq $img.MediaType.SubType "gif" -}}
+<img src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" alt="{{ .alt }}" loading="{{ .loading | default "lazy" }}" class="{{ .class }}" />
+{{- else -}}
+{{- $small := $img.Resize (printf "%dx webp q82" (.width | default 960)) -}}
+{{- $large := $img.Resize (printf "%dx webp q82" (mul 2 (.width | default 960))) -}}
+<img src="{{ $small.RelPermalink }}" srcset="{{ $small.RelPermalink }} 1x, {{ $large.RelPermalink }} 2x" width="{{ $small.Width }}" height="{{ $small.Height }}" alt="{{ .alt }}" loading="{{ .loading | default "lazy" }}" class="{{ .class }}" />
+{{- end -}}

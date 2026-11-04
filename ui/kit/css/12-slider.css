@@ -1,0 +1,11 @@
+.kit-slider[type="range"] {
+  width: 160px; height: 20px;
+  margin: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: var(--border-color);
+  accent-color: var(--accent-color);
+}
+.kit-slider[type="range"]:disabled { color: var(--muted-color); accent-color: var(--muted-color); }
+.kit-slider[type="range"]:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 0; }
+.kit-slider[type="range"] { cursor: pointer; }
+.kit-slider[type="range"]:disabled { cursor: default; }

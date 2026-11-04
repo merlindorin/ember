@@ -1,0 +1,1996 @@
+{
+ "type": "tileset",
+ "version": "1.10",
+ "tiledversion": "1.12.2",
+ "name": "props",
+ "columns": 0,
+ "margin": 0,
+ "spacing": 0,
+ "tilecount": 41,
+ "tilewidth": 32,
+ "tileheight": 48,
+ "grid": {
+  "orientation": "orthogonal",
+  "width": 16,
+  "height": 16
+ },
+ "tiles": [
+  {
+   "id": 0,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 80,
+   "y": 80,
+   "width": 16,
+   "height": 48,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "column"
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 48
+    },
+    {
+     "name": "occluder_group",
+     "type": "int",
+     "value": 1
+    },
+    {
+     "name": "tall",
+     "type": "bool",
+     "value": true
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 1,
+      "y": 30,
+      "width": 13,
+      "height": 6,
+      "ellipse": true
+     }
+    ]
+   }
+  },
+  {
+   "id": 1,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 288,
+   "y": 408,
+   "width": 16,
+   "height": 24,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "crate"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "tall",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 14
+    },
+    {
+     "name": "occluder_group",
+     "type": "int",
+     "value": 1
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 1,
+      "y": 12,
+      "width": 14,
+      "height": 11
+     }
+    ]
+   }
+  },
+  {
+   "id": 2,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 32,
+   "y": 240,
+   "width": 32,
+   "height": 32,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "doors_leaf_closed"
+    },
+    {
+     "name": "cells",
+     "type": "string",
+     "value": "2x1"
+    },
+    {
+     "name": "door",
+     "type": "string",
+     "value": "closed"
+    },
+    {
+     "name": "pair",
+     "type": "string",
+     "value": "doors_leaf_open"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "tall",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 16,
+      "width": 32,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 16,
+      "width": 32,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 3,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 80,
+   "y": 240,
+   "width": 32,
+   "height": 32,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "doors_leaf_open"
+    },
+    {
+     "name": "cells",
+     "type": "string",
+     "value": "2x1"
+    },
+    {
+     "name": "door",
+     "type": "string",
+     "value": "open"
+    },
+    {
+     "name": "pair",
+     "type": "string",
+     "value": "doors_leaf_closed"
+    },
+    {
+     "name": "tall",
+     "type": "bool",
+     "value": true
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 32,
+   "y": 224,
+   "width": 32,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "doors_frame_top"
+    },
+    {
+     "name": "cells",
+     "type": "string",
+     "value": "2x1"
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 32,
+   "y": 32,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_banner_blue"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 6,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 16,
+   "y": 48,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_banner_green"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 7,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 16,
+   "y": 32,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_banner_red"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 8,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 32,
+   "y": 48,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_banner_yellow"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 9,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 64,
+   "y": 80,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_goo"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 10,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 48,
+   "y": 32,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_hole_1"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 11,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 48,
+   "y": 48,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_hole_2"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 12,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 64,
+   "y": 0,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_top_1"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 8,
+      "width": 16,
+      "height": 8
+     }
+    ]
+   }
+  },
+  {
+   "id": 13,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 80,
+   "y": 0,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_top_2"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 5,
+      "width": 16,
+      "height": 11
+     }
+    ]
+   }
+  },
+  {
+   "id": 14,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 96,
+   "y": 0,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_top_3"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 7,
+      "width": 16,
+      "height": 9
+     }
+    ]
+   }
+  },
+  {
+   "id": 15,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 64,
+   "y": 48,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_mid_blue"
+    },
+    {
+     "name": "light",
+     "type": "string",
+     "value": "fountain"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   },
+   "animation": [
+    {
+     "tileid": 15,
+     "duration": 150
+    },
+    {
+     "tileid": 16,
+     "duration": 150
+    },
+    {
+     "tileid": 17,
+     "duration": 150
+    }
+   ]
+  },
+  {
+   "id": 16,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 80,
+   "y": 48,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_mid_blue_anim_f1"
+    },
+    {
+     "name": "light",
+     "type": "string",
+     "value": "fountain"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 17,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 96,
+   "y": 48,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_mid_blue_anim_f2"
+    },
+    {
+     "name": "light",
+     "type": "string",
+     "value": "fountain"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 18,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 64,
+   "y": 64,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_basin_blue"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "shadow",
+     "type": "string",
+     "value": "none"
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   },
+   "animation": [
+    {
+     "tileid": 18,
+     "duration": 150
+    },
+    {
+     "tileid": 19,
+     "duration": 150
+    },
+    {
+     "tileid": 20,
+     "duration": 150
+    }
+   ]
+  },
+  {
+   "id": 19,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 80,
+   "y": 64,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_basin_blue_anim_f1"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "shadow",
+     "type": "string",
+     "value": "none"
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 20,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 96,
+   "y": 64,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_basin_blue_anim_f2"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "shadow",
+     "type": "string",
+     "value": "none"
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 21,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 64,
+   "y": 16,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_mid_red"
+    },
+    {
+     "name": "light",
+     "type": "string",
+     "value": "fountain"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   },
+   "animation": [
+    {
+     "tileid": 21,
+     "duration": 150
+    },
+    {
+     "tileid": 22,
+     "duration": 150
+    },
+    {
+     "tileid": 23,
+     "duration": 150
+    }
+   ]
+  },
+  {
+   "id": 22,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 80,
+   "y": 16,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_mid_red_anim_f1"
+    },
+    {
+     "name": "light",
+     "type": "string",
+     "value": "fountain"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 23,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 96,
+   "y": 16,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_mid_red_anim_f2"
+    },
+    {
+     "name": "light",
+     "type": "string",
+     "value": "fountain"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "reach_down",
+     "type": "int",
+     "value": 4
+    },
+    {
+     "name": "height",
+     "type": "float",
+     "value": 64
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "body",
+      "class": "body",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 20
+     },
+     {
+      "id": 2,
+      "name": "",
+      "type": "shadow",
+      "class": "shadow",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 24,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 64,
+   "y": 32,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_basin_red"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "shadow",
+     "type": "string",
+     "value": "none"
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   },
+   "animation": [
+    {
+     "tileid": 24,
+     "duration": 150
+    },
+    {
+     "tileid": 25,
+     "duration": 150
+    },
+    {
+     "tileid": 26,
+     "duration": 150
+    }
+   ]
+  },
+  {
+   "id": 25,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 80,
+   "y": 32,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_basin_red_anim_f1"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "shadow",
+     "type": "string",
+     "value": "none"
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 26,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 96,
+   "y": 32,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "wall_fountain_basin_red_anim_f2"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "shadow",
+     "type": "string",
+     "value": "none"
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 27,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 96,
+   "y": 144,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "hole"
+    },
+    {
+     "name": "solid",
+     "type": "bool",
+     "value": true
+    },
+    {
+     "name": "shadow",
+     "type": "string",
+     "value": "none"
+    }
+   ],
+   "objectgroup": {
+    "draworder": "index",
+    "id": 2,
+    "name": "",
+    "opacity": 1,
+    "type": "objectgroup",
+    "visible": true,
+    "x": 0,
+    "y": 0,
+    "objects": [
+     {
+      "id": 1,
+      "name": "",
+      "type": "",
+      "rotation": 0,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+     }
+    ]
+   }
+  },
+  {
+   "id": 28,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 16,
+   "y": 192,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_spikes"
+    }
+   ],
+   "animation": [
+    {
+     "tileid": 28,
+     "duration": 200
+    },
+    {
+     "tileid": 29,
+     "duration": 200
+    },
+    {
+     "tileid": 30,
+     "duration": 200
+    },
+    {
+     "tileid": 31,
+     "duration": 200
+    }
+   ]
+  },
+  {
+   "id": 29,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 32,
+   "y": 192,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_spikes_anim_f1"
+    }
+   ]
+  },
+  {
+   "id": 30,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 48,
+   "y": 192,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_spikes_anim_f2"
+    }
+   ]
+  },
+  {
+   "id": 31,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 64,
+   "y": 192,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_spikes_anim_f3"
+    }
+   ]
+  },
+  {
+   "id": 32,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 48,
+   "y": 96,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_ladder"
+    }
+   ]
+  },
+  {
+   "id": 33,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 80,
+   "y": 192,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "floor_stairs"
+    }
+   ]
+  },
+  {
+   "id": 34,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 288,
+   "y": 432,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "skull"
+    },
+    {
+     "name": "occluder_group",
+     "type": "int",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": 35,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 16,
+   "y": 208,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "button_red_up"
+    }
+   ]
+  },
+  {
+   "id": 36,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 32,
+   "y": 208,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "button_red_down"
+    }
+   ]
+  },
+  {
+   "id": 37,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 48,
+   "y": 208,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "button_blue_up"
+    }
+   ]
+  },
+  {
+   "id": 38,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 64,
+   "y": 208,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "button_blue_down"
+    }
+   ]
+  },
+  {
+   "id": 39,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 80,
+   "y": 208,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "lever_left"
+    }
+   ]
+  },
+  {
+   "id": 40,
+   "image": "0x72_DungeonTilesetII_v1.7.png",
+   "imagewidth": 512,
+   "imageheight": 512,
+   "x": 96,
+   "y": 208,
+   "width": 16,
+   "height": 16,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "lever_right"
+    }
+   ]
+  }
+ ]
+}

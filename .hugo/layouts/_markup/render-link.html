@@ -1,0 +1,31 @@
+{{- /* Links in ember/docs are relative to the Markdown file, so they work on GitHub: a .md link becomes its page, and a link to an unpublished or any other file becomes that file on GitHub. */ -}}
+{{- $dest := .Destination -}}
+{{- $url := urls.Parse $dest -}}
+{{- $source := .PageInner.Params.source -}}
+{{- if and $source (not $url.Scheme) $url.Path (not (hasPrefix $url.Path "/")) -}}
+  {{- $target := path.Join "docs" (path.Dir $source) $url.Path -}}
+  {{- $fragment := cond (ne $url.Fragment "") (printf "#%s" $url.Fragment) "" -}}
+  {{- if not (and (hasPrefix $target "docs/") (strings.HasSuffix $target ".md")) -}}
+    {{- if and (not (hasPrefix $target "../")) (not (os.FileExists $target)) -}}
+      {{- errorf "%s: link to %q: no file %s" .PageInner.Params.source .Destination $target -}}
+    {{- end -}}
+    {{- $dest = printf "%s/%s%s" site.Params.repository $target $fragment -}}
+  {{- else -}}
+    {{- $page := slice "docs" -}}
+    {{- range split (strings.TrimSuffix ".md" (strings.TrimPrefix "docs/" $target)) "/" -}}
+      {{- if ne . "README" -}}
+        {{- $page = $page | append (replaceRE `^\d{1,2}-` "" .) -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $found := site.GetPage (printf "/%s" (delimit $page "/")) -}}
+    {{- if $found -}}
+      {{- $dest = printf "%s%s" $found.RelPermalink $fragment -}}
+    {{- else if os.FileExists $target -}}
+      {{- $dest = printf "%s/%s%s" site.Params.repository $target $fragment -}}
+    {{- else -}}
+      {{- errorf "%s: link to %q: no file %s" .PageInner.Params.source .Destination $target -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $external := hasPrefix $dest "http" -}}
+<a href="{{ $dest | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}{{ if $external }} target="_blank" rel="noopener"{{ end }}>{{ .Text | safeHTML }}</a>

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 380" font-family="Helvetica, Arial, sans-serif" font-size="13">
+  <defs>
+    <pattern id="t" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M80,0 L0,0 L0,80" fill="none" stroke="#9a9a9a" stroke-width="1.2"/>
+    </pattern>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0.55" stop-color="#c99a5e" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#c99a5e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="920" height="380" fill="#fbfaf6"/>
+  <text x="20" y="28" font-weight="bold" font-size="15" fill="#222">The ambient picture: one texel per cell, in tiles of 64 × 64 cells, over an endless map</text>
+
+  <!-- world -->
+  <rect x="20" y="44" width="560" height="300" fill="#4a4540"/>
+  <!-- sanctuary bright -->
+  <rect x="60" y="84" width="120" height="100" fill="#c0ae98"/>
+  <text x="70" y="104" font-size="12" fill="#222">sanctuary 1.0</text>
+  <!-- dungeon dark with halo -->
+  <ellipse cx="400" cy="230" rx="130" ry="95" fill="url(#halo)"/>
+  <rect x="320" y="170" width="160" height="120" fill="#151210"/>
+  <rect x="330" y="180" width="70" height="100" fill="#7a6a5a"/>
+  <text x="336" y="200" font-size="11" fill="#fff">joined</text>
+  <text x="336" y="214" font-size="11" fill="#fff">room 0.45</text>
+  <text x="408" y="200" font-size="11" fill="#ccc">shut 0.05</text>
+  <text x="250" y="72" font-size="12" fill="#eee">open crypt 0.15 (fog-of-war level)</text>
+  <text x="430" y="320" font-size="11" fill="#f0d9b8">halo from light_outside</text>
+  <!-- tiles grid -->
+  <rect x="20" y="44" width="560" height="300" fill="url(#t)"/>
+  <!-- view -->
+  <rect x="210" y="130" width="300" height="180" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="216" y="146" font-size="12" fill="#fff">camera view</text>
+  <!-- dirty rect -->
+  <rect x="400" y="180" width="80" height="100" fill="none" stroke="#e33" stroke-width="2"/>
+  <text x="404" y="276" font-size="11" fill="#fbb">repaint</text>
+
+  <!-- notes -->
+  <g font-size="12" fill="#333">
+    <text x="610" y="70" font-weight="bold" font-size="13">What it holds</text>
+    <text x="610" y="90">every light that doesn't move: zone levels,</text>
+    <text x="610" y="106">lit rooms, halos, gate pools, entrances</text>
+    <text x="610" y="136" font-weight="bold" font-size="13">When it's painted</text>
+    <text x="610" y="156">a tile the first time it's in view, by the</text>
+    <text x="610" y="172">game's paint(tile, cells) from map data</text>
+    <text x="610" y="202" font-weight="bold" font-size="13">When it changes</text>
+    <text x="610" y="222">MarkDirty(rect): a room opening repaints</text>
+    <text x="610" y="238">its cells (red), tweened over ~0.5 s</text>
+    <text x="610" y="268" font-weight="bold" font-size="13">How it's drawn</text>
+    <text x="610" y="288">the tiles in view (here 4 × 3) are quads into</text>
+    <text x="610" y="304">L before the lights, bilinear: gradients</text>
+    <text x="610" y="320">painted in it stay smooth</text>
+    <text x="610" y="350">tile: 64×64 texels × 8 B = 32 KB</text>
+  </g>
+</svg>

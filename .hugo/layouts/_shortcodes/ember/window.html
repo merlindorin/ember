@@ -1,0 +1,4 @@
+<figure class="ember-window ember-window-flat not-prose">
+  <div class="ember-window-bar"><span></span><span></span><span></span><code>{{ .Get "caption" }}</code></div>
+  {{- partial "ember/image" (dict "src" (.Get "image") "alt" (.Get "alt") "width" 640) -}}
+</figure>

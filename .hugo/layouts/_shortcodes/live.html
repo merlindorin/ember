@@ -1,0 +1,6 @@
+{{- /* live "92-ui-kit" "-element" "button": the Run in your browser button for an example run with those arguments. */ -}}
+{{- $args := slice -}}
+{{- range after 1 .Params -}}
+  {{- $args = $args | append . -}}
+{{- end -}}
+{{- partial "ember/live.html" (dict "dir" (.Get 0) "args" $args) -}}

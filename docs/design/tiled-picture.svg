@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 410" font-family="Helvetica, Arial, sans-serif" font-size="13">
+  <defs>
+    <pattern id="tiles" width="70" height="70" patternUnits="userSpaceOnUse">
+      <path d="M70,0 L0,0 L0,70" fill="none" stroke="#9a9a9a" stroke-width="1.2"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#555"/>
+    </marker>
+  </defs>
+  <rect width="920" height="410" fill="#fbfaf6"/>
+  <text x="20" y="28" font-weight="bold" font-size="15" fill="#222">The tiled picture: tiles painted on demand, kept in atlas pages, uploaded by the rectangle</text>
+
+  <!-- the world -->
+  <text x="20" y="56" font-weight="bold" fill="#333">The world, in tiles</text>
+  <rect x="20" y="66" width="490" height="280" fill="#e8e3da"/>
+  <!-- painted tiles in view -->
+  <rect x="160" y="136" width="210" height="140" fill="#c9b79a"/>
+  <!-- painted ahead -->
+  <rect x="90" y="136" width="70" height="140" fill="#ddd0bb"/>
+  <rect x="370" y="136" width="70" height="70" fill="#ddd0bb"/>
+  <!-- kept, out of view -->
+  <rect x="20" y="66" width="70" height="70" fill="#d8cdbd"/>
+  <rect x="440" y="276" width="70" height="70" fill="#d8cdbd"/>
+  <rect x="20" y="66" width="490" height="280" fill="url(#tiles)"/>
+  <!-- view -->
+  <rect x="180" y="150" width="170" height="110" fill="none" stroke="#222" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="186" y="168" font-size="12" fill="#222">camera view</text>
+  <!-- dirty -->
+  <rect x="300" y="200" width="45" height="35" fill="none" stroke="#d33" stroke-width="2"/>
+  <text x="250" y="252" font-size="11" fill="#b22">MarkDirty(rect)</text>
+
+  <g font-size="11" fill="#333">
+    <rect x="20" y="356" width="14" height="10" fill="#c9b79a"/><text x="40" y="365">in view: painted before the frame draws</text>
+    <rect x="270" y="356" width="14" height="10" fill="#ddd0bb"/><text x="290" y="365">ahead: PaintAhead a frame</text>
+    <rect x="20" y="374" width="14" height="10" fill="#d8cdbd"/><text x="40" y="383">kept out of view: KeepTiles, least recently seen evicted first</text>
+  </g>
+
+  <!-- arrow to atlas -->
+  <line x1="515" y1="200" x2="590" y2="200" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="520" y="190" font-size="11" fill="#555">paint(tile)</text>
+  <text x="520" y="218" font-size="11" fill="#555">into its slot</text>
+
+  <!-- atlas page -->
+  <text x="600" y="56" font-weight="bold" fill="#333">An atlas page (2048², 7 × 7 slots)</text>
+  <g transform="translate(600,66)">
+    <rect width="210" height="210" fill="#f1ede6" stroke="#999"/>
+    <g fill="#c9b79a" stroke="#fff" stroke-width="2">
+      <rect x="0" y="0" width="30" height="30"/><rect x="30" y="0" width="30" height="30"/><rect x="60" y="0" width="30" height="30"/>
+      <rect x="90" y="0" width="30" height="30"/><rect x="120" y="0" width="30" height="30"/><rect x="150" y="0" width="30" height="30"/>
+    </g>
+    <g fill="#ddd0bb" stroke="#fff" stroke-width="2">
+      <rect x="180" y="0" width="30" height="30"/><rect x="0" y="30" width="30" height="30"/><rect x="30" y="30" width="30" height="30"/>
+    </g>
+    <g fill="#d8cdbd" stroke="#fff" stroke-width="2">
+      <rect x="60" y="30" width="30" height="30"/><rect x="90" y="30" width="30" height="30"/>
+    </g>
+    <rect x="150" y="0" width="12" height="9" fill="none" stroke="#d33" stroke-width="2"/>
+    <text x="8" y="120" font-size="11" fill="#666">free slots</text>
+    <text x="8" y="140" font-size="11" fill="#666">each slot: 256² texels</text>
+    <text x="8" y="156" font-size="11" fill="#666">+ a one-texel border</text>
+  </g>
+  <line x1="705" y1="282" x2="705" y2="318" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="600" y="338" font-size="12" fill="#333">upload: only the rectangles painted</text>
+  <text x="600" y="354" font-size="12" fill="#333">(render.Texture.TouchRect), one texture a page</text>
+  <text x="600" y="376" font-size="12" fill="#333">drawn by the picture as a 2D entity,</text>
+  <text x="600" y="392" font-size="12" fill="#333">as a mask, or as light.AmbientMap</text>
+</svg>

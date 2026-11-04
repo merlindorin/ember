@@ -1,0 +1,134 @@
+version: '3'
+
+
+includes:
+  claude: .tk/claude/Taskfile.yaml
+  default: .tk/default/Taskfile.yaml
+  git: .tk/git/Taskfile.yaml
+  golangci: .tk/golangci/Taskfile.yaml
+  install: .tk/install/Taskfile.yaml
+  license: .tk/license/Taskfile.yaml
+  trufflehog: .tk/trufflehog/Taskfile.yaml
+
+
+dotenv:
+  - .env
+  - PROJECT
+  - .env.default
+
+tasks:
+  docs:
+    desc: Make the guide's pictures (task docs:shots), then serve the guide on http://localhost:1313/ember/ with live reload
+    cmds:
+      - task: docs:shots
+      - hugo server
+
+  docs:shots:
+    desc: 'Make the guide''s pictures under docs from internal/shots''s list (needs task wgpu and a GPU, or EMBER_WGPU_FALLBACK=1): each package built once, only the shots whose code or entry changed remade (keys in dist/shots); FORCE=1 remakes all, ONLY=part makes those whose path contains it, JOBS=n at once'
+    cmds:
+      - go run ./internal/shots/run {{if .FORCE}}-force{{end}} {{if .ONLY}}-only {{.ONLY}}{{end}} {{if .JOBS}}-j {{.JOBS}}{{end}}
+
+  docs:build:
+    desc: Build the published guide into public, with its pictures (task docs:shots) and every example's browser build (task web:guide, in dist/live) at live/ for its "Run in your browser" button; task docs serves those builds too once web:guide has run
+    cmds:
+      - task: web:guide
+      - task: docs:shots
+      - hugo --gc --minify --panicOnWarning
+
+  wgpu:
+    desc: Fetch the wgpu-native library the renderer loads (into internal/wgpu/lib, ignored by git); GOOS/GOARCH pick another platform's
+    cmds: ['sh internal/wgpu/scripts/fetch.sh {{.GOOS}} {{.GOARCH}}']
+    vars:
+      GOOS: {sh: 'echo ${GOOS:-$(go env GOOS)}'}
+      GOARCH: {sh: 'echo ${GOARCH:-$(go env GOARCH)}'}
+
+  package:
+    desc: 'Build a game with its wgpu-native library beside it into dist (a signed .app on macOS); PKG=<package> NAME=<name>, GOOS/GOARCH pick another platform'
+    cmds: ['sh internal/wgpu/scripts/package.sh {{.PKG}} {{.NAME}} {{.GOOS}} {{.GOARCH}}']
+    requires:
+      vars: [PKG, NAME]
+    vars:
+      GOOS: {sh: 'echo ${GOOS:-$(go env GOOS)}'}
+      GOARCH: {sh: 'echo ${GOARCH:-$(go env GOARCH)}'}
+
+  golden:
+    desc: Capture a few examples and the 3D ones, and compare them with their reference pictures (needs task wgpu and a GPU)
+    cmds: [go test -tags gpu ./gpu -run Golden -count=1]
+
+  test:
+    desc: Vet and run every GPU-free test
+    cmds:
+      - go vet ./...
+      - go test -p 2 ./...
+
+  test:gpu:
+    desc: 'The GPU tests: the golden pictures and the wgpu binding (needs task wgpu; EMBER_WGPU_FALLBACK, EMBER_GPU_OPTIONAL and EMBER_GOLDEN_SHARE tune them for CI)'
+    cmds: [go test -tags gpu -count=1 ./gpu ./internal/wgpu]
+
+  test:ember-diff:
+    desc: "Capture every kit page, every UI kit example page and the tileset tool's start card in ember at BASE (default wip) and in the working tree, and list each picture that changed (needs task wgpu and a GPU). Chrome can't see a change both engines share, such as a class a rename missed; run it after a refactor meant to change nothing"
+    vars:
+      BASE: '{{.BASE | default "wip"}}'
+    cmds:
+      - go run ./ui/internal/emberdiff -base '{{.BASE}}'
+
+  test:chrome:
+    desc: 'Every ui Chrome suite, pixel page and kit card against its threshold (needs Chrome, from EMBER_CHROME on other systems than macOS, task wgpu and a GPU). Reports, report.json and summary.md go to EMBER_CHROME_REPORTS (a temp folder otherwise); the table is printed last; DOCS=1 also fills docs/05-ui'
+    vars:
+      REPORT: '{{.EMBER_CHROME_REPORTS | default (print (coalesce (env "TMPDIR") (env "TEMP") "/tmp") "/ember-ui-report")}}'
+    cmds:
+      - go run ./ui/internal/parity -dir '{{.REPORT}}' -reset
+      - |
+        tests=0; table=0
+        EMBER_UI_RESULTS='{{.REPORT}}' EMBER_UI_REPORTS='{{.REPORT}}' go test -tags 'chrome gpu' -p 2 -count=1 -timeout 60m ./ui/... || tests=1
+        go run ./ui/internal/parity -dir '{{.REPORT}}' -json '{{.REPORT}}/report.json' -summary '{{.REPORT}}/summary.md' {{if .DOCS}}-docs docs/05-ui{{end}} || table=1
+        exit $(( tests || table ))
+
+  test:all:
+    desc: test, test:gpu and test:chrome, each run whatever the others gave; fails when any failed, the Chrome table printed last
+    cmds:
+      - |
+        status=0
+        task test || status=1
+        task test:gpu || status=1
+        task test:chrome || status=1
+        exit $status
+
+  web:
+    desc: 'Build a game for the browser into dist/web (js/wasm, wasm_exec.js and its page); PKG=./examples/19-sprites. Serve the folder with any static server and open it in Chrome'
+    vars:
+      PKG: '{{.PKG | default "./examples/19-sprites"}}'
+      OUT: '{{.OUT | default "dist/web"}}'
+    cmds:
+      - mkdir -p {{.OUT}}
+      - CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -trimpath -ldflags "-s -w" -o {{.OUT}}/main.wasm {{.PKG}}
+      - cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" {{.OUT}}/
+      - cp platform/web/index.html platform/web/fs.js {{.OUT}}/
+
+  web:guide:
+    desc: 'Build every example for the browser into OUT (default dist/live) for the guide: NN-name.wasm.gz each, beside the page, wasm_exec.js and fs.js; a guide page runs one at live/index.html?wasm=NN-name.wasm.gz'
+    vars:
+      OUT: '{{.OUT | default "dist/live"}}'
+    cmds:
+      - mkdir -p {{.OUT}}
+      - cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" platform/web/index.html platform/web/fs.js {{.OUT}}/
+      - |
+        for d in examples/*/; do
+          name=$(basename "$d")
+          [ "$name" = internal ] && continue
+          CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -trimpath -ldflags "-s -w" -o "{{.OUT}}/$name.wasm" "./examples/$name" 2>/dev/null || continue
+          gzip -9 -f "{{.OUT}}/$name.wasm"
+        done
+
+  export:
+    desc: 'Copy ember as committed at HEAD into DIR, a new folder, as a git repository of its own with one commit, "ember: initial import", by git''s configured author: a dry run of hosting ember alone. Nothing is pushed'
+    requires:
+      vars: [DIR]
+    cmds:
+      - |
+        test ! -e '{{.DIR}}' || { echo '{{.DIR}} exists'; exit 1; }
+        mkdir -p '{{.DIR}}'
+        git -C "$(git rev-parse --show-toplevel)" archive --format=tar "HEAD:$(git rev-parse --show-prefix)" | tar -x -C '{{.DIR}}'
+        git -C '{{.DIR}}' init -q -b main
+        git -C '{{.DIR}}' add -A
+        git -C '{{.DIR}}' -c user.name="$(git config user.name)" -c user.email="$(git config user.email)" commit -q -m 'ember: initial import'

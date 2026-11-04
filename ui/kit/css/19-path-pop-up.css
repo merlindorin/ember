@@ -1,0 +1,12 @@
+/* PathPopUp: a folder glyph, the folder in bold, the two above it dimmer, cut at 300px. */
+.kit-path-pop-up { display: inline-flex; align-items: center; gap: 6px; max-width: 340px; }
+.kit-folder-glyph { position: relative; flex: none; width: 1em; height: 1em; }
+.kit-folder-tab, .kit-folder-body { position: absolute; left: 1px; background-color: #c9a46e; }
+.kit-folder-tab { top: 18%; width: 42%; height: 20%; border-radius: 1.5px; }
+.kit-folder-body { top: 30%; width: calc(100% - 2px); height: 56%; border-radius: 2px; }
+.kit-path-label { flex: 0 1 auto; min-width: 0; max-width: 300px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.kit-path-name { font-weight: bold; }
+.kit-path-rest { color: var(--muted-color); text-shadow: none; }
+.kit-pop-up-chevron { flex: none; color: var(--muted-color); text-shadow: none; }
+.kit-path-pop-up .kit-menu-item { gap: 6px; }
+.kit-menu-check { flex: none; width: 14px; }

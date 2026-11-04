@@ -1,0 +1,47 @@
+{{- $decisions := .Page.RegularPages.ByWeight -}}
+{{- $areas := slice -}}
+{{- range $decisions -}}
+  {{- $areas = $areas | append .Params.area -}}
+{{- end -}}
+<div class="ember-decisions" data-decisions>
+  <div class="ember-decisions-filters not-prose" hidden>
+    <label><input type="checkbox" data-hide-superseded> Hide superseded</label>
+    <label>Area
+      <select data-area>
+        <option value="">All</option>
+        {{- range sort (uniq $areas) }}
+        <option>{{ . }}</option>
+        {{- end }}
+      </select>
+    </label>
+  </div>
+  <table>
+    <thead><tr><th>#</th><th>Decision</th><th>Status</th><th>Area</th><th>Date</th></tr></thead>
+    <tbody>
+      {{- range $decisions }}
+      <tr data-state="{{ .Params.state }}" data-area="{{ .Params.area }}"{{ if eq .Params.state "superseded" }} class="ember-superseded"{{ end }}>
+        <td>{{ .Params.number }}</td>
+        <td><a href="{{ .RelPermalink }}">{{ replaceRE `^\d{4}\.\s*` "" .Title }}</a></td>
+        <td><span class="ember-status ember-status-{{ .Params.state }}">{{ if eq .Params.state "superseded" }}Superseded{{ else }}Accepted{{ end }}</span></td>
+        <td>{{ .Params.area }}</td>
+        <td><time datetime="{{ time.Format "2006-01-02" .Params.date }}">{{ time.Format "2 Jan 2006" .Params.date }}</time></td>
+      </tr>
+      {{- end }}
+    </tbody>
+  </table>
+  <script>
+    (() => {
+      const root = document.currentScript.closest("[data-decisions]");
+      const hide = root.querySelector("[data-hide-superseded]");
+      const area = root.querySelector("[data-area]");
+      const update = () => {
+        for (const row of root.querySelectorAll("tbody tr")) {
+          row.hidden = (hide.checked && row.dataset.state === "superseded") || (area.value !== "" && row.dataset.area !== area.value);
+        }
+      };
+      hide.addEventListener("change", update);
+      area.addEventListener("change", update);
+      root.querySelector(".ember-decisions-filters").hidden = false;
+    })();
+  </script>
+</div>

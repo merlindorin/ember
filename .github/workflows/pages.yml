@@ -1,0 +1,84 @@
+# Publishes the guide to GitHub Pages on every push to main: every example
+# built for the browser (task web:guide, served at live/ for the guide's
+# "Run in your browser" buttons, which need the https Pages gives), the
+# guide's pictures captured headless on lavapipe (task docs:shots, kept
+# between runs so only the shots whose code changed are remade), then the
+# Hugo site with its Hextra theme (task docs:build).
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Linux libraries (GLFW's X11 and Wayland headers, ALSA, Vulkan with lavapipe, Xvfb)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxxf86vm-dev \
+            libgl1-mesa-dev libwayland-dev libxkbcommon-dev libasound2-dev \
+            libvulkan-dev mesa-vulkan-drivers xvfb
+
+      - name: wgpu-native
+        run: task wgpu
+
+      - name: The pictures made last time, by their keys
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist/shots/keys
+            docs/**/*.png
+            docs/**/*.gif
+          key: shots-${{ hashFiles('internal/shots/**', 'go.sum') }}-${{ github.sha }}
+          restore-keys: shots-${{ hashFiles('internal/shots/**', 'go.sum') }}-
+
+      - uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: "0.169.0"
+          extended: true
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: The guide, its pictures and its live examples
+        env:
+          EMBER_WGPU_FALLBACK: "1"
+        run: xvfb-run -a task docs:build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

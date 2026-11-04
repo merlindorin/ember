@@ -1,0 +1,17 @@
+select.kit-pop-up {
+  padding: 4px 26px 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--button-color);
+  background-image: url(images/chevron.png);
+  background-position: right 9px center;
+  color: var(--light-text);
+  accent-color: var(--hover-color);
+  font-size: 13px;
+  text-shadow: 1px 1.5px rgba(0, 0, 0, 0.8);
+}
+select.kit-pop-up:hover { background-color: var(--hover-color); background-image: url(images/chevron-accent.png); color: var(--accent-color); }
+select.kit-pop-up:active { background-color: var(--active-color); background-image: url(images/chevron-accent.png); color: var(--accent-color); }
+select.kit-pop-up:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 0; }
+select.kit-pop-up { cursor: pointer; }
+select.kit-pop-up:disabled { cursor: default; }

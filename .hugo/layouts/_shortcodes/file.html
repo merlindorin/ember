@@ -1,0 +1,6 @@
+{{- $name := .Get 0 -}}
+{{- with resources.Get (printf "examples/%s" $name) -}}
+  {{- partial "example-file" . -}}
+{{- else -}}
+  {{- errorf "%s: no example file %q" .Position $name -}}
+{{- end -}}

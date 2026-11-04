@@ -1,0 +1,11 @@
+/* Sidebar: 13px places under muted capital titles, hovered faintly, the chosen one a brown band. */
+.kit-sidebar { display: flex; flex-direction: column; min-width: 140px; padding: 6px; overflow: auto; color: var(--light-text); font-size: 13px; text-shadow: none; }
+.kit-sidebar:focus-visible { outline: 2px solid var(--accent-color); outline-offset: -2px; }
+.kit-sidebar.kit-places { background-color: #221e1b; }
+.kit-sidebar-section { display: flex; flex-direction: column; }
+.kit-sidebar-title { padding: 8px 8px 6px; color: var(--muted-color); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+.kit-sidebar-section:not(:first-child) > .kit-sidebar-title { padding-top: 14px; }
+.kit-sidebar-item { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 5px; white-space: nowrap; cursor: pointer; }
+.kit-sidebar-item:hover { background-color: rgba(255, 255, 255, 0.05); }
+.kit-sidebar-item[aria-selected="true"] { background-color: #4a3826; color: #fff; }
+.kit-sidebar-item[aria-disabled="true"] { color: var(--muted-color); }

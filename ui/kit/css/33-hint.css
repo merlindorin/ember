@@ -1,0 +1,22 @@
+/* A Hint shows its keyboard text, or the text of the device the nearest data-input-device names: html's, kept by ui, or a panel's own, which wins. */
+.kit-hint > span { display: none; }
+.kit-hint > .kit-hint-keyboard { display: inline; }
+[data-input-device="mouse"] .kit-hint.kit-has-mouse > .kit-hint-keyboard { display: none; }
+[data-input-device="mouse"] .kit-hint.kit-has-mouse > .kit-hint-mouse { display: inline; }
+[data-input-device="gamepad"] .kit-hint.kit-has-gamepad > .kit-hint-keyboard { display: none; }
+[data-input-device="gamepad"] .kit-hint.kit-has-gamepad > .kit-hint-gamepad { display: inline; }
+[data-input-device="touch"] .kit-hint.kit-has-touch > .kit-hint-keyboard { display: none; }
+[data-input-device="touch"] .kit-hint.kit-has-touch > .kit-hint-touch { display: inline; }
+/* A panel's own device inside html's: two attributes outweigh one, and the panel's rules come last. */
+[data-input-device] [data-input-device] .kit-hint.kit-has-mouse > .kit-hint-mouse { display: none; }
+[data-input-device] [data-input-device] .kit-hint.kit-has-mouse > .kit-hint-keyboard { display: inline; }
+[data-input-device] [data-input-device] .kit-hint.kit-has-gamepad > .kit-hint-gamepad { display: none; }
+[data-input-device] [data-input-device] .kit-hint.kit-has-gamepad > .kit-hint-keyboard { display: inline; }
+[data-input-device] [data-input-device] .kit-hint.kit-has-touch > .kit-hint-touch { display: none; }
+[data-input-device] [data-input-device] .kit-hint.kit-has-touch > .kit-hint-keyboard { display: inline; }
+[data-input-device] [data-input-device="mouse"] .kit-hint.kit-has-mouse > .kit-hint-keyboard { display: none; }
+[data-input-device] [data-input-device="mouse"] .kit-hint.kit-has-mouse > .kit-hint-mouse { display: inline; }
+[data-input-device] [data-input-device="gamepad"] .kit-hint.kit-has-gamepad > .kit-hint-keyboard { display: none; }
+[data-input-device] [data-input-device="gamepad"] .kit-hint.kit-has-gamepad > .kit-hint-gamepad { display: inline; }
+[data-input-device] [data-input-device="touch"] .kit-hint.kit-has-touch > .kit-hint-keyboard { display: none; }
+[data-input-device] [data-input-device="touch"] .kit-hint.kit-has-touch > .kit-hint-touch { display: inline; }

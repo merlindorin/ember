@@ -1,0 +1,13 @@
+/* Wood: a skin of 22-nine-patch's frame art. border-image draws the box as a
+   nine-patch, its 8-pixel borders unstretched, and the pixel font sets the text. */
+@font-face { font-family: "Silkscreen"; src: url(fonts/Silkscreen-Regular.ttf); }
+.wood {
+  border: 8px solid transparent;
+  border-image: url(wood.png) 8 fill;
+  background-color: transparent;
+  image-rendering: pixelated;
+  padding: 26px;
+  color: #fff4dc;
+  font-family: "Silkscreen";
+  font-size: 16px;
+}

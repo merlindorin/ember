@@ -1,0 +1,15 @@
+<section class="ember-hero not-prose">
+  <div class="ember-hero-text">{{ .Inner }}</div>
+  <div class="ember-hero-windows{{ with .Get "image2" }} ember-hero-two{{ end }}">
+    <figure class="ember-window">
+      <div class="ember-window-bar"><span></span><span></span><span></span><code>{{ .Get "caption" }}</code></div>
+      {{- partial "ember/image" (dict "src" (.Get "image") "alt" (.Get "alt") "width" 720 "loading" "eager") -}}
+    </figure>
+    {{- with .Get "image2" }}
+    <figure class="ember-window">
+      <div class="ember-window-bar"><span></span><span></span><span></span><code>{{ $.Get "caption2" }}</code></div>
+      {{- partial "ember/image" (dict "src" . "alt" ($.Get "alt2") "width" 720 "loading" "eager") -}}
+    </figure>
+    {{- end }}
+  </div>
+</section>

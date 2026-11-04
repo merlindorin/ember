@@ -1,0 +1,17 @@
+.kit-row { display: flex; gap: 4px; }
+.kit-column { display: flex; flex-direction: column; gap: 4px; }
+
+.kit-row > .kit-expand, .kit-column > .kit-expand { flex-grow: 1; }
+.kit-row > .kit-fill, .kit-column > .kit-fill { align-self: stretch; }
+
+.kit-justify-start { justify-content: flex-start; }
+.kit-justify-center { justify-content: center; }
+.kit-justify-end { justify-content: flex-end; }
+.kit-justify-between { justify-content: space-between; }
+.kit-align-start { align-items: flex-start; }
+.kit-align-center { align-items: center; }
+.kit-align-end { align-items: flex-end; }
+
+.kit-toolbar { padding: 8px; gap: 8px; align-items: center; }
+.kit-body { padding: 16px; gap: 8px; }
+.kit-footer { padding: 12px; gap: 8px; align-items: center; }

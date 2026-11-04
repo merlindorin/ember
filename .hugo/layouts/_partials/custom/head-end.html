@@ -1,0 +1,112 @@
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  let why = !window.isSecureContext
+    ? "Needs WebGPU, which browsers give only to pages over https or on localhost: open the guide that way, in Chrome, Edge, Firefox or Safari."
+    : !navigator.gpu
+      ? "Needs WebGPU: open the guide in Chrome, Edge, Firefox or Safari."
+      : "";
+  if (!why && !(await navigator.gpu.requestAdapter().catch(() => null))) {
+    why = "WebGPU is on, but the browser offers it no graphics card: its driver may be blocked, or hardware acceleration turned off.";
+  }
+  const help = document.querySelector('meta[name="ember-browser-help"]')?.content;
+
+  // A page's first window capture, when it has its example's window shape, switches between the picture and the example running live.
+  // Live by default where WebGPU is; the reader's last choice holds on every page, and a live example starts once its window scrolls into view.
+  const lives = document.querySelectorAll(".ember-live");
+  const shot = document.querySelector(".ember-shot");
+  const img = shot?.querySelector("img");
+  const live = lives[0];
+  const w = +live?.style.getPropertyValue("--w"), h = +live?.style.getPropertyValue("--h");
+  if (img && lives.length === 1 && Math.abs(img.getAttribute("width") / img.getAttribute("height") - w / h) < 0.01) {
+    const key = "ember-guide-view";
+    let chosen = null;
+    try { chosen = localStorage.getItem(key); } catch {}
+
+    const tabs = document.createElement("span");
+    tabs.className = "ember-shot-tabs";
+    tabs.setAttribute("role", "tablist");
+    const tab = (name, label) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("role", "tab");
+      b.dataset.view = name;
+      b.textContent = label;
+      tabs.append(b);
+    };
+    tab("live", "Live");
+    tab("picture", "Screenshot");
+    shot.append(tabs);
+
+    const view = document.createElement("span");
+    view.className = "ember-shot-live";
+    view.style.aspectRatio = `${w} / ${h}`;
+    shot.append(view);
+
+    let frame;
+    const fit = () => {
+      if (frame) frame.style.transform = `scale(${view.clientWidth / w})`;
+    };
+    new ResizeObserver(fit).observe(view);
+
+    const show = name => {
+      for (const b of tabs.children) b.setAttribute("aria-selected", b.dataset.view === name);
+      img.hidden = name !== "picture";
+      view.hidden = name === "picture";
+      if (name === "picture" || view.firstChild) return;
+      if (why) {
+        const note = document.createElement("span");
+        note.className = "ember-shot-unsupported";
+        note.innerHTML = `<strong>WebGPU isn't available here</strong><span></span>`;
+        note.lastChild.textContent = why;
+        if (help) {
+          const a = document.createElement("a");
+          a.href = help;
+          a.textContent = "How to run the examples in a browser";
+          note.append(a);
+        }
+        view.append(note);
+        return;
+      }
+      frame = document.createElement("iframe");
+      frame.title = "The example, running";
+      frame.allow = "fullscreen; gamepad";
+      frame.width = w;
+      frame.height = h;
+      view.append(frame);
+      fit();
+      new IntersectionObserver((seen, watch) => {
+        if (!seen.some(s => s.isIntersecting)) return;
+        watch.disconnect();
+        frame.src = live.dataset.src;
+      }, { rootMargin: "200px" }).observe(view);
+    };
+    tabs.addEventListener("click", e => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      show(b.dataset.view);
+      try { localStorage.setItem(key, b.dataset.view); } catch {}
+    });
+    show(chosen === "live" || chosen === "picture" ? chosen : why ? "picture" : "live");
+    return;
+  }
+
+  for (const live of lives) {
+    live.hidden = false;
+    if (why) {
+      const note = document.createElement("p");
+      note.className = "ember-live-note";
+      note.textContent = why;
+      live.replaceChildren(note);
+      continue;
+    }
+    live.querySelector("button").addEventListener("click", () => {
+      const frame = document.createElement("iframe");
+      frame.src = live.dataset.src;
+      frame.title = "The example, running";
+      frame.allow = "fullscreen; gamepad";
+      live.replaceChildren(frame);
+    }, { once: true });
+  }
+});
+</script>
+<meta name="ember-browser-help" content="{{ "docs/getting-started/#in-the-browser" | relURL }}">

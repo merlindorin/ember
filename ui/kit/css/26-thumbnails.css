@@ -1,0 +1,10 @@
+/* Thumbnails: a dark rounded well of 118×112 cells, each a faint rounded card, the selected one amber with an accent edge. */
+.kit-thumbnails { display: grid; grid-template-columns: repeat(auto-fill, 118px); grid-auto-rows: 112px; padding: 6px; overflow-y: auto; min-height: 0; background-color: #1f1b18; border: 1px solid var(--window-edge); border-radius: 6px; color: var(--light-text); font-size: 13px; text-shadow: none; }
+.kit-thumbnails:focus-visible { outline: 2px solid var(--accent-color); outline-offset: -2px; }
+.kit-thumbnail { display: flex; flex-direction: column; align-items: center; margin: 5px; padding: 10px 6px 0; min-width: 0; border-radius: 8px; background-color: rgba(255, 255, 255, 0.03); }
+.kit-thumbnail[aria-selected="true"] { background-color: rgba(255, 158, 46, 0.12); outline: 1.5px solid var(--accent-color); outline-offset: -1.5px; }
+.kit-thumbnail-picture { flex: none; width: 72px; height: 46px; }
+.kit-thumbnail-name { margin-top: 10px; max-width: 100%; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kit-thumbnail[aria-selected="true"] > .kit-thumbnail-name { font-weight: bold; }
+.kit-thumbnail[aria-disabled="true"] > .kit-thumbnail-name { color: var(--muted-color); }
+.kit-thumbnail[aria-disabled="true"] > .kit-thumbnail-picture { opacity: 0.35; }

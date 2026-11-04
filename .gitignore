@@ -1,0 +1,16 @@
+.DS_Store
+.idea/
+/ember-*.png
+/public/
+/.hugo/resources/
+/.hugo_build.lock
+/internal/wgpu/lib/
+/dist/
+# tk generates these on demand (task golangci:boilerplate, golangci:ci, trufflehog:ci); they stay out of commits
+/.golangci.yaml
+/.github/workflows/golangci.yml
+/.github/workflows/trufflehog.yml
+.env
+# The guide's pictures, made by task docs:shots from internal/shots.
+/docs/**/*.png
+/docs/**/*.gif

@@ -1,0 +1,37 @@
+{
+ "type": "tileset",
+ "version": "1.10",
+ "tiledversion": "1.12.2",
+ "name": "flags",
+ "image": "flags.png",
+ "imagewidth": 32,
+ "imageheight": 16,
+ "tilewidth": 16,
+ "tileheight": 16,
+ "tilecount": 2,
+ "columns": 2,
+ "margin": 0,
+ "spacing": 0,
+ "tiles": [
+  {
+   "id": 0,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "light inside"
+    }
+   ]
+  },
+  {
+   "id": 1,
+   "properties": [
+    {
+     "name": "name",
+     "type": "string",
+     "value": "light outside"
+    }
+   ]
+  }
+ ]
+}

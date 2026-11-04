@@ -1,0 +1,5 @@
+<section class="ember-section not-prose">
+  <p class="ember-eyebrow">{{ .Get "eyebrow" }}</p>
+  <h2>{{ .Get "title" }}</h2>
+  {{ with .Get "lead" }}<p class="ember-lead">{{ . | markdownify }}</p>{{ end }}
+</section>

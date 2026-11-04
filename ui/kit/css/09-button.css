@@ -1,0 +1,24 @@
+.kit-button {
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--button-color);
+  color: var(--light-text);
+  text-shadow: 1px 1.5px rgba(0, 0, 0, 0.8);
+}
+.kit-button:hover { background-color: var(--hover-color); color: var(--accent-color); }
+.kit-button:active { background-color: var(--active-color); color: var(--accent-color); }
+.kit-button:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 0; }
+
+.kit-button.kit-primary { background-color: #e0a040; color: #2a1a08; text-shadow: none; }
+.kit-button.kit-primary:hover { background-color: #eab25a; }
+.kit-button.kit-primary:active { background-color: #c88a2c; }
+
+.kit-button.kit-destructive { background-color: #c8473d; color: #fff2ee; text-shadow: none; }
+.kit-button.kit-destructive:hover { background-color: #d65a4f; color: #fff; }
+.kit-button.kit-destructive:active { background-color: #a83a31; color: #fff; }
+
+.kit-button:disabled { background-color: var(--disabled-color); color: var(--muted-color); }
+/* A button shows the hand, a disabled one the arrow. */
+.kit-button { cursor: pointer; }
+.kit-button:disabled { cursor: default; }

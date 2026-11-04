@@ -1,0 +1,75 @@
+/* The tile inspector, scoped to #inspector in the shell's Document. */
+#inspector {
+  display: grid;
+  grid-template-columns: var(--name-column) var(--value-column);
+  gap: 6px 12px;
+  --name-column: 120px;
+  --value-column: minmax(0, 1fr);
+  align-items: center;
+  font-size: 15px;
+  color: #f1e9d7;
+}
+#inspector #properties, #inspector #objects { display: contents; }
+#inspector .head { font-size: 11px; letter-spacing: 1px; color: #b8b0a6; }
+#inspector .group { padding-top: 4px; font-size: 12px; font-weight: bold; color: #b8b0a6; }
+#inspector .caption { padding-left: 12px; white-space: nowrap; }
+#inspector .caption.sub { padding-left: 24px; }
+#inspector .hint { font-size: 13px; color: #b8b0a6; min-width: 0; overflow-wrap: anywhere; }
+#inspector .lines { white-space: pre-line; }
+#inspector .full { grid-column: 1 / -1; }
+#inspector .hidden { display: none; }
+#inspector .row { display: flex; gap: 8px; align-items: center; min-width: 0; }
+#inspector .pair { display: flex; gap: 6px; min-width: 0; }
+#inspector .pair > input { flex: 1 1 0; min-width: 0; }
+#inspector input:not([type="checkbox"]), #inspector select {
+  width: 100%;
+  min-width: 0;
+  height: 26px;
+  padding: 3px 6px;
+  background-color: #2a251f;
+  border: 1px solid #ac9672;
+  border-radius: 4px;
+}
+#inspector select { background-color: #3f362e; }
+#inspector input[type="checkbox"] { flex: none; }
+#inspector input:focus-visible, #inspector select:focus-visible, #inspector button:focus-visible, #inspector .fold:focus-visible { outline: 2px solid #ffcf76; }
+#inspector input[readonly] { color: #b8b0a6; }
+#inspector .unset { opacity: 0.5; }
+#inspector .fold { padding: 2px; border-radius: 4px; white-space: nowrap; cursor: pointer; }
+#inspector .fold:hover { background-color: rgba(255, 255, 255, 0.06); }
+#inspector .summary {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  color: #b8b0a6;
+}
+#inspector .object-title { padding-left: 12px; font-weight: bold; }
+#inspector .band {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: var(--name-column) var(--value-column);
+  gap: 6px 12px;
+  align-items: center;
+  margin: 0 -8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background-color: #3a2c20;
+}
+#inspector .actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; min-width: 0; }
+#inspector .actions .spacer { flex: 1 1 0; }
+#inspector #add-object { width: 140px; flex: none; }
+#inspector button {
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid #ac9672;
+  border-radius: 4px;
+  background-color: #2d2d2e;
+  color: #f1e9d7;
+  flex: none;
+}
+#inspector button:hover { background-color: #3f362e; color: #ffcf76; }
+#inspector button:disabled { opacity: 0.5; }
+#inspector #delete { border: 0; background-color: #8a3129; color: #f6e6dc; }
+#inspector #delete:hover { background-color: #a03a30; color: #fff; }

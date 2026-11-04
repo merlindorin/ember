@@ -1,0 +1,19 @@
+/* A box of its own (inline-block), so the tip has it as containing block. */
+.kit-has-tooltip { position: relative; display: inline-block; }
+/* A tip doesn't take its element's look: it is a panel of its own. */
+.kit-tooltip {
+  position: absolute; left: 100%; top: 0; margin-left: 8px; z-index: 100;
+  background-color: var(--panel-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 8px;
+  color: var(--light-text); font-size: var(--font-size); font-weight: normal; font-style: normal;
+  text-align: left; white-space: nowrap; letter-spacing: normal; cursor: default;
+}
+/* A tip shows only while its element is hovered or focused from the keys, whatever display a game's own class gives it. */
+.kit-has-tooltip:not(:hover):not(:focus-visible) > .kit-tooltip { display: none; }
+.kit-tooltip.kit-left { left: auto; right: 100%; margin-left: 0; margin-right: 8px; }
+.kit-tooltip.kit-below { left: 0; top: 100%; margin-left: 0; margin-top: 8px; }
+.kit-has-tooltip:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
+/* ui places a tip that would cross the window's edge: on the other side (data-side), else held inside it (data-clamp). */
+.kit-tooltip[data-side="left"] { left: auto; right: 100%; margin-left: 0; margin-right: 8px; }
+.kit-tooltip[data-side="right"] { left: 100%; right: auto; margin-left: 8px; margin-right: 0; }
+.kit-tooltip[data-side="above"] { top: auto; bottom: 100%; margin-top: 0; margin-bottom: 8px; }
+.kit-tooltip[data-clamp] { left: var(--tip-x); top: var(--tip-y); right: auto; bottom: auto; margin: 0; }

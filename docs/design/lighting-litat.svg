@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 320" font-family="Helvetica, Arial, sans-serif" font-size="13">
+  <defs>
+    <radialGradient id="l" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffcf7a" stop-opacity="0.9"/>
+      <stop offset="0.4" stop-color="#ffcf7a" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ffcf7a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cut" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#c9a47a"/>
+      <stop offset="0.45" stop-color="#c9a47a"/>
+      <stop offset="0.7" stop-color="#4a4038"/>
+      <stop offset="1" stop-color="#2e2824"/>
+    </linearGradient>
+  <clipPath id="c1"><rect x="30" y="44" width="360" height="200"/></clipPath><clipPath id="c2"><rect x="450" y="44" width="360" height="200"/></clipPath></defs>
+  <rect width="860" height="320" fill="#fbfaf6"/>
+
+  <!-- left -->
+  <text x="30" y="30" font-weight="bold" font-size="15" fill="#222">Per pixel: × L(screen position)</text>
+  <rect x="30" y="44" width="360" height="200" fill="#2a2522"/>
+  <circle cx="120" cy="214" r="120" fill="url(#l)" clip-path="url(#c1)"/>
+  <rect x="200" y="64" width="48" height="150" fill="url(#cut)" stroke="#111"/>
+  <circle cx="120" cy="214" r="5" fill="#fff"/>
+  <text x="30" y="266" font-size="12" fill="#444">The light's edge crosses the column: its top half is dark,</text>
+  <text x="30" y="282" font-size="12" fill="#444">its base lit. Right for crates and columns in the open.</text>
+
+  <!-- right -->
+  <text x="450" y="30" font-weight="bold" font-size="15" fill="#222">LitAt(base): × L(anchor), per vertex</text>
+  <rect x="450" y="44" width="360" height="200" fill="#2a2522"/>
+  <circle cx="540" cy="214" r="120" fill="url(#l)" clip-path="url(#c2)"/>
+  <rect x="620" y="64" width="48" height="150" fill="#b8956d" stroke="#111"/>
+  <circle cx="644" cy="214" r="5" fill="#3b6ea8" stroke="#fff" stroke-width="1.5"/>
+  <text x="676" y="218" font-size="12" fill="#cfe0f5">anchor</text>
+  <circle cx="540" cy="214" r="5" fill="#fff"/>
+  <text x="450" y="266" font-size="12" fill="#444">The vertex shader samples L once at the anchor (the wall's base);</text>
+  <text x="450" y="282" font-size="12" fill="#444">every pixel of the wall gets that light. For walls inside places.</text>
+  <text x="450" y="298" font-size="12" fill="#444">The anchor is passed per vertex: 2 more floats.</text>
+</svg>

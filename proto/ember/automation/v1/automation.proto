@@ -1,0 +1,203 @@
+syntax = "proto3";
+
+package ember.automation.v1;
+
+import "google/protobuf/struct.proto";
+
+option go_package = "github.com/merlindorin/ember/automation/automationpb";
+
+// Automation drives a running ember app from outside: read and manipulate
+// every UI element, invoke named actions, read and write live world state
+// through reflection paths, and control time.
+//
+// Every request is executed on the game's main loop between frames, so it
+// never races with systems.
+service Automation {
+  // GetUI returns the UI elements recorded during the last frame.
+  rpc GetUI(GetUIRequest) returns (GetUIResponse);
+  // WatchUI streams the UI tree whenever it changes.
+  rpc WatchUI(WatchUIRequest) returns (stream WatchUIResponse);
+  // Act manipulates a UI element exactly as a user would (press, set, type).
+  rpc Act(ActRequest) returns (ActResponse);
+
+  // ListActions lists the named actions the app exposes.
+  rpc ListActions(ListActionsRequest) returns (ListActionsResponse);
+  // InvokeAction runs a named action.
+  rpc InvokeAction(InvokeActionRequest) returns (InvokeActionResponse);
+
+  // ListEntities lists entities, optionally filtered.
+  rpc ListEntities(ListEntitiesRequest) returns (ListEntitiesResponse);
+  // ListResources lists the world's resource types.
+  rpc ListResources(ListResourcesRequest) returns (ListResourcesResponse);
+  // GetProperty reads any value by path, e.g. "entity/42/Transform/Position"
+  // or "resource/render.Environment/Bloom".
+  rpc GetProperty(GetPropertyRequest) returns (GetPropertyResponse);
+  // SetProperty writes any exported value by path.
+  rpc SetProperty(SetPropertyRequest) returns (SetPropertyResponse);
+
+  // SetPaused freezes or resumes simulated time.
+  rpc SetPaused(SetPausedRequest) returns (SetPausedResponse);
+  // Step advances a given number of frames, then pauses.
+  rpc Step(StepRequest) returns (StepResponse);
+  // Screenshot returns the next presented frame of a window as PNG.
+  rpc Screenshot(ScreenshotRequest) returns (ScreenshotResponse);
+}
+
+message Rect {
+  float x = 1;
+  float y = 2;
+  float w = 3;
+  float h = 4;
+}
+
+message Element {
+  // Stable path such as "hud/skillbar/fireball" or "editor/console/command".
+  string id = 1;
+  // button, toggle, slider, text-input, selectable, menu-item, bar, label, panel…
+  string role = 2;
+  string label = 3;
+  google.protobuf.Value value = 4;
+  bool enabled = 5;
+  Rect bounds = 6;
+  // Title of the OS window the element is drawn in.
+  string window = 7;
+  // Acts the element accepts: "press", "set", "type".
+  repeated string acts = 8;
+  // Whether the element has its window's focus, for keyboard and pad.
+  bool focused = 9;
+}
+
+message GetUIRequest {
+  // Only elements of this window title (empty = all windows).
+  string window = 1;
+  // Only elements whose id starts with this prefix.
+  string prefix = 2;
+}
+
+message GetUIResponse {
+  uint64 frame = 1;
+  repeated Element elements = 2;
+}
+
+message WatchUIRequest {
+  string window = 1;
+  string prefix = 2;
+}
+
+message WatchUIResponse {
+  uint64 frame = 1;
+  repeated Element elements = 2;
+}
+
+message ActRequest {
+  string id = 1;
+  // "press" for buttons, menu items, selectables; "set" for toggles,
+  // sliders and text inputs; "type" appends text to a text input.
+  string act = 2;
+  google.protobuf.Value value = 3;
+}
+
+message ActResponse {
+  // The element as recorded on the frame the act was applied.
+  Element element = 1;
+}
+
+message Action {
+  string id = 1;
+  string label = 2;
+  bool enabled = 3;
+}
+
+message ListActionsRequest {
+  string prefix = 1;
+}
+
+message ListActionsResponse {
+  repeated Action actions = 1;
+}
+
+message InvokeActionRequest {
+  string id = 1;
+  google.protobuf.Struct args = 2;
+}
+
+message InvokeActionResponse {
+  google.protobuf.Value result = 1;
+}
+
+message Entity {
+  uint64 id = 1;
+  string type = 2;
+  string name = 3;
+  // Embedded component types, e.g. "scene.Transform", "render.Model".
+  repeated string components = 4;
+  uint64 parent = 5;
+  repeated uint64 children = 6;
+}
+
+message ListEntitiesRequest {
+  // Substring of the entity's Go type.
+  string type = 1;
+  // Exact or suffix match of an embedded component type ("Transform").
+  string component = 2;
+  // Substring of the entity's Name/Kind/Title.
+  string name = 3;
+  // Maximum entities returned (default 500).
+  int32 limit = 4;
+}
+
+message ListEntitiesResponse {
+  repeated Entity entities = 1;
+  int32 total = 2;
+}
+
+message ListResourcesRequest {}
+
+message ListResourcesResponse {
+  repeated string types = 1;
+}
+
+message GetPropertyRequest {
+  string path = 1;
+  // Nesting depth of the returned value (default 6).
+  int32 depth = 2;
+}
+
+message GetPropertyResponse {
+  google.protobuf.Value value = 1;
+  string type = 2;
+}
+
+message SetPropertyRequest {
+  string path = 1;
+  google.protobuf.Value value = 2;
+}
+
+message SetPropertyResponse {
+  google.protobuf.Value value = 1;
+}
+
+message SetPausedRequest {
+  bool paused = 1;
+}
+
+message SetPausedResponse {
+  bool paused = 1;
+}
+
+message StepRequest {
+  uint32 frames = 1;
+}
+
+message StepResponse {
+  uint64 frame = 1;
+}
+
+message ScreenshotRequest {
+  // Window title (empty = primary window).
+  string window = 1;
+}
+
+message ScreenshotResponse {
+  bytes png = 1;
+}

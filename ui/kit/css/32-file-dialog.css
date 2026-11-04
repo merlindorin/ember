@@ -1,0 +1,52 @@
+/* The old ember/ui's FileDialog, as mockup A: a 900×580 modal window, its toolbar standing for the title bar; places down a darker side, a divider, the list over a note and the selection's details; the type, Cancel and Open at the bottom. */
+.kit-window.kit-file-dialog { width: calc(100% - 40px); height: calc(100% - 40px); max-width: 900px; max-height: 580px; font-size: 16px; }
+.kit-file-dialog > .kit-body { flex: 1; min-height: 0; padding: 0; }
+.kit-file-dialog > .kit-toolbar { border-bottom: 1px solid var(--window-edge); }
+.kit-file-dialog > .kit-footer { border-top: 1px solid var(--window-edge); }
+.kit-nav-pair { gap: 2px; }
+.kit-button.kit-nav { min-width: 28px; padding: 0 8px; }
+.kit-file-search { width: 200px; }
+/* One control height across the toolbar and the footer, the text at the old ember/ui's dialog size, labels centred. */
+.kit-file-dialog > .kit-toolbar > .kit-nav-pair > .kit-button, .kit-file-dialog > .kit-toolbar > .kit-path-pop-up, .kit-file-dialog > .kit-toolbar > .kit-view-toggle,
+.kit-file-dialog > .kit-toolbar > .kit-search-field, .kit-file-dialog > .kit-footer > .kit-pop-up, .kit-file-dialog > .kit-footer > .kit-button, .kit-file-dialog > .kit-footer > .kit-text-input {
+  height: 30px; box-sizing: border-box; font-size: 16px;
+}
+.kit-file-dialog > .kit-toolbar > .kit-nav-pair > .kit-button, .kit-file-dialog > .kit-footer > .kit-button { display: inline-flex; align-items: center; justify-content: center; }
+.kit-file-main { flex: 1; min-height: 0; gap: 0; }
+.kit-file-main > .kit-sidebar { width: 176px; flex: none; font-size: 16px; }
+.kit-file-main > .kit-divider { flex: none; width: 1px; align-self: stretch; background-color: var(--window-edge); }
+.kit-file-pane { flex: 1; min-width: 0; min-height: 0; padding: 12px; gap: 8px; }
+.kit-file-pane > .kit-file-list { flex: 1; min-height: 0; }
+.kit-file-pane > [hidden] { display: none; }
+.kit-file-list.kit-table { font-size: 16px; }
+.kit-file-name { display: flex; align-items: center; gap: 6px; }
+.kit-file-note { color: var(--muted-color); font-size: 13px; text-align: center; }
+.kit-file-info { display: flex; align-items: center; gap: 14px; padding: 10px; min-height: 56px; border: 1px solid var(--window-edge); border-radius: 8px; background-color: rgba(0, 0, 0, 0.18); }
+.kit-file-thumb { flex: none; display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 6px; background-color: rgba(255, 255, 255, 0.04); font-size: 32px; }
+.kit-file-thumb > .kit-image { width: 48px; height: 48px; }
+.kit-file-texts { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.kit-file-title { font-weight: bold; font-size: 17px; }
+.kit-file-details { color: var(--muted-color); font-size: 15px; }
+.kit-file-path { color: var(--muted-color); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kit-file-hint { color: var(--muted-color); font-size: 13px; }
+.kit-file-cancel, .kit-file-ok { min-width: 96px; }
+.kit-file-glyph { position: relative; flex: none; width: 0.8em; height: 1em; border: 1.5px solid #8fa8d8; border-radius: 2px; }
+.kit-file-glyph > span { position: absolute; left: 20%; right: 20%; height: 1.5px; background-color: #8fa8d8; }
+.kit-file-glyph > span:first-child { top: 35%; }
+.kit-file-glyph > span:last-child { top: 60%; }
+.kit-view-glyph { display: grid; width: 14px; height: 12px; gap: 2px; }
+.kit-view-glyph-list { grid-template-rows: repeat(3, 1fr); }
+.kit-view-glyph-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
+.kit-view-glyph > span { background-color: currentColor; border-radius: 1px; }
+.kit-thumbnail-picture.kit-glyph-picture { display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.kit-file-label { color: var(--muted-color); font-size: 14px; }
+.kit-file-type { width: 220px; }
+.kit-file-name-field { width: 240px; }
+.kit-footer > [hidden] { display: none; }
+/* The footer's text shares one baseline, the short Show label's included; the search field's text sits on the toolbar's. */
+.kit-file-dialog > .kit-footer { align-items: baseline; }
+.kit-file-dialog > .kit-toolbar > .kit-search-field { padding-top: 1px; }
+/* In a window of its own the dialog fills it, the OS window's frame and lights standing for its own. */
+.kit-window.kit-file-dialog.kit-own { inset: 0; width: auto; height: auto; max-width: none; max-height: none; margin: 0; border: none; border-radius: 0; box-shadow: none; }
+.kit-window.kit-file-dialog.kit-own .kit-window-lights { display: none; }
+.kit-window.kit-file-dialog.kit-own > .kit-toolbar { border-radius: 0; }

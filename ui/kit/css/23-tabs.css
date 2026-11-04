@@ -1,0 +1,8 @@
+/* Tabs: a centred segmented bar, the chosen tab filled with a tint rather than ringed, 16px above the page. */
+.kit-tabs { display: flex; flex-direction: column; gap: 16px; }
+.kit-tab-bar-row { display: flex; justify-content: center; }
+.kit-tab-bar > .kit-choice-item { padding: 4px 10px; }
+.kit-tab-bar > .kit-choice-item[aria-selected="true"] { background-color: #4a3826; border-color: transparent; color: var(--light-text); }
+/* The old ember/ui's FileDialog list/grid switch: a segmented Choice, the chosen cell a grey tint. */
+.kit-choice.kit-view-toggle > .kit-choice-item { padding: 4px 8px; }
+.kit-choice.kit-view-toggle > .kit-choice-item[aria-checked="true"] { background-color: #4a423a; border-color: transparent; color: var(--light-text); }

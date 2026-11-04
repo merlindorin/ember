@@ -61,6 +61,19 @@ Each one is an example of [the guide](https://ember.vanyda.cloud/ember/): click 
 </tr>
 </table>
 
+## Games
+
+<table>
+<tr>
+<td width="50%"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-tetris.wasm.gz"><img src=".github/readme/tetris.png" alt="Tetris made with ember"></a></td>
+<td width="50%"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-2048.wasm.gz"><img src=".github/readme/2048.png" alt="2048 made with ember"></a></td>
+</tr>
+<tr>
+<td align="center"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-tetris.wasm.gz">Play Tetris</a> · <a href="games/tetris">code</a></td>
+<td align="center"><a href="https://ember.vanyda.cloud/ember/live/index.html?wasm=games-2048.wasm.gz">Play 2048</a> · <a href="games/2048">code</a></td>
+</tr>
+</table>
+
 ## Made with ember
 
 <table>
@@ -110,7 +123,6 @@ func main() {
 
 - 📖 [The guide](https://ember.vanyda.cloud/ember/): one idea per page, its examples runnable in the page (`task docs` serves it locally)
 - 🧩 [Tons of examples](examples), written by AI and carefully reviewed by humans: `go run ./examples/NN-name`
-- 🕹️ [Games](games): Tetris and 2048 in a few hundred lines, `go run ./games/tetris`
 - 🧭 [Design decisions](docs/99-decisions/README.md): each choice and the alternatives it beat
 
 > ember is young: its API still moves, and the guide shows only what is ready.

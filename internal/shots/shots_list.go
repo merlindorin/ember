@@ -684,4 +684,35 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 				"300,280@120;left:135-137",
 		},
 	},
+	{
+		Out:  "10-games/tetris.png",
+		Run:  "./games/tetris",
+		Args: []string{"-seed", "7"},
+		Env: map[string]string{
+			"EMBER_GAMES_DIR": "{tmp}",
+			CaptureKeys: "left:10-11;left:14-15;left:18-19;left:22-23;space:26-27;left:30-31;space:34-35;right:38-39;" +
+				"right:42-43;space:46-47;right:50-51;right:54-55;right:58-59;right:62-63;space:66-67;up:100-101;" +
+				"left:104-105;left:108-109;left:112-113;space:116-117;up:120-121;left:124-125;space:128-129;" +
+				"up:132-133;right:136-137;right:140-141;right:144-145;space:148-149;up:152-153;right:156-157;" +
+				"space:160-161;up:164-165;left:168-169;left:172-173;space:176-177;up:180-181;up:184-185;" +
+				"left:188-189;space:192-193;up:196-197;left:200-201;left:204-205;left:208-209;left:212-213;" +
+				"space:216-217;up:220-221;up:224-225;up:228-229;right:232-233;right:236-237;right:240-241;" +
+				"right:244-245;right:248-249;space:252-253",
+		},
+		Frame: 257,
+	},
+	{
+		Out:  "10-games/2048.png",
+		Run:  "./games/2048",
+		Args: []string{"-seed", "3"},
+		Env: map[string]string{
+			"EMBER_GAMES_DIR": "{tmp}",
+			CaptureKeys: "left:5-6;down:17-18;right:29-30;down:41-42;left:53-54;down:65-66;right:77-78;down:89-90;" +
+				"left:101-102;down:113-114;right:125-126;down:137-138;left:149-150;down:161-162;right:173-174;" +
+				"down:185-186;left:197-198;down:209-210;right:221-222;down:233-234;left:245-246;down:257-258;" +
+				"right:269-270;down:281-282;left:293-294;down:305-306;right:317-318;down:329-330;left:341-342;" +
+				"down:353-354;right:365-366;down:377-378;left:389-390",
+		},
+		Frame: 420,
+	},
 }

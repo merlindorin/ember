@@ -136,7 +136,7 @@ tasks:
       - cp platform/web/index.html platform/web/fs.js {{.OUT}}/
 
   web:guide:
-    desc: 'Build every example for the browser into OUT (default dist/live) for the guide: NN-name.wasm.gz each, beside the page, wasm_exec.js and fs.js; a guide page runs one at live/index.html?wasm=NN-name.wasm.gz'
+    desc: 'Build every example and game for the browser into OUT (default dist/live) for the guide: NN-name.wasm.gz and games-name.wasm.gz each, beside the page, wasm_exec.js and fs.js; a guide page runs one at live/index.html?wasm=NN-name.wasm.gz'
     vars:
       OUT: '{{.OUT | default "dist/live"}}'
     cmds:
@@ -148,6 +148,12 @@ tasks:
           [ "$name" = internal ] && continue
           CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -trimpath -ldflags "-s -w" -o "{{.OUT}}/$name.wasm" "./examples/$name" 2>/dev/null || continue
           gzip -9 -f "{{.OUT}}/$name.wasm"
+        done
+        for d in games/*/; do
+          name=$(basename "$d")
+          [ "$name" = internal ] && continue
+          CGO_ENABLED=0 GOOS=js GOARCH=wasm go build -trimpath -ldflags "-s -w" -o "{{.OUT}}/games-$name.wasm" "./games/$name" 2>/dev/null || continue
+          gzip -9 -f "{{.OUT}}/games-$name.wasm"
         done
 
   export:

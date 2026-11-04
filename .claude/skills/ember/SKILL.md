@@ -34,6 +34,7 @@ ember is a Go game engine on its own ECS. Read this page first, then the referen
 ## Workflow
 
 1. Find the closest example in `examples/` (numbered by guide page; `examples/NN-name/main.go` has a header saying what it shows and how to run it) and its guide page in `docs/`.
+   For a whole game, start from `games/` (tetris, 2048, snake): `rules.go` in plain Go, a twod board entity, `games/internal/look` for the window, HUD, Escape menu and game-over modal, `games/internal/sound` for music and effects made in code, `games/internal/save` for the leaderboard and settings.
 2. Write the rules as plain Go with a `_test.go` beside them.
 3. Build the screen: a window, twod entities for the play area, a `ui.Document` for the HUD around it.
 4. Add one system that reads input and drives the rules.

@@ -304,10 +304,11 @@ func buildGuide(t *testing.T) string {
 // subject in pictures and snippets rather than an example: a page of the
 // components reference, whose section page shows the gallery example they
 // come from, a page of the ui section, whose pictures come from the kit's
-// own kit pages, Tile properties, or the Light pages on lit layers and on
-// debugging.
+// own kit pages, Tile properties, the Light pages on lit layers and on
+// debugging, or a game's page, which shows the game itself.
 func reference(source string) bool {
 	return strings.HasPrefix(source, filepath.Join("docs", "05-ui")+string(filepath.Separator)) ||
+		strings.HasPrefix(source, filepath.Join("docs", "10-games")+string(filepath.Separator)) ||
 		slices.Contains([]string{
 			filepath.Join("docs", "06-2d", "12-tile-properties.md"),
 			filepath.Join("docs", "06-2d", "19-lights", "01-lit-layers.md"),

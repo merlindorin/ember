@@ -97,11 +97,14 @@ import (
 )
 
 func main() {
-	win := platform.NewWindow(platform.Title("hello"), platform.Size(640, 360))
-	win.Add(twod.NewText("Hello, ember", twod.At(320, 180), twod.FontSize(32)))
-	ember.New().AddEntities(win).MustRun()
+	ember.New().
+		AddEntities(platform.NewWindow(platform.Title("hello"), platform.Size(640, 360)).
+			Add(twod.NewText("Hello, ember", twod.At(320, 180), twod.FontSize(32)))).
+		MustRun()
 }
 ```
+
+<img src=".github/readme/hello.png" width="480" alt="A window titled hello showing Hello, ember">
 
 ## Entities and systems
 

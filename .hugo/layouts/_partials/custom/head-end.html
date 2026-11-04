@@ -10,6 +10,51 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   const help = document.querySelector('meta[name="ember-browser-help"]')?.content;
 
+  // A game's picture, with its "Play in your browser" link below it in its section, plays in place: a click on either swaps the picture for the game,
+  // at the picture's size, from this site's own live/ builds (the link names the published guide, for GitHub).
+  for (const shot of document.querySelectorAll(".ember-shot")) {
+    let link = null;
+    for (let next = shot.closest("p")?.nextElementSibling; next && !/^H[1-6]$/.test(next.tagName) && !link; next = next.nextElementSibling) {
+      link = next.querySelector('a[href*="live/index.html?wasm="]');
+    }
+    const img = shot.querySelector("img");
+    if (!link || !img) continue;
+    const url = new URL(link.href);
+    const src = `${document.querySelector('meta[name="ember-live-base"]').content}index.html${url.search}`;
+    shot.classList.add("ember-shot-playable");
+    const play = () => {
+      if (why) {
+        if (!shot.querySelector(".ember-shot-unsupported")) {
+          const note = document.createElement("span");
+          note.className = "ember-shot-unsupported";
+          note.innerHTML = `<strong>WebGPU isn't available here</strong><span></span>`;
+          note.lastChild.textContent = why;
+          shot.append(note);
+        }
+        return;
+      }
+      if (shot.querySelector("iframe")) return;
+      const w = +img.getAttribute("width"), h = +img.getAttribute("height");
+      const view = document.createElement("span");
+      view.className = "ember-shot-live";
+      view.style.aspectRatio = `${w} / ${h}`;
+      const frame = document.createElement("iframe");
+      frame.title = "The game, running";
+      frame.allow = "fullscreen; gamepad";
+      frame.width = w;
+      frame.height = h;
+      frame.src = src;
+      view.append(frame);
+      img.replaceWith(view);
+      const fit = () => { frame.style.transform = `scale(${view.clientWidth / w})`; };
+      new ResizeObserver(fit).observe(view);
+      fit();
+      frame.focus();
+    };
+    img.addEventListener("click", play);
+    link.addEventListener("click", e => { e.preventDefault(); play(); shot.scrollIntoView({ block: "nearest" }); });
+  }
+
   // A page's first window capture, when it has its example's window shape, switches between the picture and the example running live.
   // Live by default where WebGPU is; the reader's last choice holds on every page, and a live example starts once its window scrolls into view.
   const lives = document.querySelectorAll(".ember-live");
@@ -110,3 +155,4 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 </script>
 <meta name="ember-browser-help" content="{{ "docs/getting-started/#in-the-browser" | relURL }}">
+<meta name="ember-live-base" content="{{ "live/" | relURL }}">

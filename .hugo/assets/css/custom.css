@@ -831,3 +831,13 @@ a.ember-feature:hover .ember-feature-image {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* A game's picture plays in place on a click. */
+.ember-shot-playable { position: relative; }
+.ember-shot-playable img { cursor: pointer; }
+.ember-shot-playable:not(:has(iframe))::after {
+  content: "▶ Click to play";
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+  padding: 6px 14px; border-radius: 999px; background: rgb(0 0 0 / 0.6); color: #fff; font-size: 14px;
+  pointer-events: none;
+}

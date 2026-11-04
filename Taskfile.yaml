@@ -2,14 +2,13 @@ version: '3'
 
 
 includes:
-  claude: .tk/claude/Taskfile.yaml
-  default: .tk/default/Taskfile.yaml
-  git: .tk/git/Taskfile.yaml
-  golangci: .tk/golangci/Taskfile.yaml
-  install: .tk/install/Taskfile.yaml
-  license: .tk/license/Taskfile.yaml
-  trufflehog: .tk/trufflehog/Taskfile.yaml
-
+  claude: .tk/claude/Taskfile.yaml #!tk
+  default: .tk/default/Taskfile.yaml #!tk
+  git: .tk/git/Taskfile.yaml #!tk
+  golangci: .tk/golangci/Taskfile.yaml #!tk
+  install: .tk/install/Taskfile.yaml #!tk
+  license: .tk/license/Taskfile.yaml #!tk
+  trufflehog: .tk/trufflehog/Taskfile.yaml #!tk
 
 dotenv:
   - .env

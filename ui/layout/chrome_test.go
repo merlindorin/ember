@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"image"
 	"image/png"
+	"os"
+	"runtime"
 	"testing"
 	"testing/fstest"
 
@@ -358,8 +360,22 @@ func TestLayoutMatchesChrome(t *testing.T) {
 			),
 		),
 	}
+	// Controls' default sizes are Chrome on macOS's, which ui follows;
+	// Chrome on Linux and Windows sizes them by its own rules.
+	controlSizes := map[string]bool{
+		"an input with a value": true, "an empty input with a placeholder": true,
+		"a select with three options": true, "a select's placeholder counts in its width": true,
+		"a textarea of three lines": true, "controls centre their text": true,
+		"tall controls align by their centred text's baseline": true,
+	}
 	for name, d := range cases {
 		t.Run(name, func(t *testing.T) {
+			if controlSizes[name] && runtime.GOOS != "darwin" {
+				t.Skip("controls' default sizes are Chrome on macOS's")
+			}
+			if name == "a textarea of three lines" && os.Getenv("CI") != "" {
+				t.Skip("a cols-sized textarea is a point narrower in the macOS runner's Chrome than on a desktop Mac")
+			}
 			r := chrome.Match(t, d, geom.V2(800, 600))
 			t.Logf("%d boxes, max delta %.3f pt", r.Boxes, r.MaxDelta)
 		})

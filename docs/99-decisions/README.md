@@ -66,6 +66,7 @@ The choices that shape ember, one short file each: what was decided, what else w
 | 0060 | [Back and key callbacks bubble from the focused element](0060-back-and-key-callbacks-bubble.md) | api |
 | 0061 | [Picture cursors are Cursor values](0061-picture-cursors-are-cursor-values.md) | api |
 | 0062 | [ui elements take a right click and drag-and-drop of their own](0062-ui-elements-take-a-right-click-and-drag-and-drop-of-their-own.md) | api |
+| 0063 | [On the web, the page is the window's frame](0063-on-the-web-the-page-is-the-windows-frame.md) | platform |
 
 ## Writing one
 

@@ -92,17 +92,14 @@ func (r *runner) run() error {
 
 	capturing := os.Getenv("EMBER_CAPTURE") != ""
 	captureFrame := envInt("EMBER_CAPTURE_FRAME", 120)
-	keyScript, err := capture.ParseKeys(os.Getenv("EMBER_CAPTURE_KEYS"))
-	if err != nil {
-		return err
-	}
-	mouse, err := capture.ParseMouse(os.Getenv("EMBER_CAPTURE_MOUSE"))
+	keyScript, mouse, err := captureScripts()
 	if err != nil {
 		return err
 	}
 
 	frames, stop := animationFrames()
 	defer stop()
+	defer r.sound.Close()
 
 	in := win.Input()
 	if !capturing {
@@ -179,6 +176,17 @@ func openDevice() (*wgpu.Device, *wgpu.Adapter, error) {
 	return dev, ad, nil
 }
 
+// captureScripts are EMBER_CAPTURE_KEYS and EMBER_CAPTURE_MOUSE, the keys
+// and pointer a capture plays.
+func captureScripts() (capture.Keys, capture.Mouse, error) {
+	keys, err := capture.ParseKeys(os.Getenv("EMBER_CAPTURE_KEYS"))
+	if err != nil {
+		return keys, capture.Mouse{}, err
+	}
+	mouse, err := capture.ParseMouse(os.Getenv("EMBER_CAPTURE_MOUSE"))
+	return keys, mouse, err
+}
+
 // pageCanvas is the page's canvas #ember and the pixels a point it draws
 // at: the page's pixel ratio, or EMBER_SCALE.
 func pageCanvas() (js.Value, float64, error) {
@@ -235,42 +243,43 @@ func (f *fitter) fit() {
 }
 
 // animationFrames signals each of the browser's animation frames, at most
-// one waiting; stop ends them.
+// one waiting; stop cancels the next and frees the callback.
 func animationFrames() (<-chan struct{}, func()) {
 	frames := make(chan struct{}, 1)
 	var tick js.Func
-	stopped := false
+	var next js.Value
 	tick = js.FuncOf(func(js.Value, []js.Value) any {
 		select {
 		case frames <- struct{}{}:
 		default:
 		}
-		if !stopped {
-			js.Global().Call("requestAnimationFrame", tick)
-		}
+		next = js.Global().Call("requestAnimationFrame", tick)
 		return nil
 	})
-	js.Global().Call("requestAnimationFrame", tick)
-	return frames, func() { stopped = true }
+	next = js.Global().Call("requestAnimationFrame", tick)
+	return frames, func() {
+		js.Global().Call("cancelAnimationFrame", next)
+		tick.Release()
+	}
 }
 
 // attach listens to the canvas's input, resumes the sound on its first
-// click, key or touch, and titles the page; the func it gives releases the
-// sound's listener.
+// click, key or touch, and titles the page; the func it gives removes and
+// releases every handler it added.
 func (r *runner) attach(canvas js.Value, win *platform.Window) func() {
 	in := win.Input()
-	listen(canvas, in)
+	ls := &listeners{}
+	listen(ls, canvas, in)
 	// The canvas keeps mousedown and mouseup from the page, which oto
 	// waits for, so its own click, key and touch resume the sound.
-	resume := js.FuncOf(func(js.Value, []js.Value) any { r.sound.Resume(); return nil })
 	for _, event := range []string{"click", "keydown", "touchend"} {
-		canvas.Call("addEventListener", event, resume)
+		ls.on(canvas, event, func(js.Value) { r.sound.Resume() })
 	}
-	win.Attach(newCanvas(canvas, in))
+	win.Attach(newCanvas(ls, canvas, in))
 	if t := win.Title(); t != "" {
 		js.Global().Get("document").Set("title", t)
 	}
-	return resume.Release
+	return ls.release
 }
 
 // captureTo reads t back and hands it to the page as emberCapture, a

@@ -93,15 +93,10 @@ var mouseButtons = map[int]input.MouseButton{
 
 // listen feeds the page's keyboard, the canvas's pointer and wheel into
 // in, as GLFW's callbacks do on the desktop: events arrive between
-// frames, and the World reads them at its next one. The handlers are
-// kept for the page's life.
-func listen(canvas js.Value, in *input.State) {
-	on := func(target js.Value, event string, fn func(e js.Value)) {
-		target.Call("addEventListener", event, js.FuncOf(func(_ js.Value, args []js.Value) any {
-			fn(args[0])
-			return nil
-		}), map[string]any{"passive": false})
-	}
+// frames, and the World reads them at its next one. The handlers live in
+// ls until the game ends.
+func listen(ls *listeners, canvas js.Value, in *input.State) {
+	on := ls.on
 	window := js.Global()
 	canvas.Set("tabIndex", 0)
 	canvas.Call("focus")
@@ -157,6 +152,39 @@ func listen(canvas js.Value, in *input.State) {
 		in.AddWheel(geom.V2(float32(-e.Get("deltaX").Float()/unit), float32(-e.Get("deltaY").Float()/unit)))
 		e.Call("preventDefault")
 	})
+}
+
+// listeners are the page's handlers into the game: when it ends they are
+// removed and released, so a page that runs it again, or an event after
+// the program has exited, finds none of them.
+type listeners struct {
+	added []listener
+}
+
+type listener struct {
+	target js.Value
+	event  string
+	fn     js.Func
+}
+
+// on adds fn as target's handler for event, one that may prevent the
+// event's default.
+func (ls *listeners) on(target js.Value, event string, fn func(e js.Value)) {
+	f := js.FuncOf(func(_ js.Value, args []js.Value) any {
+		fn(args[0])
+		return nil
+	})
+	target.Call("addEventListener", event, f, map[string]any{"passive": false})
+	ls.added = append(ls.added, listener{target, event, f})
+}
+
+// release removes every handler and frees it.
+func (ls *listeners) release() {
+	for _, l := range ls.added {
+		l.target.Call("removeEventListener", l.event, l.fn, map[string]any{"passive": false})
+		l.fn.Release()
+	}
+	ls.added = nil
 }
 
 // standard is the Gamepad API's standard mapping, button by button.

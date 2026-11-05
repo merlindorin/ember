@@ -7,6 +7,7 @@
   canvas { display: block; outline: none; }
   .note { max-width: 36em; margin: 48px auto; padding: 20px 24px; border: 1px solid #3a3530; border-radius: 8px; background: #1a1714; line-height: 1.5; }
   .note h1 { margin: 0 0 8px; font-size: 17px; color: #e8a33d; }
+  .note a { color: #e8a33d; }
   #crash { position: fixed; inset: 0; overflow: auto; background: rgba(16, 18, 22, 0.94); }
   #crash pre { white-space: pre-wrap; font: 12px ui-monospace, monospace; color: #e0c0b8; }
   [hidden] { display: none !important; }
@@ -17,6 +18,7 @@
   <p id="nogpu-browser">ember draws through WebGPU, which this browser doesn't offer. Chrome, Edge and recent versions of Safari and Firefox have it.</p>
   <p id="nogpu-insecure" hidden>ember draws through WebGPU, which browsers offer only to pages served over https or from localhost; this one came from <code id="nogpu-origin"></code>.</p>
 </div>
+<div id="ended" class="note" hidden><h1>The game has ended</h1><p><a href="" id="again">Play again</a></p></div>
 <div id="crash" hidden><div class="note"><h1>The game stopped</h1><pre id="crash-text"></pre><p>The details are in the browser's console too.</p></div></div>
 <script src="fs.js"></script>
 <script src="wasm_exec.js"></script>
@@ -52,6 +54,13 @@
     });
     WebAssembly.instantiateStreaming(fetched, go.importObject)
       .then(r => go.run(r.instance))
+      .then(() => {
+        // The program has ended (Quit): say so, unless a crash already did.
+        window.emberEnded = true;
+        if (window.emberError) return;
+        document.getElementById("ember").hidden = true;
+        document.getElementById("ended").hidden = false;
+      })
       .catch(e => window.emberShowCrash(String(e && e.stack || e)));
   }
 </script>

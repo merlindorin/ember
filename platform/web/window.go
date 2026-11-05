@@ -36,14 +36,13 @@ var cursors = map[platform.Cursor]string{
 	platform.CursorResizeNWSE: "nwse-resize",
 }
 
-func newCanvas(el js.Value, in *input.State) *canvas {
+func newCanvas(ls *listeners, el js.Value, in *input.State) *canvas {
 	c := &canvas{el: el, in: in}
-	js.Global().Call("addEventListener", "paste", js.FuncOf(func(_ js.Value, args []js.Value) any {
-		if data := args[0].Get("clipboardData"); !data.IsNull() && !data.IsUndefined() {
+	ls.on(js.Global(), "paste", func(e js.Value) {
+		if data := e.Get("clipboardData"); !data.IsNull() && !data.IsUndefined() {
 			c.pasted = data.Call("getData", "text/plain").String()
 		}
-		return nil
-	}))
+	})
 	return c
 }
 

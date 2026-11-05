@@ -51,6 +51,9 @@ func (p *probe) Update(f world.Frame) {
 	p.r.Wheel += in.Wheel().Y
 	p.r.Text += string(in.Text())
 	p.r.Frame++
+	if os.Getenv("EMBER_PROBE_QUIT") != "" && p.r.Frame == 30 {
+		f.Quit()
+	}
 	if in.Pressed(input.KeyF) {
 		p.win.SetFullscreen(!p.win.Fullscreen())
 	}

@@ -187,3 +187,33 @@ func TestAResizableWindowFillsThePageAndAFixedOneKeepsItsSize(t *testing.T) {
 		t.Fatalf("the far corner is the game's background, not the page's: %02x%02x%02x", r>>8, g>>8, bl>>8)
 	}
 }
+
+func TestAGameThatQuitsEndsItsProgram(t *testing.T) {
+	p := openProbe(t, "?EMBER_PROBE_QUIT=1", 1)
+	catch := `window.pageErrors = []; addEventListener("error", e => pageErrors.push(e.message)); true`
+	if err := p.b.Eval(catch, new(bool)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := p.b.Wait(`window.emberEnded ? "ended" : ""`, 20*time.Second); err != nil {
+		t.Fatalf("Quit after 30 frames ends the program, go.run's promise resolving: %v", err)
+	}
+	var shown bool
+	ended := `!document.getElementById("ended").hidden && document.getElementById("ember").hidden`
+	if err := p.b.Eval(ended, &shown); err != nil || !shown {
+		t.Fatalf("the page says the game has ended: %v %v", shown, err)
+	}
+	p.key("keyDown", "KeyW", "w", 87)
+	p.key("keyUp", "KeyW", "w", 87)
+	p.call("Input.dispatchMouseEvent", map[string]any{"type": "mouseMoved", "x": 100, "y": 50})
+	if err := p.b.Eval(`dispatchEvent(new ClipboardEvent("paste")); true`, new(bool)); err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(200 * time.Millisecond)
+	var errs []string
+	if err := p.b.Eval(`pageErrors`, &errs); err != nil {
+		t.Fatal(err)
+	}
+	if len(errs) > 0 {
+		t.Fatalf("no handler is left calling into the ended program: %v", errs)
+	}
+}

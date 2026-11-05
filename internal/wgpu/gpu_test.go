@@ -3,8 +3,10 @@
 package wgpu //nolint:testpackage // white-box: reaches the binding's unexported handles
 
 import (
+	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 	"unsafe"
@@ -14,26 +16,42 @@ import (
 //
 //	go test -tags gpu ./internal/wgpu
 
+// device is the one device every test here shares: the binding frees none,
+// and a software adapter (WARP on CI) runs out of memory for one a test.
 func device(t *testing.T) *Device {
 	t.Helper()
-	inst, err := NewInstance()
-	if err != nil {
-		t.Fatal(err)
-	}
-	ad, err := inst.RequestAdapter(nil)
-	if err != nil {
-		if os.Getenv(OptionalEnv) == "1" {
-			t.Skipf("no GPU adapter here, and %s=1: %v", OptionalEnv, err)
+	sharedOnce.Do(func() {
+		inst, err := NewInstance()
+		if err != nil {
+			errShared = err
+			return
 		}
-		t.Fatal(err)
+		ad, err := inst.RequestAdapter(nil)
+		if err != nil {
+			errShared, sharedMissing = err, true
+			return
+		}
+		sharedInfo = fmt.Sprintf("wgpu-native %s, %+v", Version(), ad.Info())
+		sharedDevice, errShared = ad.RequestDevice()
+	})
+	if sharedMissing && os.Getenv(OptionalEnv) == "1" {
+		t.Skipf("no GPU adapter here, and %s=1: %v", OptionalEnv, errShared)
 	}
-	t.Logf("wgpu-native %s, %+v", Version(), ad.Info())
-	d, err := ad.RequestDevice()
-	if err != nil {
-		t.Fatal(err)
+	if errShared != nil {
+		t.Fatal(errShared)
 	}
-	return d
+	t.Log(sharedInfo)
+	return sharedDevice
 }
+
+//nolint:gochecknoglobals // the shared device, made once for the package's tests
+var (
+	sharedOnce    sync.Once
+	sharedDevice  *Device
+	errShared     error
+	sharedMissing bool
+	sharedInfo    string
+)
 
 const triangle = `
 struct Out { @builtin(position) pos: vec4f, @location(0) color: vec4f };

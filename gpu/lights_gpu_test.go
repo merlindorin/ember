@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/merlindorin/ember/collide"
@@ -22,25 +23,40 @@ import (
 	"github.com/merlindorin/ember/world"
 )
 
+// device is the one device every GPU test here shares: the binding frees
+// none, and a software adapter (WARP on CI) runs out of memory for one a
+// test.
 func device(t *testing.T) *wgpu.Device {
 	t.Helper()
-	inst, err := wgpu.NewInstance()
-	if err != nil {
-		t.Fatal(err)
-	}
-	ad, err := inst.RequestAdapter(nil)
-	if err != nil {
-		if os.Getenv(wgpu.OptionalEnv) == "1" {
-			t.Skipf("no GPU adapter here, and %s=1: %v", wgpu.OptionalEnv, err)
+	gpuOnce.Do(func() {
+		inst, err := wgpu.NewInstance()
+		if err != nil {
+			errDevice = err
+			return
 		}
-		t.Fatal(err)
+		ad, err := inst.RequestAdapter(nil)
+		if err != nil {
+			errDevice, gpuMissing = err, true
+			return
+		}
+		gpuDevice, errDevice = ad.RequestDevice()
+	})
+	if gpuMissing && os.Getenv(wgpu.OptionalEnv) == "1" {
+		t.Skipf("no GPU adapter here, and %s=1: %v", wgpu.OptionalEnv, errDevice)
 	}
-	d, err := ad.RequestDevice()
-	if err != nil {
-		t.Fatal(err)
+	if errDevice != nil {
+		t.Fatal(errDevice)
 	}
-	return d
+	return gpuDevice
 }
+
+//nolint:gochecknoglobals // the shared device, made once for the package's tests
+var (
+	gpuOnce    sync.Once
+	gpuDevice  *wgpu.Device
+	errDevice  error
+	gpuMissing bool
+)
 
 func filled(w, h int, c stdcolor.RGBA) *twod.Texture {
 	img := image.NewRGBA(image.Rect(0, 0, w, h))

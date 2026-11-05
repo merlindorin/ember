@@ -15,6 +15,8 @@ html { background-color: #fff; }
 body { padding: 12px; }
 .row { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
 input { width: 160px; }
+/* An explicit width: sized by cols, the textarea is a point narrower in the CI runners' Chrome. */
+textarea { width: 214px; }
 .up { text-transform: uppercase; }
 .cap { text-transform: capitalize; }
 .low { text-transform: lowercase; }

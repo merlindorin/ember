@@ -101,13 +101,16 @@ func (c *canvas) ScreenCursor() (float64, float64) {
 	return float64(m.X), float64(m.Y)
 }
 
-// SetFullscreen asks the page to show the canvas full screen; browsers
-// grant it only during a click or a key.
+// SetFullscreen asks for the whole page full screen, not the canvas, which
+// the browser would stretch past the size the game reads; the runner then
+// fits the canvas to the page. Browsers grant it only during a click or a
+// key.
 func (c *canvas) SetFullscreen(on bool) {
+	doc := js.Global().Get("document")
 	if on {
-		c.el.Call("requestFullscreen")
-	} else if !js.Global().Get("document").Get("fullscreenElement").IsNull() {
-		js.Global().Get("document").Call("exitFullscreen")
+		doc.Get("documentElement").Call("requestFullscreen")
+	} else if !doc.Get("fullscreenElement").IsNull() {
+		doc.Call("exitFullscreen")
 	}
 }
 

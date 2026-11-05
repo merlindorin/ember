@@ -24,6 +24,8 @@ type probe struct {
 	Wheel  float32    `json:"wheel"`
 	Text   string     `json:"text"`
 	Frame  int        `json:"frame"`
+	Size   [2]float32 `json:"size"`
+	Full   bool       `json:"full"`
 }
 
 // TestThePagesInputReachesTheWorld runs testdata/probe in a page through

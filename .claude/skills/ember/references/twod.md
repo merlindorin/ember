@@ -11,11 +11,11 @@ ember.New().AddEntities(win).AddSystems(play).MustRun()
 
 | Option | Use |
 |---|---|
-| `Title(title string)`, `Size(width, height int)`, `Background(c color.Color)` | size in points |
-| `FixedSize()`; else `MinSize(w, h int)`, `MaxSize(w, h int)`, `AspectRatio(w, h int)` | examples are fixed unless their layout follows the window |
+| `Title(title string)`, `Size(width, height int)`, `Background(c color.Color)`, `FixedSize()`; else `MinSize(w, h int)`, `MaxSize(w, h int)`, `AspectRatio(w, h int)` | size in points; examples are fixed unless their layout follows the window |
 | `Fullscreen()`, `Maximized()`, `Position(x, y int)`, `Undecorated()`, `AlwaysOnTop()`, `Hidden()`, `VSync(on bool)`, `Icon(images ...image.Image)` | |
 
 At run time: `win.SetTitle`, `SetSize(geom.Vec2)`, `SetFullscreen(bool)`, `SetBackground`, `SetCursor(platform.CursorHand)`, `Size()`, `Input()`. `platform.Hidden()` and `twod.Hidden()` differ.
+In the browser a resizable window fills the page and follows it, a `FixedSize()` one keeps its size, and full screen (the game's or the page's) fills the screen.
 
 ## Draw sprites, shapes and text, and move them
 

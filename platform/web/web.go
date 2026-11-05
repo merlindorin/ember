@@ -79,7 +79,7 @@ func (r *runner) run() error {
 	if win == nil {
 		return fmt.Errorf("web: no primary window")
 	}
-	canvas, fw, fh, err := sizeCanvas(win)
+	canvas, scale, err := pageCanvas()
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (r *runner) run() error {
 	if err != nil {
 		return err
 	}
-	surface.Configure(dev, fw, fh, wgpu.PreferredFormat(), true)
+	view := fitTo(&fitter{canvas: canvas, win: win, surface: surface, dev: dev, scale: scale, own: win.Size()})
 	shared := wgpu.Share(r.world, dev, ad.Info())
 
 	capturing := os.Getenv("EMBER_CAPTURE") != ""
@@ -124,6 +124,7 @@ func (r *runner) run() error {
 		if capturing {
 			dt = 1.0 / 60
 		}
+		view.fit()
 		r.world.Tick(dt)
 		if frame == 1 && !capturing {
 			// Start waits for the page's first click or key before Web
@@ -178,22 +179,59 @@ func openDevice() (*wgpu.Device, *wgpu.Adapter, error) {
 	return dev, ad, nil
 }
 
-// sizeCanvas sizes the page's canvas #ember to win, in points and, by the
-// page's pixel ratio or EMBER_SCALE, in pixels.
-func sizeCanvas(win *platform.Window) (js.Value, int, int, error) {
+// pageCanvas is the page's canvas #ember and the pixels a point it draws
+// at: the page's pixel ratio, or EMBER_SCALE.
+func pageCanvas() (js.Value, float64, error) {
 	scale := envFloat("EMBER_SCALE", js.Global().Get("devicePixelRatio").Float())
-	size := win.Size()
 	canvas := js.Global().Get("document").Call("getElementById", "ember")
 	if canvas.IsNull() {
-		return canvas, 0, 0, fmt.Errorf("web: the page has no canvas #ember")
+		return canvas, 0, fmt.Errorf("web: the page has no canvas #ember")
 	}
-	fw, fh := int(size.X*float32(scale)+0.5), int(size.Y*float32(scale)+0.5)
-	canvas.Set("width", fw)
-	canvas.Set("height", fh)
-	canvas.Get("style").Set("width", fmt.Sprintf("%gpx", size.X))
-	canvas.Get("style").Set("height", fmt.Sprintf("%gpx", size.Y))
-	win.Sync(size, geom.V2(float32(fw), float32(fh)), true)
-	return canvas, fw, fh, nil
+	return canvas, scale, nil
+}
+
+// fitter keeps the canvas, the window and the surface the size the game
+// shows at: the page's while it is full screen, whoever asked for it, or
+// while the window is resizable, as a desktop window follows its frame (no
+// smaller than MinSize); else the window's own.
+type fitter struct {
+	canvas  js.Value
+	win     *platform.Window
+	surface *wgpu.Surface
+	dev     *wgpu.Device
+	scale   float64
+	own     geom.Vec2
+	shown   geom.Vec2
+}
+
+// fitTo fits f now and gives it, to fit again each frame.
+func fitTo(f *fitter) *fitter {
+	f.fit()
+	return f
+}
+
+func (f *fitter) fit() {
+	full := !js.Global().Get("document").Get("fullscreenElement").IsNull()
+	size := f.own
+	if full || f.win.Resizable() {
+		page := geom.V2(float32(js.Global().Get("innerWidth").Float()), float32(js.Global().Get("innerHeight").Float()))
+		least := f.win.MinSize()
+		size = geom.V2(max(page.X, least.X), max(page.Y, least.Y))
+	}
+	if full != f.win.Fullscreen() {
+		f.win.SyncFullscreen(full)
+	}
+	if size == f.shown || size.X <= 0 || size.Y <= 0 {
+		return
+	}
+	f.shown = size
+	fw, fh := int(size.X*float32(f.scale)+0.5), int(size.Y*float32(f.scale)+0.5)
+	f.canvas.Set("width", fw)
+	f.canvas.Set("height", fh)
+	f.canvas.Get("style").Set("width", fmt.Sprintf("%gpx", size.X))
+	f.canvas.Get("style").Set("height", fmt.Sprintf("%gpx", size.Y))
+	f.win.Sync(size, geom.V2(float32(fw), float32(fh)), true)
+	f.surface.Configure(f.dev, fw, fh, wgpu.PreferredFormat(), true)
 }
 
 // animationFrames signals each of the browser's animation frames, at most

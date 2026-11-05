@@ -6,9 +6,11 @@ package main
 
 import (
 	"encoding/json"
+	"os"
 	"syscall/js"
 
 	"github.com/merlindorin/ember"
+	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/world"
@@ -23,6 +25,8 @@ type report struct {
 	Wheel  float32    `json:"wheel"`
 	Text   string     `json:"text"`
 	Frame  int        `json:"frame"`
+	Size   [2]float32 `json:"size"`
+	Full   bool       `json:"full"`
 }
 
 type probe struct {
@@ -47,11 +51,20 @@ func (p *probe) Update(f world.Frame) {
 	p.r.Wheel += in.Wheel().Y
 	p.r.Text += string(in.Text())
 	p.r.Frame++
+	if in.Pressed(input.KeyF) {
+		p.win.SetFullscreen(!p.win.Fullscreen())
+	}
+	size := p.win.Size()
+	p.r.Size, p.r.Full = [2]float32{size.X, size.Y}, p.win.Fullscreen()
 	data, _ := json.Marshal(p.r)
 	js.Global().Set("emberProbe", string(data))
 }
 
 func main() {
-	win := platform.NewWindow(platform.Size(320, 200), platform.Title("probe"))
+	opts := []platform.Option{platform.Size(320, 200), platform.Title("probe"), platform.Background(color.Hex("#3366cc"))}
+	if os.Getenv("EMBER_PROBE_FLUID") == "" {
+		opts = append(opts, platform.FixedSize())
+	}
+	win := platform.NewWindow(opts...)
 	ember.New().AddEntities(win).AddSystems(&probe{win: win}).MustRun()
 }

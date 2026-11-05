@@ -276,6 +276,11 @@ func (w *Window) SyncState(maximized, minimized bool) {
 	w.opts.maximized, w.minimized = maximized, minimized
 }
 
+// SyncFullscreen records the window going full screen or back by the
+// player or the page, as a browser's Escape does. Called by platform
+// implementations.
+func (w *Window) SyncFullscreen(on bool) { w.opts.fullscreen = on }
+
 func (w *Window) GetWindow() *Window { return w }
 
 // Input is the keyboard and mouse state of this window. The primary

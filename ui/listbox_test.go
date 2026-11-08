@@ -80,3 +80,23 @@ func TestAListboxsOptionsAreSelectablesForAutomation(t *testing.T) {
 	assert.Equal(t, "true", attr(opts[2], "aria-selected"))
 	assert.Empty(t, l.changes, "SetSelected emits nothing")
 }
+
+func TestALineOfOptionsLeavesUpAndDownToTheFocus(t *testing.T) {
+	opts := []ui.Arg{ui.Attr("role", "listbox"), ui.TabIndex(0), ui.Style("display: flex; gap: 4px")}
+	for _, name := range []string{"Fox", "Gladiator", "+"} {
+		opts = append(opts, ui.Div(ui.Attr("role", "option"), ui.Style("width: 40px; height: 40px"), ui.Text(name)))
+	}
+	lb := ui.Div(opts...)
+	play := ui.Button(ui.Text("Play"))
+	l := liveDoc(t, ui.Div(ui.Style("display: flex; flex-direction: column; align-items: center; gap: 12px"), lb, play))
+	l.doc.Focus(lb)
+	l.frames(1)
+	l.key(input.KeyRight)
+	l.key(input.KeyRight)
+	assert.Equal(t, 1, l.doc.Selected(lb), "Left and Right walk the line")
+	l.key(input.KeyDown)
+	assert.True(t, l.doc.Focused(play), "no line below: Down moves the focus on")
+	assert.Equal(t, 1, l.doc.Selected(lb), "and leaves the selection")
+	l.key(input.KeyUp)
+	assert.True(t, l.doc.Focused(lb), "and Up comes back")
+}

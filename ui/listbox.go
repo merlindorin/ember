@@ -127,6 +127,10 @@ func (d *Document) listboxIntent(listbox *Node, i control.Intent) bool {
 		next = min(at+1, len(live)-1)
 	default:
 		next = d.nearestOnLine(live, at, i == control.Down)
+		if next == at {
+			// No line that way: the focus moves on, as from any other element.
+			return false
+		}
 	}
 	if selectOption(listbox, live[next]) {
 		d.fire(listbox, control.Changed)

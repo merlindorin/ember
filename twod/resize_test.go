@@ -105,6 +105,26 @@ func TestAnchoredFixedLayersKeepTheirEdgeAsTheWindowResizes(t *testing.T) {
 	assert.Empty(t, draw.PassesFor(w, win))
 }
 
+func TestAnOffsetMovesAStillSceneTooWithTimePaused(t *testing.T) {
+	w, win, list := app()
+	crate := NewSprite(atlas(8, 8), At(100, 100))
+	cam := NewCamera()
+	win.Add(crate, cam)
+	w.Time().Scale = 0
+	w.RunFrames(3)
+	before := drawnX(list)
+	cam.SetOffset(40, 0)
+	w.RunFrames(1)
+	if moved := drawnX(list) - before; geom.Abs(moved+40) > 1e-3 {
+		t.Fatalf("an offset of 40 moves the drawn scene 40 the other way, nothing else moving: %v", moved)
+	}
+	cam.SetOffset(0, 0)
+	w.RunFrames(1)
+	if back := drawnX(list); geom.Abs(back-before) > 1e-3 {
+		t.Fatalf("and back: %v, was %v", back, before)
+	}
+}
+
 func TestOffsetNudgesTheViewWithoutTouchingTheFollow(t *testing.T) {
 	w, win, _ := app()
 	hero := NewSprite(nil, At(100, 100))

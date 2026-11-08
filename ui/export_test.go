@@ -48,7 +48,7 @@ func OptionTexts(d *Document, n *Node) []string {
 // HitAt is the element a click at p, in the Document's space, lands on
 // after its last layout.
 func HitAt(d *Document, p geom.Vec2) *Node {
-	h := paint.HitTest(d.tree, p, paint.Controls(d.machine), paint.Viewport(d.viewport))
+	h := paint.HitTest(d.tree, p, paint.Controls(d.machine), paint.Viewport(d.viewport), paint.Scale(d.fonts.Scale()))
 	for b := h; b != nil; b = b.Parent {
 		if b.Node != nil {
 			return b.Node

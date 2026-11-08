@@ -64,3 +64,39 @@ func TestATransformedBoxIsNotSnapped(t *testing.T) {
 		}
 	}
 }
+
+func TestAZoomedPaintSnapsToTheWindowsPixels(t *testing.T) {
+	// A Document at zoom 3 paints under a 3× transform at 3 pixels a
+	// point: a box centred at y 26.5 points lands on 79.5 window pixels,
+	// and is drawn from 80, a whole pixel, as Chrome draws it.
+	r := newRecorder()
+	r.SetTransform(geom.Transform2D{X: geom.V2(3, 0), Y: geom.V2(0, 3)})
+	b := el(10.5, 26.5, 48, 48.25, func(s *style.Computed) { s.Background = red })
+	Paint(r, tree(el(0, 0, 200, 101, nil, b)), Scale(3))
+	var fill geom.Rect
+	for _, o := range r.of("rect") {
+		if o.Color == red {
+			fill = o.Rect
+		}
+	}
+	for _, v := range []float32{fill.X, fill.Y, fill.X + fill.W, fill.Y + fill.H} {
+		px := v * 3
+		assert.InDelta(t, float64(px), float64(int(px+0.5)), 1e-3, "every edge on a whole window pixel: %v", fill)
+	}
+	assert.InDelta(t, 80.0/3, fill.Y, 1e-4, "26.5 points, 79.5 pixels, drawn from 80")
+}
+
+func TestATransformPastTheZoomIsNotSnapped(t *testing.T) {
+	r := newRecorder()
+	r.SetTransform(geom.Transform2D{X: geom.V2(3, 0), Y: geom.V2(0, 3)})
+	b := el(10.5, 26.5, 48, 48, func(s *style.Computed) {
+		s.Background = red
+		s.Transform = []style.TransformOp{{Kind: style.Rotate, A: [6]float32{0.1}}}
+	})
+	Paint(r, tree(el(0, 0, 200, 101, nil, b)), Scale(3))
+	for _, o := range r.of("rect") {
+		if o.Color == red {
+			require.Equal(t, float32(48), o.Rect.W, "a turned box keeps its size: pixels don't lie along it")
+		}
+	}
+}

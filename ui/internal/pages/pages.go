@@ -23,14 +23,15 @@ import (
 )
 
 // Run shows d in a window of w×h points, or exports it laid out at that
-// size, so export can draw what needs a size, such as a range.
+// size over its zoom, as the window lays it out, so export can draw what
+// needs a size, such as a range.
 func Run(d *ui.Document, w, h int) {
 	if os.Getenv("EMBER_UI_BENCH") != "" {
 		bench(d, w, h)
 		return
 	}
 	if path := os.Getenv("EMBER_UI_ALIGN"); path != "" {
-		d.Layout(geom.V2(float32(w), float32(h)))
+		d.Layout(geom.V2(float32(w), float32(h)).Scale(1 / d.Zoom()))
 		data, err := json.Marshal(align.Check(d))
 		if err != nil {
 			panic(err)
@@ -46,7 +47,7 @@ func Run(d *ui.Document, w, h int) {
 			panic(err)
 		}
 		defer f.Close()
-		d.Layout(geom.V2(float32(w), float32(h)))
+		d.Layout(geom.V2(float32(w), float32(h)).Scale(1 / d.Zoom()))
 		var opts []export.Option
 		if shot := os.Getenv("EMBER_UI_SNAPSHOTS"); shot != "" {
 			opts = append(opts, snapshots(d, shot, w))

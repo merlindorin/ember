@@ -90,7 +90,7 @@ func (p *painter) decorate(e entry, alpha float32) {
 	ps := p.pieces(b, e.at)
 	if p.probing {
 		for _, pc := range ps {
-			p.probed(b, pc.rect)
+			p.probed(b, p.snap(pc.rect))
 		}
 		return
 	}

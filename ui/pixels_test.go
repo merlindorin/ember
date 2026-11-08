@@ -56,3 +56,17 @@ func TestPagesLookLikeChrome(t *testing.T) {
 		})
 	}
 }
+
+func TestZoomedPagesLookLikeChrome(t *testing.T) {
+	for _, c := range []struct {
+		pkg        string
+		w, h, zoom int
+		mean       float64
+	}{
+		{"./internal/pages/zoom-snap", 232 * 3, 101 * 3, 3, 0.0002},
+	} {
+		t.Run(c.pkg, func(t *testing.T) {
+			chrome.WithinZoomed(t, c.pkg, c.w, c.h, c.zoom, c.mean)
+		})
+	}
+}

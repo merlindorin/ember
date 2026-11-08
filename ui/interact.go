@@ -629,7 +629,7 @@ func (d *Document) hitAt(at geom.Vec2) (*box.Box, *Node) {
 	if !d.replay.quiet {
 		hit = nil
 		if d.tree != nil {
-			hit = paint.HitTest(d.tree, at, paint.Controls(d.machine), paint.Viewport(d.viewport))
+			hit = paint.HitTest(d.tree, at, paint.Controls(d.machine), paint.Viewport(d.viewport), paint.Scale(d.fonts.Scale()))
 		}
 		d.replay.hit = hit
 	}

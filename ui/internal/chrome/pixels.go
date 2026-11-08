@@ -88,6 +88,21 @@ func nrgba(c color.Color) color.NRGBA {
 // the test's own folder, so tests running side by side never share them.
 func Pixels(t testing.TB, pkg string, w, h int) Diff {
 	t.Helper()
+	return pixelsAt(t, pkg, w, h, 1)
+}
+
+// PixelsZoomed is Pixels for a page that reads its Document zoom from
+// EMBER_UI_ZOOM: ember's window is w×h points at that zoom, and Chrome
+// shows the w/zoom × h/zoom page at zoom times the capture's scale, so a
+// point of the page is as many device pixels in both. w and h are whole
+// multiples of zoom.
+func PixelsZoomed(t testing.TB, pkg string, w, h, zoom int) Diff {
+	t.Helper()
+	return pixelsAt(t, pkg, w, h, zoom)
+}
+
+func pixelsAt(t testing.TB, pkg string, w, h, zoom int) Diff {
+	t.Helper()
 	dir, reports := t.TempDir(), t.TempDir()
 	if out := os.Getenv("EMBER_UI_REPORTS"); out != "" {
 		reports = out
@@ -95,7 +110,7 @@ func Pixels(t testing.TB, pkg string, w, h int) Diff {
 	shot, page := filepath.Join(dir, "ember.png"), filepath.Join(dir, "page.html")
 	run := func(env ...string) {
 		cmd := exec.CommandContext(t.Context(), "go", "run", pkg)
-		cmd.Env = append(pageEnv(os.Environ()), env...)
+		cmd.Env = append(append(pageEnv(os.Environ()), fmt.Sprintf("EMBER_UI_ZOOM=%d", zoom)), env...)
 		if out, err := cmd.CombinedOutput(); err != nil {
 			t.Fatalf("%s: %v: %s", pkg, err, out)
 		}
@@ -107,9 +122,9 @@ func Pixels(t testing.TB, pkg string, w, h int) Diff {
 	if err != nil {
 		t.Fatal(err)
 	}
-	scale := float32(a.Bounds().Dx()) / float32(w)
+	scale := float32(a.Bounds().Dx()) / float32(w) * float32(zoom)
 	cpng := filepath.Join(dir, "chrome.png")
-	if err = ScreenshotScaled(html, geom.V2(float32(w), float32(h)), scale, cpng); err != nil {
+	if err = ScreenshotScaled(html, geom.V2(float32(w/zoom), float32(h/zoom)), scale, cpng); err != nil {
 		t.Fatal(err)
 	}
 	b := load(t, cpng)

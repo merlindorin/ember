@@ -613,14 +613,21 @@ func shown(b *box.Box) *style.Computed {
 }
 
 // snap is r with its edges on device pixels, unless no Scale was given or
-// what is drawn is transformed, where pixels don't lie along r's edges.
+// what is drawn is transformed past the paint's base, a Document's zoom,
+// where pixels don't lie along r's edges.
 func (p *painter) snap(r geom.Rect) geom.Rect {
-	if p.scale <= 0 || p.s.Transform() != geom.Identity2D() {
+	xf := p.s.Transform()
+	if p.scale <= 0 || xf != p.base || xf.X.Y != 0 || xf.Y.X != 0 || xf.X.X <= 0 || xf.X.X != xf.Y.Y {
 		return r
 	}
-	round := func(v float32) float32 { return float32(math.Round(float64(v*p.scale))) / p.scale }
-	x0, y0 := round(r.X), round(r.Y)
-	return geom.Rect{X: x0, Y: y0, W: round(r.X+r.W) - x0, H: round(r.Y+r.H) - y0}
+	// k is device pixels per point of the space the base draws into: the
+	// window's, when the base is a Document's zoom.
+	k := p.scale / xf.X.X
+	round := func(v, origin float32) float32 {
+		return (float32(math.Round(float64((v*xf.X.X+origin)*k)))/k - origin) / xf.X.X
+	}
+	x0, y0 := round(r.X, xf.Origin.X), round(r.Y, xf.Origin.Y)
+	return geom.Rect{X: x0, Y: y0, W: round(r.X+r.W, xf.Origin.X) - x0, H: round(r.Y+r.H, xf.Origin.Y) - y0}
 }
 
 func fade(c color.Color, alpha float32) color.Color { c.A *= alpha; return c }

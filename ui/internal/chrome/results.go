@@ -58,6 +58,14 @@ func Within(t testing.TB, pkg string, w, h int, threshold float64) Diff {
 	return d
 }
 
+// WithinZoomed is Within for a page at a whole Document zoom (PixelsZoomed).
+func WithinZoomed(t testing.TB, pkg string, w, h, zoom int, threshold float64) Diff {
+	t.Helper()
+	d := PixelsZoomed(t, pkg, w, h, zoom)
+	check(t, "page", filepath.Base(pkg), d, threshold)
+	return d
+}
+
 // check fails t when d passes threshold (or this system's, from
 // thresholds/<GOOS>.json), and with EMBER_UI_RESULTS set adds the result there.
 func check(t testing.TB, kind, name string, d Diff, threshold float64) {

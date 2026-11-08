@@ -971,3 +971,31 @@ func TestAModalDialogMatchesChromes(t *testing.T) {
 		t.Errorf("backdrop %s, Chrome rgba(0, 0, 0, 0.1)", rgb(got))
 	}
 }
+
+func TestAFocusedElementRestylesItsDescendantsAsChrome(t *testing.T) {
+	fsys := fstest.MapFS{"t.css": {Data: []byte(`
+.child, .grand, .deep { display: none; }
+.lb:focus > .child { display: block; }
+.lb:focus > .b > .grand { display: block; }
+.lb:focus .deep { display: block; }
+`)}}
+	d := ui.NewDocument(ui.Stylesheet(fsys, "t.css"))
+	lb := ui.Div(ui.Class("lb"), ui.Attr("tabindex", "0"),
+		ui.Span(ui.Class("child"), ui.Text("child")),
+		ui.Div(ui.Class("b"), ui.Span(ui.Class("grand"), ui.Text("grand")),
+			ui.Div(ui.Span(ui.Class("deep"), ui.Text("deep")))))
+	d.Body().Append(lb)
+	d.Layout(geom.V2(800, 600))
+	then := func() {
+		d.HTML().Walk(func(n *dom.Node) bool {
+			if n.HasClass("lb") {
+				n.SetState(dom.Focus, true)
+			}
+			return true
+		})
+		d.Layout(geom.V2(800, 600))
+	}
+	props := map[string]func(*style.Computed) string{"display": compared["display"]}
+	matchChromeShown(t, d, props, 2, `document.querySelector(".lb").focus();`, then,
+		func(n *dom.Node) *style.Computed { return dom.Data(n).Style })
+}

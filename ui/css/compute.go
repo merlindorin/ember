@@ -111,8 +111,8 @@ func (r *restyler) visit(n *dom.Node, parent *style.Computed, rem float32, force
 		rem = data.Style.Font.Size
 	}
 	tree := dirty&dom.DirtyTree != 0
-	kidsDeep := deep || tree && r.readAbove(data.Changed)
-	kidsForce := inherits || kidsDeep || stateMoved || tree && slices.Contains(data.Changed, dom.Children)
+	kidsDeep := deep || stateMoved || tree && r.readAbove(data.Changed)
+	kidsForce := inherits || kidsDeep || tree && slices.Contains(data.Changed, dom.Children)
 	data.Changed = data.Changed[:0]
 	if !kidsForce && dirty&dom.DirtyDescendant == 0 && !force {
 		return data.Dirty&dom.DirtyLayout != 0

@@ -696,3 +696,43 @@ func TestARadioIsChromesRoundThirteen(t *testing.T) {
 		t.Errorf("checked, disabled (native Chrome's): %v %v", s.Color, s.Background)
 	}
 }
+
+func TestAStateChangeRestylesEveryDescendant(t *testing.T) {
+	for _, c := range []struct {
+		name  string
+		state dom.State
+	}{{"focus", dom.Focus}, {"hover", dom.Hover}} {
+		t.Run(c.name, func(t *testing.T) {
+			child, grand, deep := el(dom.Span, "", "child"), el(dom.Span, "", "grand"), el(dom.Span, "", "deep")
+			lb := with(el(dom.Div, "", "lb"), child, with(el(dom.Div, "", "b"), grand, with(el(dom.Div, ""), deep)))
+			root := page(lb)
+			sheets := []*Sheet{sheet(t, `
+.child, .grand, .deep { display: none }
+.lb:`+c.name+` > .child { display: block }
+.lb:`+c.name+` > .b > .grand { display: block }
+.lb:`+c.name+` .deep { display: block }
+`)}
+			Compute(root, sheets)
+			shown := func() [3]bool {
+				return [3]bool{
+					styleOf(child).Display == style.Block,
+					styleOf(grand).Display == style.Block,
+					styleOf(deep).Display == style.Block,
+				}
+			}
+			if got := shown(); got != [3]bool{} {
+				t.Fatalf("before: %v", got)
+			}
+			lb.SetState(c.state, true)
+			Compute(root, sheets)
+			if got := shown(); got != [3]bool{true, true, true} {
+				t.Errorf("on: child, grandchild, descendant shown %v", got)
+			}
+			lb.SetState(c.state, false)
+			Compute(root, sheets)
+			if got := shown(); got != [3]bool{} {
+				t.Errorf("off: %v", got)
+			}
+		})
+	}
+}

@@ -245,3 +245,24 @@ func TestShowOnADialogWithoutControlsLeavesTheFocus(t *testing.T) {
 	l.frames(2)
 	assert.True(t, l.doc.Focused(outside), "Show runs no focusing steps, unlike ShowModal")
 }
+
+func TestTheKeyHeldWhenAModalOpensActsOnlyOnceReleased(t *testing.T) {
+	for _, field := range []bool{false, true} {
+		save := ui.Button(ui.Text("Save"), ui.Attr("formmethod", "dialog"), ui.Value("save"), ui.Attr("autofocus", ""))
+		dlg := ui.Dialog(save)
+		if field {
+			dlg = ui.Dialog(ui.Input(ui.Type("text"), ui.Attr("autofocus", "")), save)
+		}
+		l := liveDoc(t, dlg)
+		in := l.win.Input()
+		in.SetKey(input.KeyEnter, true)
+		l.doc.ShowModal(dlg)
+		l.frames(2)
+		assert.Empty(t, l.closed, "the Enter that opened it, field %v", field)
+		assert.Empty(t, l.submits, "the Enter that opened it, field %v", field)
+		in.SetKey(input.KeyEnter, false)
+		l.frames(1)
+		l.key(input.KeyEnter)
+		assert.Len(t, append(l.submits, make([]ui.Submitted, len(l.closed))...), 1, "a new Enter acts, field %v", field)
+	}
+}

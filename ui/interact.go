@@ -27,6 +27,12 @@ type interaction struct {
 	pendingFocus *Node
 	// pendingReveal is the element a ScrollIntoView asked to show.
 	pendingReveal *Node
+	// opening is set by ShowModal: the keys and pad buttons down at the
+	// next read, openKeys and openPad, opened the modal and act in it only
+	// once released.
+	opening  bool
+	openKeys []input.Key
+	openPad  []input.GamepadButton
 	// controls are the elements with a machine the last walk of the tree
 	// found in it, in tree order.
 	controls []*Node
@@ -940,8 +946,11 @@ func (d *Document) drawnIn(frame uint64) {
 }
 
 func (d *Document) keys(c *twod.Canvas, in *input.State) {
-	d.shortcuts(c, in)
 	f := inputfeed.Of(in)
+	if d.stillHeld(f) {
+		return
+	}
+	d.shortcuts(c, in)
 	pressed := func(k input.Key) bool { return f.RawPressed(int(k)) || f.RawRepeated(int(k)) }
 	n := d.focused()
 	m := d.machine(n)
@@ -990,6 +999,28 @@ func (d *Document) keys(c *twod.Canvas, in *input.State) {
 			taken.add(from[j])
 		}
 	}
+}
+
+// stillHeld reports whether a key or pad button that was down when a modal
+// opened still is: the press that opened it isn't one made in it.
+func (d *Document) stillHeld(f inputfeed.Feed) bool {
+	if d.opening {
+		d.opening = false
+		d.openKeys, d.openPad = d.openKeys[:0], d.openPad[:0]
+		for _, k := range intentKeys {
+			if f.RawDown(int(k)) {
+				d.openKeys = append(d.openKeys, k)
+			}
+		}
+		for _, b := range intentPad {
+			if f.RawGamepadDown(int(b)) {
+				d.openPad = append(d.openPad, b)
+			}
+		}
+	}
+	d.openKeys = slices.DeleteFunc(d.openKeys, func(k input.Key) bool { return !f.RawDown(int(k)) })
+	d.openPad = slices.DeleteFunc(d.openPad, func(b input.GamepadButton) bool { return !f.RawGamepadDown(int(b)) })
+	return len(d.openKeys) > 0 || len(d.openPad) > 0
 }
 
 // pressedIntents are the intents of the keys and pad buttons pressed this

@@ -105,7 +105,7 @@ Callbacks go on the element: `ui.OnClick(fn)`, `OnInput`, `OnChange`, `OnSubmit`
 | classes | `n.AddClass(c)`, `n.RemoveClass(c)`, `n.HasClass(c)` |
 | hide, show | `n.SetAttr("hidden", "")`, `n.RemoveAttr("hidden")` |
 | add, remove | `n.Append(children...)`, `n.Remove(child)` |
-| dialogs | `doc.ShowModal(d)`, `doc.Show(d)`, `doc.Close(d, value)`, `doc.Open(d)`: a `kit.Alert` or `ui.Dialog` appended to the body first |
+| dialogs | `doc.ShowModal(d)`, `doc.Show(d)`, `doc.Close(d, value)`, `doc.Open(d)`: a `kit.Alert` or `ui.Dialog` appended to the body first; a modal ignores keys and pad buttons still held from before it opened, until they're released |
 | redraw a canvas | `doc.Invalidate(canvas)` |
 | a tag that follows a 2D entity | `ui.Follow(target twod.Entity, offset geom.Vec2) ui.Arg`, `ui.SetFollow(n, target, offset)` (`examples/16-hud-over-world`) |
 

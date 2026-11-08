@@ -31,6 +31,8 @@ doc.Open(quit)
 |---|---|
 | `ui.Closed{Node, Value}` | closed by `Close` or a `formmethod="dialog"` button, or by Escape or the pad's East while modal (`Value` empty) |
 
+A modal ignores keys and pad buttons still held from before it opened, until they're released: the Enter that opened it doesn't press its first button.
+
 Automation: while open, its `id` (`quit`), else `data-name`, `aria-label`, then the slug of its text; labelled by its `aria-label` or first heading, its value whether it is modal.
 
 ```

@@ -36,6 +36,7 @@ func (d *Document) ShowModal(n *Node) {
 	d.modals = append(d.modals, n)
 	d.own()
 	d.focusing = n
+	d.opening = true
 	d.sync(n, m)
 }
 

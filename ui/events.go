@@ -32,12 +32,15 @@ type Toggled struct{ Node *Node }
 // on Node, the focused element, else the open modal dialog. Text is what it typed, ""
 // for none, and Command reports the platform's shortcut modifier held (Command on macOS,
 // Control elsewhere). With nothing focused and no modal dialog the keys are the game's,
-// and none is reported.
+// and none is reported. A pad button focus navigation leaves (West, North, the
+// shoulders and triggers, Back, Start) comes the same way, as Pad with Key
+// KeyUnknown.
 type KeyPressed struct {
 	Node    *Node
 	Key     input.Key
 	Text    string
 	Command bool
+	Pad     input.GamepadButton
 }
 
 // BackPressed is Escape or the pad's East on the focused element when no

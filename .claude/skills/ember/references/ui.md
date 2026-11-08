@@ -128,7 +128,7 @@ Callbacks go on the element: `ui.OnClick(fn)`, `OnInput`, `OnChange`, `OnSubmit`
 |---|---|
 | give or read the focus | `doc.Focus(n)`, `doc.Focused(n) bool`: an element shown this frame takes it at its first layout |
 | one Back for a whole screen | `ui.OnBack(fn)` on its root; with nothing focused, Back reaches the body's: `ui.On(doc.Body(), ui.EventBack, fn)` |
-| a key nothing took | `ui.OnKey(func(e ui.Event) { … e.Key … })` |
+| a key nothing took | `ui.OnKey(func(e ui.Event) { … e.Key … })`; a pad button navigation leaves (West, North, shoulders, triggers, Back, Start) comes as `e.Pad` with `e.Key == input.KeyUnknown` |
 | keyboard order | Tab and Shift-Tab once something has the focus; the arrows move it spatially |
 | keys left to the game | with nothing focused and no modal open; read `win.Input()` as usual |
 

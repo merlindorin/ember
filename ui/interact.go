@@ -139,6 +139,10 @@ var (
 	intentKeys = []input.Key{
 		input.KeyEnter, input.KeyPadEnter, input.KeySpace, input.KeyEscape, input.KeyUp, input.KeyDown,
 		input.KeyLeft, input.KeyRight, input.KeyHome, input.KeyEnd, input.KeyPageUp, input.KeyPageDown}
+	// keyPad are the pad buttons focus navigation leaves, reported as KeyPressed.
+	keyPad = []input.GamepadButton{input.GamepadWest, input.GamepadNorth, input.GamepadLeftShoulder,
+		input.GamepadRightShoulder, input.GamepadLeftTrigger, input.GamepadRightTrigger, input.GamepadBack,
+		input.GamepadStart}
 	intentPad = []input.GamepadButton{input.GamepadSouth, input.GamepadEast, input.GamepadUp, input.GamepadDown,
 		input.GamepadLeft, input.GamepadRight, input.GamepadLeftStickUp, input.GamepadLeftStickDown,
 		input.GamepadLeftStickLeft, input.GamepadLeftStickRight}
@@ -1118,6 +1122,11 @@ func (d *Document) keysLeft(in *input.State, n *Node, taken *keySet) {
 		}
 		d.events = append(d.events, KeyPressed{Node: n, Key: k, Text: text, Command: f.RawDown(int(command))})
 		text = ""
+	}
+	for _, b := range keyPad {
+		if f.RawGamepadPressed(int(b)) {
+			d.events = append(d.events, KeyPressed{Node: n, Key: input.KeyUnknown, Pad: b})
+		}
 	}
 }
 

@@ -50,10 +50,12 @@ type Event struct {
 	// Column and Descending are a sort's (Sort).
 	Column     int
 	Descending bool
-	// Key, Text and Command are a key's (Key).
+	// Key, Text and Command are a key's (Key); Pad is a pad button's,
+	// Key then KeyUnknown.
 	Key     input.Key
 	Text    string
 	Command bool
+	Pad     input.GamepadButton
 	// At is a window's top-left once moved (Move), Size its size once
 	// resized (Resize), and Folded whether it folded (Fold).
 	At     geom.Vec2
@@ -278,7 +280,7 @@ func eventOf(raw any) (Event, bool) {
 	case Sorted:
 		return Event{Type: EventSort, Node: e.Node, Column: e.Column, Descending: e.Descending}, true
 	case KeyPressed:
-		return Event{Type: EventKey, Node: e.Node, Key: e.Key, Text: e.Text, Command: e.Command}, true
+		return Event{Type: EventKey, Node: e.Node, Key: e.Key, Text: e.Text, Command: e.Command, Pad: e.Pad}, true
 	case BackPressed:
 		return Event{Type: EventBack, Node: e.Node}, true
 	case PointerEntered:

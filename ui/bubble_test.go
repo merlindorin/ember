@@ -86,3 +86,24 @@ func TestAnAncestorRemovedOnTheWayIsSkipped(t *testing.T) {
 	l.frames(1)
 	assert.Equal(t, []string{"inner"}, got, "outer left the Document, and the body is no longer its ancestor")
 }
+
+func TestAPadButtonNavigationLeavesReachesOnKey(t *testing.T) {
+	var got []ui.Event
+	b := ui.Button(ui.ID("b"), ui.Text("B"), ui.OnKey(func(e ui.Event) { got = append(got, e) }))
+	l := liveDoc(t, b)
+	l.doc.Focus(b)
+	l.frames(1)
+	in := l.win.Input()
+	in.ConnectGamepad(0, "pad")
+	for _, pad := range []input.GamepadButton{input.GamepadWest, input.GamepadNorth, input.GamepadSouth} {
+		in.SetGamepadButton(0, pad, true)
+		l.frames(1)
+		in.SetGamepadButton(0, pad, false)
+		l.frames(1)
+	}
+	if assert.Len(t, got, 2, "West and North; South activates the button") {
+		assert.Equal(t, input.KeyUnknown, got[0].Key)
+		assert.Equal(t, []input.GamepadButton{input.GamepadWest, input.GamepadNorth},
+			[]input.GamepadButton{got[0].Pad, got[1].Pad})
+	}
+}

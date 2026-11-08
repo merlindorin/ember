@@ -113,9 +113,10 @@ func (p *painter) decorate(e entry, alpha float32) {
 				p.insetShadow(inside(r, pc.edges), radius.inside(pc.edges), sh, alpha)
 			}
 		}
-		p.border(r, pc.edges, radius, st, alpha)
 		if tex := p.find(st.BorderImage, st); tex != nil {
 			p.picture(r, tex, st.BorderImage.Slice, alpha)
+		} else {
+			p.border(r, pc.edges, radius, st, alpha)
 		}
 	}
 	p.selection(e, alpha)

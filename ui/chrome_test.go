@@ -5,6 +5,7 @@ package ui_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"image"
 	_ "image/png"
 	"os"
@@ -135,6 +136,91 @@ func TestATextareaScrollsAsChromes(t *testing.T) {
 		assert.InDelta(t, want[i][0], got.X, 1, "textarea %d: scrollWidth (Chrome %v)", i, want[i])
 		assert.InDelta(t, want[i][1], got.Y, 1, "textarea %d: scrollHeight (Chrome %v)", i, want[i])
 	}
+}
+
+func TestAPositionedChildOutsideItsParentsPaddingBoxIsHitAsInChrome(t *testing.T) {
+	// Three frames, each with a × at right: -14px; top: -14px: over a
+	// solid 14px border, over a 14px border with no style (so none, and
+	// the × wholly outside the frame), and under a frame that clips.
+	frames := []string{
+		"border: 14px solid #444",
+		"border-width: 14px",
+		"border: 14px solid #444; overflow: hidden",
+	}
+	page := ui.Div(ui.ID("page"), ui.Style("position: absolute; inset: 0"))
+	for i, css := range frames {
+		page.Append(ui.Div(ui.Style(fmt.Sprintf("position: absolute; left: %dpx; top: 30px", 20+i*100)),
+			ui.Div(ui.ID(fmt.Sprint("frame", i)), ui.Style("position: relative; width: 48px; height: 48px; "+css),
+				ui.Button(ui.ID(fmt.Sprint("close", i)),
+					ui.Style("position: absolute; right: -14px; top: -14px; width: 16px; height: 16px; padding: 0")))))
+	}
+	d := ui.NewDocument()
+	d.Body().Append(page)
+	// Chrome says where each × is drawn, then what it hits at its centre
+	// and one pixel in from two corners.
+	out, err := chrome.Eval(d, geom.V2(360, 120), `return [0, 1, 2].flatMap(i => {
+		const r = document.getElementById("close" + i).getBoundingClientRect();
+		return [[r.x + r.width / 2, r.y + r.height / 2], [r.x + 1, r.y + 1], [r.right - 1, r.bottom - 1]];
+	}).map(([x, y]) => ({x, y, id: document.elementFromPoint(x, y).id}));`)
+	require.NoError(t, err)
+	var got []chromeHit
+	require.NoError(t, json.Unmarshal(out, &got))
+	require.Len(t, got, 9)
+	assert.Equal(t, "close0", got[0].ID, "Chrome hits the × over its frame's border")
+	assert.Equal(t, "close1", got[3].ID, "and the × outside a borderless frame")
+	assert.NotEqual(t, "close2", got[6].ID, "but not the × a clipping frame cuts away")
+	d.Layout(geom.V2(360, 120))
+	for _, g := range got {
+		assert.Equal(t, g.ID, ui.HitAt(d, geom.V2(g.X, g.Y)).ID(), "at %v, %v", g.X, g.Y)
+	}
+}
+
+func TestANeighbourOverlappingAPositionedChildCoversItAsInChrome(t *testing.T) {
+	// Two portraits overlapping by 8 points, as a strip's do, each with a
+	// × at right: -14px; top: -14px: the second, later in tree order,
+	// paints over the first's ×, so the second takes the pointer there,
+	// unless the × stacks above it.
+	strip := func(id, cross string) *ui.Node {
+		row := ui.Div(ui.ID(id), ui.Style("display: flex"))
+		for i := range 2 {
+			margin := "0"
+			if i > 0 {
+				margin = "-8px"
+			}
+			portrait := "position: relative; width: 48px; height: 48px; border: 14px solid #444; flex: none; "
+			row.Append(ui.Div(ui.ID(fmt.Sprint(id, "-p", i)), ui.Style(portrait+"margin-left: "+margin),
+				ui.Button(ui.ID(fmt.Sprint(id, "-x", i)),
+					ui.Style("position: absolute; right: -14px; top: -14px; width: 16px; height: 16px; padding: 0; "+cross))))
+		}
+		return row
+	}
+	page := ui.Div(ui.ID("page"),
+		ui.Style("position: absolute; inset: 0; display: flex; flex-direction: column; gap: 20px; padding: 20px"),
+		strip("plain", ""), strip("raised", "z-index: 1"))
+	d := ui.NewDocument()
+	d.Body().Append(page)
+	out, err := chrome.Eval(d, geom.V2(240, 200), `return ["plain", "raised"].map(id => {
+		const r = document.getElementById(id + "-x0").getBoundingClientRect();
+		const x = r.x + r.width / 2, y = r.y + r.height / 2;
+		return {x, y, id: document.elementFromPoint(x, y).id};
+	});`)
+	require.NoError(t, err)
+	var got []chromeHit
+	require.NoError(t, json.Unmarshal(out, &got))
+	require.Len(t, got, 2)
+	assert.Equal(t, "plain-p1", got[0].ID, "Chrome: the next portrait covers the first's ×")
+	assert.Equal(t, "raised-x0", got[1].ID, "and a × stacked above it is hit")
+	d.Layout(geom.V2(240, 200))
+	for _, g := range got {
+		assert.Equal(t, g.ID, ui.HitAt(d, geom.V2(g.X, g.Y)).ID(), "at %v, %v", g.X, g.Y)
+	}
+}
+
+// chromeHit is a point and the id of the element Chrome finds there.
+type chromeHit struct {
+	X  float32 `json:"x"`
+	Y  float32 `json:"y"`
+	ID string  `json:"id"`
 }
 
 func TestABoxsRightAndBottomEdgesAreOutsideAsInChrome(t *testing.T) {

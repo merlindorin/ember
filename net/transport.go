@@ -67,7 +67,7 @@ func accepting(ln stdnet.Listener) *TCPListener {
 		select {
 		case l.conns <- c:
 		case <-l.done:
-			c.Close()
+			_ = c.Close()
 		}
 	}
 	go func() {
@@ -91,7 +91,7 @@ func accepting(ln stdnet.Listener) *TCPListener {
 				ctx, cancel := context.WithTimeout(context.Background(), handshakeTimeout)
 				defer cancel()
 				if tc.HandshakeContext(ctx) != nil {
-					tc.Close()
+					_ = tc.Close()
 					return
 				}
 				yield(tc)
@@ -429,7 +429,7 @@ func (p *peer) closed() <-chan struct{} { return p.done }
 func (p *peer) close() {
 	p.once.Do(func() {
 		close(p.done)
-		p.conn.Close()
+		_ = p.conn.Close()
 	})
 }
 

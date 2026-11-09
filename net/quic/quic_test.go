@@ -21,7 +21,7 @@ func listen(t *testing.T) (*quic.Listener, string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { l.Close() })
+	t.Cleanup(func() { _ = l.Close() })
 	return l, pin
 }
 
@@ -69,9 +69,9 @@ func TestQUICCarriesDatagrams(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 	s := <-l.Conns()
-	defer s.Close()
+	defer func() { _ = s.Close() }()
 	for _, end := range []stdnet.Conn{c, s} {
 		if d, ok := end.(net.DatagramConn); !ok || !d.SupportsDatagrams() {
 			t.Fatal("a QUIC connection offers no datagrams")

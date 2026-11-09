@@ -22,7 +22,7 @@ func TestTCPTransport(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		t.Cleanup(func() { ln.Close() })
+		t.Cleanup(func() { _ = ln.Close() })
 		c, err := net.Dial(ln.Addr())
 		if err != nil {
 			t.Fatal(err)
@@ -41,7 +41,7 @@ func TestMergedListenersAcceptOnEveryOne(t *testing.T) {
 		t.Fatal(err)
 	}
 	l := net.Merge(a, b)
-	defer l.Close()
+	defer func() { _ = l.Close() }()
 	if l.Addr() != a.Addr() {
 		t.Fatalf("merged address %s, want the first one's %s", l.Addr(), a.Addr())
 	}
@@ -50,15 +50,15 @@ func TestMergedListenersAcceptOnEveryOne(t *testing.T) {
 		if dialErr != nil {
 			t.Fatal(dialErr)
 		}
-		defer c.Close()
+		defer func() { _ = c.Close() }()
 		select {
 		case s := <-l.Conns():
-			s.Close()
+			_ = s.Close()
 		case <-time.After(2 * time.Second):
 			t.Fatalf("no connection from %s", addr)
 		}
 	}
-	l.Close()
+	_ = l.Close()
 	select {
 	case _, open := <-l.Conns():
 		if open {
@@ -79,7 +79,7 @@ func tlsPair(t *testing.T) (*net.TCPListener, string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { ln.Close() })
+	t.Cleanup(func() { _ = ln.Close() })
 	return ln, pin
 }
 
@@ -102,14 +102,14 @@ func TestTLSRefusesAWrongPinAndPlaintext(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if c, err := net.DialTLS(ctx, ln.Addr(), quic.Pinned(other)); err == nil {
-		c.Close()
+		_ = c.Close()
 		t.Fatal("a wrong pin was accepted")
 	}
 	plain, err := net.Dial(ln.Addr())
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer plain.Close()
+	defer func() { _ = plain.Close() }()
 	_, _ = plain.Write([]byte("hello in clear, which is no TLS record\n"))
 	_ = plain.SetReadDeadline(time.Now().Add(3 * time.Second))
 	if _, err = io.ReadAll(plain); err != nil {
@@ -117,7 +117,7 @@ func TestTLSRefusesAWrongPinAndPlaintext(t *testing.T) {
 	}
 	select {
 	case c := <-ln.Conns():
-		c.Close()
+		_ = c.Close()
 		t.Fatal("a plaintext connection reached the game")
 	case <-time.After(200 * time.Millisecond):
 	}

@@ -199,7 +199,7 @@ func TestTCP(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer ln.Close()
+	defer func() { _ = ln.Close() }()
 	server := world.New().AddPlugins(NewServer(WithListener(ln)))
 	conn, err := Dial(ln.Addr())
 	if err != nil {
@@ -342,7 +342,7 @@ func TestFloodingClientIsDisconnected(t *testing.T) {
 
 func TestSlowConnectionIsDroppedWhenOutboxIsFull(t *testing.T) {
 	srv, cli := Pipe()
-	defer cli.Close()
+	defer func() { _ = cli.Close() }()
 	p := newPeer(srv, nil)
 	p.limit = 8
 	for i := 0; i < 20; i++ {
@@ -525,7 +525,7 @@ func TestSnapshotBudgetSendsOwnedThenNearestFirst(t *testing.T) {
 	a := world.New().AddPlugins(NewServer(SnapshotBudget(3), Interest(100, 0)))
 	s := serverOf(a)
 	srvConn, cliConn := Pipe()
-	defer cliConn.Close()
+	defer func() { _ = cliConn.Close() }()
 	r := &remote{id: 1, peer: newPeer(srvConn, nil), known: map[ID]*sent{}, joined: true}
 	s.clients[r.id] = r
 	hero := newUnit(geom.V3(0, 0, 0), 1)

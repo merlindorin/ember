@@ -89,7 +89,7 @@ func (l *Listener) handshake(ctx context.Context, c *quicgo.Conn) {
 	select {
 	case l.conns <- conn:
 	case <-ctx.Done():
-		conn.Close()
+		_ = conn.Close()
 	}
 }
 

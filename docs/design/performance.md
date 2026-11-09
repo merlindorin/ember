@@ -72,27 +72,7 @@ The two target scenes in bench2d plus the user's F3 at the start of a run, befor
 
 ## Measurements
 
-### The demo's start
-
-The demo's start is measured with `EMBER_STATS`: `EMBER_HIDDEN=1 EMBER_STATS=cpu EMBER_FRAMES=600 LANTERVALE_DIR=$TMPDIR/es EMBER_CAPTURE_SIZE="2000,1125@0" EMBER_CAPTURE_KEYS="enter:5-7" go run ../lantervale` prints, on quitting, the averages over frames 61–600: frame, tick, render, the swap, and each system. `EMBER_STATS=1` times the GPU's passes as well, which itself costs time (see E). An M1 Max, a hidden Retina window, 773 entities. The old and new builds are run in turn, three rounds each, with the median kept.
-
-| Change | Commit | Frame ms (fps) | Tick | Render | Swap | Notes |
-|---|---|---|---|---|---|---|
-| before | f8ea2aa | 10.91 (92) | 2.74 | 1.61 | 6.46 | GPU 2d window 3.41, light pass 0.20 (timed) |
-| E: GPU timers only while F3 shows | 53b6a1b | 5.82 (172) | 2.64 | 0.37 | 2.75 | Timer queries stalled the driver: render −1.2 ms, swap −3.7 ms. F3 open still pays this, so F3 overstates the frame by about 4.5 ms |
-| A: ui skips hidden subtrees; one shown after its layout is laid out before twod collects | e7144e7 | 2.83 (353) | 1.30 | 0.27 | 1.23 | ui 1.13 → 0.04 ms, against E's 3.97 ms (252 fps) in the same rounds at load 17. Nearly all the idle cost was laying out the hidden game screens |
-| F3 times the GPU one frame in 30 | 44096b2 | 3.54 (283), F3 open | 1.55 | 0.40 | 1.55 | With F3 open: 8.57 ms (117 fps) before, against 3.36–3.73 with it shut. Timing every frame also inflated the GPU's own reading: 2d window 3.6 → 2.3 ms |
-| H: a frame is swapped after the next tick, so the GPU draws it while the CPU simulates | 93ee797 | 2.94 (340) | 1.33 | 0.29 | 1.16 | Against 44096b2's 3.92 (255) in the same rounds: swap 1.95 → 1.16. A frame shows one tick (about 1.3 ms) later, not a frame. The frame is now about the GPU's own time (2d window 2.3 + passes 0.3), so the next wins cut GPU work. A buffer ring for the vertex uploads was tried and gave nothing measurable, so it was dropped: the profile's 1.5 ms in BufferSubData was profiling cost, not a stall |
-| Pictured layers' passes cropped to what they draw | this commit | 3.33–3.73 (268–301) | 1.39 | 0.31 | 1.45–1.80 | GPU 2d window 3.10 → 2.43 ms (timed, three rounds). The minimap's masked layers drew as passes the size of the window (4000×2250 px) composited over all of it, for a disc in one corner. A capture of the demo is byte-identical before and after. The untimed frame is within noise: it sits at both the CPU's and the GPU's time now |
-
-### Gating a demo change
-
-A demo change's before and after compare standing scenes at fixed places, never scripted walks. Since click-to-move, two builds walked by different inputs cover different ground: one walk that went into a lit room read as a 40% render "regression" (2026-11-03). Each scene runs in both builds in turn, three rounds, with `EMBER_STATS=cpu EMBER_HIDDEN=1 LANTERVALE_DIR=$TMPDIR/es EMBER_CAPTURE_FRAME=760 EMBER_CAPTURE_KEYS="enter:5-7"` and the median kept:
-- the fountain: `LANTERVALE_DEBUG="god,no-spawns" go run ../lantervale`;
-- beside a lit room: `DUNGEON=crypt LANTERVALE_DEBUG="god,no-spawns" go run ../lantervale`;
-- a horde pack at a set spot: `LANTERVALE_DEBUG="god,no-spawns,goto-area=2,spawn-pack,spawn-pack,freeze-horde" go run ../lantervale`.
-
-To these come bench2d's `-scene wave23` and `-scene start` (`go run ./examples/internal/bench2d`), and `go test -run xxx -bench BulletHell .`. When the scenes differ, the draws, binds and vertices beside the times show whether the frames drew the same. A gap past 10% is the change's to fix.
+A game's own measurements (its start, gating its changes, its maps and its lighting) live in that game's docs.
 
 ### bench2d
 
@@ -142,16 +122,6 @@ Collide's crowd rebuild is 2.4%.
 
 An almost empty window (example 11) costs 0.20 ms, so the 1.4 ms left with every layer hidden was the minimap's two window-sized passes and their full-screen composite, now cropped. A full-screen solid quad of alpha 0 is also drawn each frame, but skipping it gained nothing. What remains is the floor (about 1 ms) and the light's full-screen multiply (about 0.7 ms): proposal 1 halves both.
 
-**J: the big map from cached tiles** (this commit; `go test -bench LongWalk ./screens` in `lantervale/`, a 4,000-step wander explored, CPU only):
-
-| | Before | After |
-|---|---|---|
-| a frame with the map open | 19.3 ms | 0.31 ms |
-| opening it | 4.4 ms | 0.06 ms |
-| a frame with it closed | 0.06 ms | 0.06 ms |
-
-Why it was slow: every frame the map drew one rect per explored square in view and one per wall cell, and worked out each square's area level and sanctuary flag again; opening it scanned every square within reach for the bounds and every cell of the squares seen for walls. Now the explored ground and walls are painted into 256-pixel tiles, a pixel per cell, the first time a tile shows, and only its chunks with newly seen squares repaint (`Explored.ChunkVersion`, `Epoch`); the bounds come from the explored chunks (`Explored.Box`). A capture of the open map matches the old one to 2 levels in 255 on 99.85% of the pixels that differ (sRGB rounding in the texture); 3,849 of 9 M pixels, on square and wall edges, differ more, where the old rects overlapped by half a point and walls were at least one point wide.
-
 **B and D6: collect visits what the views show, and allocates nothing** (`EMBER_STATS=cpu`, `-w 2000 -h 1125`, 300 frames). The load was 90–127 throughout, so base (5775e34f) and new ran back to back per scene; read the ratios more than the absolute ms.
 
 | Scene | Base frame (fps) | New frame (fps) | Base collect | New collect |
@@ -166,15 +136,6 @@ How it works: a non-fixed layer with at least 128 children files its still sprit
 D6: gather and collect reuse the frame's camera and feed maps, the per-window culls, the y-sort's stretches and the maps' views; `TestGatherAndCollectAllocateNothingOnceWarm` counts 0 allocations a frame (17 before).
 
 Building the 200k scene took a minute: adding a child appends it twice (the node, then twod's own append for the whole entity), and `BasicEntity.RemoveChild` scanned from the first child. It looks from the last now, so the 190,000 still sprites build in about a second.
-
-**K: lighting baked into the map** (a2444506 bake of placed lights, c422e839 and 71e86d22 the ambient kept per field, d74be81d his sight as a disc over a static ambient; `FOG_MEASURE=1 go test -run TestMeasureLightingWhileWalking -v ./demo/fog`, base c0bb01c9 and wip run back to back at load 15–20, average ms a frame):
-
-| Walk | Base lighting | Now | Base darkness | Now |
-|---|---|---|---|---|
-| the open crypt | 1.42–1.48 | 0.26–0.28 | 0.45–0.47 | 0.28–0.29 |
-| the Drowned Warrens | 0.37–0.43 | 0.12–0.13 | 0.07–0.08 | 0.03–0.04 |
-
-How: a placed light's fan is worked out once and laid at its strength, so its flicker wavers its brightness. The ambient field covers four cells beyond the view and keeps its walls, corners and rooms' light until the field, the map or a room's light changes. It is meshed once at what his sight keeps far from him, and his sight is a disc over the cells within it, screened over the mesh in the renderer's gamma (`blendGamma`, see 2d-batching item 5) and laid again only when he moves. Captures differ from the base by at most 2 in 255. The crypt's 0.2 ms target is reached on CPU time (0.17 ms in the profile); what is left is the disc while he walks, about 500 cells of sight.
 
 **Sharp pixels** (a4d314e9, the pause menu's setting: the world camera's resolution is the window's points). The demo at 2000×1125 points on a 2× framebuffer, `EMBER_STATS=1`, two rounds each at load 15:
 
@@ -287,15 +248,6 @@ Against 2d915301, just before wall faces were lit round their box, the same way:
 | 64 lights, gpu frame | 2.20 | 2.34 | +6% |
 | 64, 10,000 solid cells, gpu frame | 2.40 | 2.57 | +7%, most of it the wall faces' light samples |
 | 64, 10,000 solid cells, CPU work | 1.86 | 1.97 | +6% |
-
-**The demo's light on the engine's lights** (87f97107, lantervale/design/light-migration.md's baseline). The demo walking from the sanctuary into the crypt, 2000×1125 points on a 2× framebuffer, `EMBER_STATS=cpu`, 600 frames, god mode, load about 25; base its parent on wip:
-
-| | Frame (fps) | CPU tick | Render | 2D draws | Light systems |
-|---|---|---|---|---|---|
-| CPU light maps (base) | 1.67 (600) | 1.00 | 0.64 | 20 | lighting 0.11, watching 0.03, darkness 0.03 |
-| engine lights (87f97107) | 2.22 (451) | 0.78 | 1.39 | 14 | light 0.14 |
-
-The CPU tick falls by a fifth; the frame grows by the engine's GPU passes (occluders, shadow maps, the light picture and the static bake), which the baseline accepts (architect, 2026-11-02). BulletHell, which draws no demo light, is within noise (1.26–1.27 ms base, 1.27–1.40 ms after, load 20).
 
 **ShadedBy on the demo's crowd** (785882fd, decision 0045). The demo's crypt walk, 2000×1125 points, `EMBER_STATS=1`, 600 frames, god mode, three rounds interleaved at load 10–11:
 

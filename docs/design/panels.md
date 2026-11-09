@@ -1,4 +1,4 @@
-# Collapsible and closable panels, and the demo's debug controls
+# Collapsible and closable panels
 
 Status: **approved by the user (2026-10-31); being built.** The panels are ui windows since 33eba70b.
 
@@ -64,33 +64,8 @@ p := ui.NewPanel(
 
 The guide's UI section gets a page step for it (game-doc-writer), and the theme file documents the three new keys.
 
-## 2. Game: the debug panel on F12
-
-> **Superseded (2026-11-03):** F12 now shows a debug menu bar whose Panels menu opens and closes each panel, a compact `ui.Window`. A panel's close button unchecks its item; nothing opens by default, and which are open is kept in debug.json. Shadows, Hero and Creatures panels joined the others. The text below is kept as the record of the first design.
-
-A new feature package, `lantervale/debug` (game-engine-developer-2), with one plugin. It imports only `game`, the leaves and the engine, like every feature (STRUCTURE.md).
-
-- **F12** shows or hides the debug panels, never pausing the game. F12's screenshot moves to Shift+F12.
-- **Separate panels, not one (user, 2026-10-31):** each section below is its own titled panel, `Movable`, `Collapsible` and `Closable`, placed freely in the window. Their first positions are stacked down the right edge below the minimap. Each one's position, fold and closed state are kept in debug.json, never in progress. F12 brings back every closed one. The Screenshot button goes in the Overlays panel.
-
-| Section | Controls |
-|---|---|
-| Hero | God mode, Heal, Level up, +1000 gold, +100 embers |
-| World | Time scale (0.25 / 0.5 / 1 / 2 / 4), No spawns, Kill all in view, Spawn a pack of the area's breeds |
-| Map | Reveal map (this run only, never saved), Teleport home, Teleport to a dungeon (a list from `Stage.Sites`) |
-| Dungeon | Open the chest, Clear the dungeon, Light every room |
-| Overlays | Colliders, Light areas and rooms, Flow field, F3 stats |
-
-- **How features hear it.** A `game.Debug` resource holds the flags (God, NoSpawns, Reveal, overlays, time scale), and events carry the actions (`DebugLevelUp`, `DebugTeleport{To}`…). The feature that owns each behaviour reads them: horde and dungeon stop spawning, stats ignore damage, fog and arena draw the overlays. The debug package never reaches into another feature.
-- **Automation.** Every action is also an `automation.Action`, so tests and tools can drive it.
-- **Saves.** Debug never writes progress except kept gains (gold, embers). The save is marked "debug used".
-- **Tests:**
-  - F12 toggles the panel;
-  - each flag reaches its owner (god mode takes no damage; no spawns stops both spawners);
-  - each action is emitted and handled;
-  - Reveal map is never saved.
+A game's own debug screen, built from these panels, lives in that game's docs.
 
 ## Order
 
 1. The panel options in `ui` (game-engine-developer), with guide docs.
-2. `lantervale/debug` on top (game-engine-developer-2), with the overlays agreed between them.

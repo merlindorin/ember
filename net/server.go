@@ -161,6 +161,7 @@ func (v *replicas) Remove(o world.Identifier) {
 func (v *replicas) AddByInterface(o world.Identifier) {
 	v.Group.AddByInterface(o)
 	if e, ok := o.(Replicated); ok {
+		mustPose(e)
 		if n := e.GetNetwork(); n.NetID == 0 {
 			v.s.counter++
 			n.NetID = NewID(v.s.region, v.s.counter)
@@ -387,7 +388,7 @@ func (s *Server) replicate(dt float32) {
 	for _, e := range s.entities.Slice() {
 		n := e.GetNetwork()
 		s.byID[n.NetID] = e
-		s.grid.Move(uint64(n.NetID), e.GetTransform().WorldPosition())
+		s.grid.Move(uint64(n.NetID), groundOf(e))
 		if cur, ok := s.owned[n.Owner]; n.Owner != 0 && (!ok || n.NetID < cur) {
 			s.owned[n.Owner] = n.NetID
 		}
@@ -406,7 +407,7 @@ func (s *Server) focusOf(r *remote) (geom.Vec3, bool) {
 	if !ok {
 		return geom.Vec3{}, false
 	}
-	return e.GetTransform().WorldPosition(), true
+	return groundOf(e), true
 }
 
 // sendSnapshot replicates what lies in the client's interest area: entities
@@ -419,7 +420,7 @@ func (s *Server) sendSnapshot(r *remote) {
 	leave := s.radius + s.margin
 	for id := range r.known {
 		e, alive := s.byID[id]
-		if !alive || blind || filtered && flatDist(e.GetTransform().WorldPosition(), focus) > leave {
+		if !alive || blind || filtered && flatDist(groundOf(e), focus) > leave {
 			snap.Despawns = append(snap.Despawns, id)
 			delete(r.known, id)
 		}
@@ -487,7 +488,7 @@ type candidate struct {
 // sent again until the client acknowledges a datagram carrying it.
 func (s *Server) replicateTo(r *remote, e Replicated, snap *Snapshot, poses *[]Update) {
 	n := e.GetNetwork()
-	p := poseOf(e.GetTransform())
+	p := poseOf(e)
 	var state, private any
 	if st, ok := e.(Stateful); ok {
 		state = st.NetState()

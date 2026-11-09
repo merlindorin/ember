@@ -45,11 +45,11 @@ func TestTheSynchronizerReplicatesItsRoot(t *testing.T) {
 	tree := node.New(w)
 	c, sync := chest()
 	tree.Root().AddNode(c)
-	var replicated net.Replicated = sync
+	var _ net.Replicated = sync
 	var stateful net.Stateful = sync
 	c.Position, c.Open = geom.V3(1, 2, 3), true
 	w.Update(0.016)
-	assert.Equal(t, geom.V3(1, 2, 3), replicated.GetTransform().Position, "the server sends the root's pose")
+	assert.Equal(t, geom.V3(1, 2, 3), sync.GetTransform().Position, "the server sends the root's pose")
 	assert.Equal(t, true, stateful.NetState())
 
 	w = world.NewWorld()

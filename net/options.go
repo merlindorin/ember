@@ -102,6 +102,18 @@ func Correction(rate float32) ClientOption {
 	})
 }
 
+// SnapDistance is how far one predicted step must go to be a jump, such as
+// a dash, shown at once instead of blended over the step (default 1, a
+// metre in 3D; a 2D game passes it in its own units, above what a walk
+// covers in one step).
+func SnapDistance(d float32) ClientOption {
+	return clientOption(func(c *Client) {
+		if d > 0 {
+			c.snap = d
+		}
+	})
+}
+
 // Hello opens the connection with msg (a join ticket, say). It is sent
 // first, with sequence number 0, so it is never acknowledged nor replayed.
 func Hello(msg any) ClientOption { return clientOption(func(c *Client) { c.hello = msg }) }

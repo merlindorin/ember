@@ -1,11 +1,13 @@
 // Package net is server-authoritative networking for ember.
 //
 // The server World owns the simulation. Entities that embed a Network
-// component (and a scene.Transform) are replicated to clients: the server
-// sends spawns, transform/state updates and despawns at a fixed tick rate,
-// filtered by an interest radius around each client's focus entity. Clients
-// mirror those entities with factories registered per Kind, smooth their
-// transforms, and talk back with typed messages.
+// component and a pose, a scene.Transform in 3D or a twod placement in 2D,
+// are replicated to clients: the server sends spawns, pose and state
+// updates and despawns at a fixed tick rate, filtered by an interest
+// radius around each client's focus entity, measured on the ground plane
+// (x and z in 3D, x and y in 2D). Clients mirror those entities with
+// factories registered per Kind, smooth their poses, and talk back with
+// typed messages.
 //
 // Client messages are intents: Client.Send numbers them, the server queues
 // them on arrival and applies them at the start of the next FixedUpdate step,
@@ -29,7 +31,7 @@ import (
 	"sync"
 
 	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/scene"
+	"github.com/merlindorin/ember/world"
 )
 
 // ID identifies a replicated entity across all peers: the region that
@@ -73,9 +75,11 @@ type Network struct {
 
 func (n *Network) GetNetwork() *Network { return n }
 
-// Replicated is any entity the server sends to clients.
+// Replicated is any entity the server sends to clients. It must also have
+// a pose: a scene.Transform, or a twod placement (a twod.Item); net
+// panics on one with neither when it joins a World.
 type Replicated interface {
-	scene.Transformable
+	world.BasicFace
 	GetNetwork() *Network
 }
 
@@ -149,16 +153,12 @@ func Register(v any) {
 // Welcome then Snapshots, the client sends Intents. Any other value is an
 // application message (Send, Broadcast, Handle).
 
+// Pose is where an entity is. A 2D pose is on the ground plane: (x, y) is
+// (x, 0, y), its rotation a yaw and its scale (sx, 1, sy).
 type Pose struct {
 	Position geom.Vec3
 	Rotation geom.Quat
 	Scale    geom.Vec3
-}
-
-func poseOf(t *scene.Transform) Pose { return Pose{t.Position, t.Rotation, t.Scale} }
-
-func (p Pose) apply(t *scene.Transform) {
-	t.Position, t.Rotation, t.Scale = p.Position, p.Rotation, p.Scale
 }
 
 type Welcome struct{ ID ClientID }

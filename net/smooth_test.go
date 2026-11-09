@@ -26,7 +26,7 @@ type lockstep struct {
 
 const lockstepFPS = 144
 
-func newLockstep(t *testing.T, snapshots int, delay, jitter time.Duration) *lockstep {
+func newLockstep(t *testing.T, snapshots int, delay, jitter time.Duration, opts ...ClientOption) *lockstep {
 	l := &lockstep{t: t, clk: &testClock{now: time.Unix(1_800_000_000, 0)}, frame: time.Second / lockstepFPS}
 	se, ce := LagJitter(l.clk.Now, delay, jitter, 7)
 	l.srv = world.New()
@@ -34,7 +34,8 @@ func newLockstep(t *testing.T, snapshots int, delay, jitter time.Duration) *lock
 	l.srv.AddPlugins(NewServer(TickRate(snapshots)))
 	l.srv.AddSystems(&walkers{})
 	serverOf(l.srv).ConnectEndpoint(se)
-	l.cli = world.New().AddPlugins(NewClient(nil, WithEndpoint(ce), Clock(l.clk.Now), TickRate(30)))
+	opts = append([]ClientOption{WithEndpoint(ce), Clock(l.clk.Now), TickRate(30)}, opts...)
+	l.cli = world.New().AddPlugins(NewClient(nil, opts...))
 	l.run(200 * time.Millisecond)
 	return l
 }

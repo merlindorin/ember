@@ -50,6 +50,7 @@ func TestMain(m *testing.M) {
 	registerUnit()
 	registerChest()
 	registerWalker()
+	registerMover()
 	os.Exit(m.Run())
 }
 

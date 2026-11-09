@@ -68,6 +68,7 @@ The choices that shape ember, one short file each: what was decided, what else w
 | 0062 | [ui elements take a right click and drag-and-drop of their own](0062-ui-elements-take-a-right-click-and-drag-and-drop-of-their-own.md) | api |
 | 0063 | [On the web, the page is the window's frame](0063-on-the-web-the-page-is-the-windows-frame.md) | platform |
 | 0064 | [A server World is ember.New without presenting](0064-a-server-world-is-ember-new-without-presenting.md) | net |
+| 0065 | [2D entities replicate on the ground plane](0065-2d-entities-replicate-on-the-ground-plane.md) | net |
 
 ## Writing one
 

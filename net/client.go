@@ -53,6 +53,7 @@ func NewClient(conn stdnet.Conn, opts ...ClientOption) *Client {
 		missing:   map[string]bool{},
 		step:      1.0 / 30,
 		blend:     20,
+		snap:      1,
 	}
 	for _, opt := range opts {
 		opt.client(c)
@@ -98,6 +99,7 @@ type Client struct {
 	pending    []sentIntent
 	rtt        time.Duration
 	step       float32
+	snap       float32
 	acc        float32
 	blend      float32
 	correction geom.Vec3
@@ -236,8 +238,8 @@ func (c *Client) claim(m *mirror) {
 	switch {
 	case owned && c.self == nil:
 		c.self, c.correction, c.acc, c.offset = m, geom.Vec3{}, 0, geom.Vec3{}
-		t := m.e.GetTransform()
-		c.prevPos, c.prevRot, c.simRot = t.Position, t.Rotation, t.Rotation
+		p := poseOf(m.e)
+		c.prevPos, c.prevRot, c.simRot = p.Position, p.Rotation, p.Rotation
 	case !owned && c.self == m:
 		c.self = nil
 	}
@@ -269,9 +271,8 @@ func (c *Client) acked(ack uint32) {
 // at the step the server will receive it. What is displayed stays put, as
 // a correction that decays.
 func (c *Client) reconcile(p Predicted, u Update) {
-	t := p.GetTransform()
-	shown := t.Position
-	u.Pose.apply(t)
+	shown := poseOf(p).Position
+	setPose(p, u.Pose)
 	c.apply(p, u)
 	for _, msg := range c.history {
 		p.PredictIntent(msg)
@@ -292,7 +293,8 @@ func (c *Client) reconcile(p Predicted, u Update) {
 		steps = max(steps, int(last.Sub(c.pending[0].at).Seconds()/float64(c.step))+1)
 	}
 	next := 0
-	c.prevPos, c.prevRot = t.Position, t.Rotation
+	start := poseOf(p)
+	c.prevPos, c.prevRot = start.Position, start.Rotation
 	for i := range steps {
 		at := last.Add(-time.Duration(float64(steps-1-i) * float64(c.step) * float64(time.Second)))
 		for ; next < len(c.pending) && !c.pending[next].at.After(at); next++ {
@@ -303,12 +305,14 @@ func (c *Client) reconcile(p Predicted, u Update) {
 	for ; next < len(c.pending); next++ {
 		p.PredictIntent(c.pending[next].msg)
 	}
+	t := poseOf(p)
 	c.simRot = t.Rotation
 	alpha := c.acc / c.step
 	c.correction = shown.Sub(c.prevPos.Lerp(t.Position, alpha))
 	c.offset = shown.Sub(t.Position)
 	t.Position = shown
 	t.Rotation = c.prevRot.Slerp(c.simRot, alpha)
+	setPose(p, t)
 }
 
 // predict advances the predicted entity at the server's step, shows it
@@ -319,11 +323,13 @@ func (c *Client) predict(dt float32) {
 	if p == nil {
 		return
 	}
-	t := p.GetTransform()
+	t := poseOf(p)
 	t.Position, t.Rotation = t.Position.Sub(c.offset), c.simRot
+	setPose(p, t)
 	for c.acc += dt; c.acc >= c.step; c.acc -= c.step {
 		c.stepPredicted(p)
 	}
+	t = poseOf(p)
 	c.simRot = t.Rotation
 	c.correction = c.correction.Scale(geom.Exp(-c.blend * dt))
 	alpha := c.acc / c.step
@@ -331,19 +337,19 @@ func (c *Client) predict(dt float32) {
 	c.offset = shown.Sub(t.Position)
 	t.Position = shown
 	t.Rotation = c.prevRot.Slerp(c.simRot, alpha)
+	setPose(p, t)
 }
 
-// snapStep is a predicted step long enough to be a jump (a dash, say): it
-// is shown at once instead of blended over the step, so live and replayed
-// predictions show it alike whichever step it falls in.
-const snapStep = 1
-
+// stepPredicted advances the predicted entity one step. A step longer
+// than the snap distance is a jump (a dash, say): it is shown at once
+// instead of blended over the step, so live and replayed predictions show
+// it alike whichever step it falls in.
 func (c *Client) stepPredicted(p Predicted) {
-	t := p.GetTransform()
-	c.prevPos, c.prevRot = t.Position, t.Rotation
+	before := poseOf(p)
+	c.prevPos, c.prevRot = before.Position, before.Rotation
 	p.PredictStep(c.step)
-	if t.Position.Dist(c.prevPos) > snapStep {
-		c.prevPos, c.prevRot = t.Position, t.Rotation
+	if after := poseOf(p); after.Position.Dist(c.prevPos) > c.snap {
+		c.prevPos, c.prevRot = after.Position, after.Rotation
 	}
 }
 
@@ -415,7 +421,7 @@ func (c *Client) update(frame world.Frame) {
 			continue
 		}
 		if p, ok := m.at(at); ok {
-			p.apply(m.e.GetTransform())
+			setPose(m.e, p)
 		}
 	}
 }
@@ -585,7 +591,7 @@ func (c *Client) Place(e Replicated) {
 
 func (c *Client) adopt(e Replicated, s Spawn, tick uint64) {
 	*e.GetNetwork() = Network{NetID: s.ID, Kind: s.Kind, Owner: s.Owner}
-	s.Pose.apply(e.GetTransform())
+	setPose(e, s.Pose)
 	if st, ok := e.(Stateful); ok && s.State != nil {
 		st.ApplyNetState(s.State)
 	}

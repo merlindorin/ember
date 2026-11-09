@@ -7,7 +7,8 @@ Package `github.com/merlindorin/ember/world`. Guide: `docs/02-world`. Examples: 
 | Want | Call | Notes |
 |---|---|---|
 | A game with windows, drawing, sound | `ember.New(opts ...ember.Option) *world.World` | installs every engine plugin, see below |
-| A headless simulation, a server, a test of pure logic | `world.New() *World` | no plugins; runner is `world.Headless` |
+| A game server: the same simulation, no GPU, builds with `CGO_ENABLED=0` | `server.New(opts ...server.Option) *world.World` | package `ember/server`; runner is `world.Headless` |
+| A test of pure logic | `world.New() *World` | no plugins; runner is `world.Headless` |
 | Run until something quits | `(w *World) MustRun()` / `Run() error` | `f.Quit()` or `w.Quit()` stops after the frame |
 | Step by hand (tests) | `(w *World) RunFrames(n int)` | n frames at the fixed step (1/60 s) |
 | One frame of a given length | `(w *World) Frame(dt float32)` | Tick + Present + event aging |
@@ -15,7 +16,7 @@ Package `github.com/merlindorin/ember/world`. Guide: `docs/02-world`. Examples: 
 
 `ember.New` adds: desktop windows (a default one only if the game adds none), the renderer, cameras' controllers, skeletal animation, the `ease` tween system, `audio`, the GPU and automation (`EMBER_AUTOMATION=host:port` to serve it).
 Options: `ember.Headless()`, `ember.Automation(auto *automation.Automation)`, `ember.CrashLog(path string)`.
-Servers build from `world.New()` and pure-Go plugins (`AddPlugins(plugins ...Plugin)`, `Plugin` is `Build(w *World)`).
+`server.New` adds every one of those except the GPU and the desktop runner (decision 0064). Option: `server.Automation(auto *automation.Automation)`. Plugins are `AddPlugins(plugins ...Plugin)`, `Plugin` is `Build(w *World)`.
 
 Builders all return `*World`, so chain them:
 

@@ -344,3 +344,12 @@ Its bar colours are package values: `color.Hex` parses and allocates, and called
 | 7f5f4e60 (wip after the text batch) | 1.02 | 0.98 | 0.94 |
 
 The quick check's +10–18% was the load. Base to now is +1–12% (about +6%); the text batch's commits are flat, and the step is the exact sRGB encode per fragment, about 0.04–0.1 ms, the cost decision 0050 accepted. Not flagged.
+
+**Rounded clips** (6af3c598, decision 0058: the fragment shader cuts overflow to a rounded padding box). It landed at load 54 before its bench; measured on 2026-11-09 against 6af3c598~1, bench2d at `-w 2000 -h 1125`, hidden, `EMBER_STATS=1`, 300 frames, before and after in turn, two rounds at load 10, in ms:
+
+| Scene | Frame before | Frame after | GPU frame before | GPU frame after | 2d window before | 2d window after |
+|---|---|---|---|---|---|---|
+| lights, 10,000 occluders | 2.08, 2.01 | 2.01, 1.89 | 1.83, 1.81 | 1.83, 1.80 | 1.67, 1.66 | 1.71, 1.72 |
+| 200k | 9.84, 9.84 | 9.87, 9.53 | 2.02, 2.01 | 2.04, 2.07 | | |
+
+Frames are unchanged; the 2d window's pass is about 3% slower, inside the noise of two rounds. Not flagged.

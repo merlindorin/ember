@@ -1,6 +1,6 @@
 # Web: ember in the browser through WebAssembly and WebGPU
 
-Status: **accepted, [decision 0054](../99-decisions/0054-ember-runs-in-the-browser-through-webassembly-and-webgpu.md); W0 and W1 done (2026-11-03).**
+Status: **accepted, [decision 0054](../99-decisions/0054-ember-runs-in-the-browser-through-webassembly-and-webgpu.md); W0–W3 done (2026-11-03); W4 waits until after the Prologue, and publishing the guide's live frames waits on the user.**
 
 ## Building
 

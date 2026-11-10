@@ -14,11 +14,28 @@
 
 `twod.LoadTiled` reads the map and its tileset. Each of `level.Layers()` is a tile map: the window shows it, and `space.AddSolid` makes its solid tiles stop the hero. The cells are 32 points while the tiles are 16 pixels, so object positions are already in screen points. A layer may draw from several tilesets, a floor grid and a collection of wall pieces, for instance: the map's tilesets are merged, and each cell keeps its global id over them.
 
+Only the tilesets the map places a tile from load their pictures ([0066](../99-decisions/0066-a-tiled-map-loads-only-the-tilesets-it-uses.md)), so a level can carry a whole library of tilesets to pick pieces from in Tiled at no cost. `level.UsedTilesets()` lists those; `level.Tilesets()` lists them all, the unused ones with their properties, collision shapes and file names but no pictures, and `ImageFile(id)` names a tile's picture file either way. To draw a tile from a tileset the map never places, load that tileset with `twod.LoadTiledTileset`.
+
 [main.go](../../examples/29-tiled/main.go)
 
 ## The objects
 
 `level.Objects("things")` lists the objects of that layer, and the game decides what each `Type` means: "start" is where the hero stands, and "pillar" is a solid sprite pivoted at its feet. They go in a `SortByY` layer so the hero passes in front of and behind the pillars.
+
+An object's `Rect` is Tiled's x, y, width and height, and its `Shape` says what was drawn: `twod.TiledRectangle` (also tile objects and texts), `TiledEllipse`, `TiledPoint`, `TiledPolygon` or `TiledPolyline`. A polygon's or polyline's `Points` are in the map's pixels, the object's position included. A tile object, placed from a tileset, keeps its tile: `Tile` is nil for any other object. Its `Rect` stands with y at the picture's bottom, as in Tiled; Tiled's rotation isn't read.
+
+```go
+for _, o := range level.Objects("things") {
+	switch {
+	case o.Tile != nil:
+		place(o.Tile.Tileset, o.Tile.ID, o.Tile.Flip, o.Rect)
+	case o.Shape == twod.TiledPolygon:
+		addZone(o.Points)
+	}
+}
+```
+
+`Tile.ID` counts from 1 as a `Tileset` does, so Tiled's tile 5 is ID 6; `Tile.GID` is Tiled's own global id, flip bits included.
 
 Custom properties come with their Tiled types. `level.Properties()` are the map's own, such as a room's name, tier or weight for a dungeon generator, `level.LayerProperties("walls")` a layer's, and an object's are its `Properties`. Each reads by type, with whether it's there and of that type:
 

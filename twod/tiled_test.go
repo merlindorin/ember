@@ -432,47 +432,41 @@ func TestLoadTiledKeepsEachObjectsShape(t *testing.T) {
 }
 
 func TestLoadTiledLoadsOnlyTheTilesetsItUses(t *testing.T) {
-	// The library's and the atlas's pictures are not in the file system:
-	// loading either would fail.
-	library := `{"tilewidth": 16, "tileheight": 16, "tiles": [
-	  {"id": 0, "image": "../art/missing.png", "imagewidth": 16, "imageheight": 16,
-	   "properties": [{"name": "kind", "type": "string", "value": "moss"}]}]}`
-	atlas := `{"image": "../art/missing-atlas.png", "tilewidth": 8, "tileheight": 8,
-	 "tiles": [{"id": 0, "properties": [{"name": "solid", "type": "bool", "value": true}]}]}`
+	// The library's .tsj and the embedded atlas's picture are not in the
+	// file system: reading or loading either would fail.
 	rocks := `{"tilewidth": 16, "tileheight": 16, "tiles": [{"id": 0, "image": "../art/rock.png"}]}`
 	tmj := `{"orientation": "orthogonal", "tilewidth": 16, "tileheight": 16,
 	 "tilesets": [{"firstgid": 1, "source": "tilesets/tiles.tsj"}, {"firstgid": 10, "source": "tilesets/library.tsj"},
-	  {"firstgid": 20, "source": "tilesets/atlas.tsj"}, {"firstgid": 100, "source": "tilesets/rocks.tsj"}],
+	  {"firstgid": 20, "image": "art/missing-atlas.png", "tilewidth": 8, "tileheight": 8,
+	   "tiles": [{"id": 0, "properties": [{"name": "solid", "type": "bool", "value": true}]}]},
+	  {"firstgid": 100, "source": "tilesets/rocks.tsj"}],
 	 "layers": [
 	  {"type": "tilelayer", "name": "floor", "width": 2, "height": 1, "data": [1, 0]},
 	  {"type": "objectgroup", "name": "props", "objects": [{"gid": 100, "x": 0, "y": 16, "width": 16, "height": 16}]}
 	 ]}`
 	files := func(level string) fstest.MapFS {
 		return fstest.MapFS{
-			"levels/one.tmj":              {Data: []byte(level)},
-			"levels/tilesets/tiles.tsj":   {Data: []byte(tsj)},
-			"levels/tilesets/library.tsj": {Data: []byte(library)},
-			"levels/tilesets/atlas.tsj":   {Data: []byte(atlas)},
-			"levels/tilesets/rocks.tsj":   {Data: []byte(rocks)},
-			"levels/art/tiles.png":        {Data: pngOf(t, 32, 8)},
-			"levels/art/rock.png":         {Data: pngOf(t, 16, 16)},
+			"levels/one.tmj":            {Data: []byte(level)},
+			"levels/tilesets/tiles.tsj": {Data: []byte(tsj)},
+			"levels/tilesets/rocks.tsj": {Data: []byte(rocks)},
+			"levels/art/tiles.png":      {Data: pngOf(t, 32, 8)},
+			"levels/art/rock.png":       {Data: pngOf(t, 16, 16)},
 		}
 	}
 	m, err := LoadTiled(files(tmj), "levels/one.tmj")
-	require.NoError(t, err, "the unused tilesets' pictures are never opened")
+	require.NoError(t, err, "the unused library's file and the unused atlas's picture are never opened")
 	sets := m.Tilesets()
-	require.Len(t, sets, 4, "every tileset is listed")
+	require.Len(t, sets, 4, "every tileset is listed, in order")
 	assert.Equal(t, []*Tileset{sets[0], sets[3]}, m.UsedTilesets(), "a tile layer's set and a tile object's")
-	unused := sets[1]
-	kind, _ := unused.Property(1, "kind")
-	assert.Equal(t, "moss", kind, "an unused set's properties are read")
-	file, _ := unused.ImageFile(1)
-	assert.Equal(t, "levels/art/missing.png", file, "and its files named")
-	tex, _ := unused.image(1, 0)
-	assert.Nil(t, tex, "but its picture isn't loaded")
-	assert.True(t, sets[2].Solid(1), "an unused atlas keeps its tiles' properties")
-	assert.Nil(t, sets[2].texture)
+	library := sets[1]
+	assert.Equal(t, "levels/tilesets/library.tsj", library.Source(), "an unread tileset knows its file")
+	assert.Zero(t, library.Count(), "and holds no tiles")
+	assert.Equal(t, "levels/tilesets/rocks.tsj", sets[3].Source())
+	assert.Empty(t, sets[2].Source(), "an embedded tileset has no file of its own")
+	assert.True(t, sets[2].Solid(1), "an unused embedded tileset keeps its tiles' properties")
+	assert.Nil(t, sets[2].texture, "but loads no picture")
 
 	_, err = LoadTiled(files(strings.Replace(tmj, `"data": [1, 0]`, `"data": [1, 10]`, 1)), "levels/one.tmj")
-	assert.Error(t, err, "once a cell takes a library tile, its picture loads, and a missing one is an error")
+	require.Error(t, err, "once a cell takes a library tile, the library is read, and a missing file is an error")
+	assert.Contains(t, err.Error(), "library.tsj")
 }

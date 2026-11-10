@@ -235,10 +235,12 @@ const (
 // isometric maps are read; staggered and hexagonal maps, infinite maps and
 // image layers are errors.
 //
-// Only the tilesets the map uses load their pictures: those a tile layer
-// or a tile object takes a tile from (UsedTilesets). The others are read,
-// their properties and shapes with them, but have no pictures, so a map
-// can hold a whole library of tilesets for editing in Tiled at no cost.
+// Only the tilesets the map uses are loaded: those a tile layer or a tile
+// object takes a tile from (UsedTilesets), as the map's global ids tell.
+// An unused tileset of its own file is not read at all, so its .tsj and
+// pictures needn't be in fsys; one embedded in the map keeps its
+// properties and shapes but loads no pictures. A map can so hold a whole
+// library of tilesets for editing in Tiled at no cost.
 func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 	var m tiledMap
 	if err := readJSON(fsys, name, &m); err != nil {
@@ -289,18 +291,29 @@ func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 		}
 	}
 	for i, ts := range m.Tilesets {
-		base := dir
+		base, source := dir, ""
 		if ts.Source != "" {
-			source := path.Join(dir, ts.Source)
+			source = path.Join(dir, ts.Source)
+			if !t.used[i] {
+				// An unused tileset of its own file isn't read at all, so
+				// the file needn't even be there.
+				unread := NewTileset(nil, t.unit)
+				unread.source = source
+				t.tilesets = append(t.tilesets, unread)
+				continue
+			}
 			if err := readJSON(fsys, source, &ts); err != nil {
 				return nil, err
 			}
 			base = path.Dir(source)
 		}
 		tileset, err := tiledTilesetOf(fsys, base, ts, m.TileWidth, m.TileHeight, load, t.used[i])
+		if err == nil {
+			tileset.source = source
+		}
 		if err != nil {
-			if ts.Source != "" {
-				return nil, fmt.Errorf("twod: %s: %s: %w", name, ts.Source, err)
+			if src := m.Tilesets[i].Source; src != "" {
+				return nil, fmt.Errorf("twod: %s: %s: %w", name, src, err)
 			}
 			return nil, fmt.Errorf("twod: %s: %w", name, err)
 		}
@@ -698,8 +711,9 @@ func (t *Tiled) Layer(name string) (*TileMap, bool) {
 	return nil, false
 }
 
-// Tilesets are the map's tilesets, in order; only the used ones have
-// their pictures (UsedTilesets).
+// Tilesets are the map's tilesets, in order, so their global ids hold;
+// only the used ones are loaded (UsedTilesets). An unused one of its own
+// file is an empty Tileset that knows its Source.
 func (t *Tiled) Tilesets() []*Tileset { return t.tilesets }
 
 // UsedTilesets are the map's tilesets a tile layer or a tile object takes a

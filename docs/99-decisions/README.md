@@ -69,7 +69,8 @@ The choices that shape ember, one short file each: what was decided, what else w
 | 0063 | [On the web, the page is the window's frame](0063-on-the-web-the-page-is-the-windows-frame.md) | platform |
 | 0064 | [A server World is ember.New without presenting](0064-a-server-world-is-ember-new-without-presenting.md) | net |
 | 0065 | [2D entities replicate on the ground plane](0065-2d-entities-replicate-on-the-ground-plane.md) | net |
-| 0066 | [A Tiled map loads only the tilesets it uses](0066-a-tiled-map-loads-only-the-tilesets-it-uses.md) | assets |
+| 0066 | [A Tiled map loads only the tilesets it uses](0066-a-tiled-map-loads-only-the-tilesets-it-uses.md) (superseded by 0067) | assets |
+| 0067 | [A Tiled map reads only the tilesets it uses](0067-a-tiled-map-reads-only-the-tilesets-it-uses.md) | assets |
 
 ## Writing one
 

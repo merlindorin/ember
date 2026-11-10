@@ -60,9 +60,11 @@ type Tileset struct {
 	// the grid.
 	tiles map[int]tileImage
 	// file is the atlas's image file and files the tiles' own, as read
-	// from Tiled, kept whether or not the pictures were loaded.
-	file  string
-	files map[int]string
+	// from Tiled, kept whether or not the pictures were loaded; source is
+	// the tileset's own .tsj file, when a map names one.
+	file   string
+	files  map[int]string
+	source string
 	// bounds caches each tile's opaque bounds, found the first time asked;
 	// names each tile's name property, made the first time asked.
 	bounds map[int]geom.Rect
@@ -520,6 +522,12 @@ func (t *Tileset) Property(id int, name string) (string, bool) {
 
 // Properties are tile id's properties, typed as Tiled saves them.
 func (t *Tileset) Properties(id int) TiledProperties { return t.props[id] }
+
+// Source is the tileset's own file (.tsj), as a path in the file system a
+// Tiled map was read from: empty for a tileset embedded in its map or made
+// in code. A map's unused tileset of its own file is only that: unread, no
+// tiles (UsedTilesets).
+func (t *Tileset) Source() string { return t.source }
 
 // ImageFile is the file of tile id's picture, its path in the file system
 // a Tiled tileset was read from: the tile's own picture, or the tileset's

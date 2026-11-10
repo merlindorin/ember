@@ -1,6 +1,6 @@
 # 0066. A Tiled map loads only the tilesets it uses
 
-- Status: Accepted
+- Status: Superseded by [0067](0067-a-tiled-map-reads-only-the-tilesets-it-uses.md)
 - Date: 2026-11-10
 - Area: assets
 - Owner: engine

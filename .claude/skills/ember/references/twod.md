@@ -228,6 +228,8 @@ A HUD widget on the same canvas: `examples/17-custom-elements`.
 - `NewTileMap(tileset, opts ...TileMapOption)` from `ASCII(text string, legend map[rune]int)`, `CSV(text)` or `Cells(grid [][]int)`, sized by `CellSize(w, h float32)`. Its position is the top-left of cell 0,0 (not centred).
 - At run time: `Set(x, y, id int)`, `At(x, y) int`, `Cell(p geom.Vec2) (x, y int, ok bool)`, `Center(x, y) geom.Vec2`, `Solid(x, y) bool`.
 - Tiled: `level, err := twod.LoadTiled(files, "level.tmj")`, then `win.Add` each of `level.Layers()`; spawns from `level.Objects("things")` (`Name`, `Type`, `Rect`, `Properties`).
+- Objects keep their shape: `o.Shape` is `TiledRectangle`, `TiledEllipse`, `TiledPoint`, `TiledPolygon` or `TiledPolyline`; `o.Points` are a polygon's or polyline's points in map pixels; `Rect` is Tiled's x, y, w, h (a point sized 0). A tile object has `o.Tile` (`*TiledTile{GID, Tileset, ID, Flip}`, nil otherwise; `ID` counts from 1, `Rect.Y` is its picture's bottom); draw it with `o.Tile.Tileset` and `o.Tile.ID`.
+- Only used tilesets load pictures (decision 0066): `level.UsedTilesets()` are those a tile layer or tile object takes a tile from; `level.Tilesets()` lists all, unused ones with properties and shapes but no pictures. `tileset.ImageFile(id)` is a tile's picture file in the fsys, loaded or not.
 - Collision with tile maps is `collide` (`space.AddSolid(tileMap)`), paths `nav`.
 
 ```go

@@ -59,6 +59,10 @@ type Tileset struct {
 	// tiles are the tiles with a picture of their own rather than a cell of
 	// the grid.
 	tiles map[int]tileImage
+	// file is the atlas's image file and files the tiles' own, as read
+	// from Tiled, kept whether or not the pictures were loaded.
+	file  string
+	files map[int]string
 	// bounds caches each tile's opaque bounds, found the first time asked;
 	// names each tile's name property, made the first time asked.
 	bounds map[int]geom.Rect
@@ -517,6 +521,17 @@ func (t *Tileset) Property(id int, name string) (string, bool) {
 // Properties are tile id's properties, typed as Tiled saves them.
 func (t *Tileset) Properties(id int) TiledProperties { return t.props[id] }
 
+// ImageFile is the file of tile id's picture, its path in the file system
+// a Tiled tileset was read from: the tile's own picture, or the tileset's
+// atlas. It is there whether or not the picture was loaded (UsedTilesets);
+// a tileset made in code has none.
+func (t *Tileset) ImageFile(id int) (string, bool) {
+	if f, ok := t.files[id]; ok {
+		return f, true
+	}
+	return t.file, t.file != "" && id >= 1
+}
+
 // ID is the tile whose name property is name.
 func (t *Tileset) ID(name string) (int, bool) {
 	if t.names == nil {
@@ -623,6 +638,12 @@ func (t *Tileset) merge(src *Tileset, off int) {
 		}
 		if tex != nil {
 			t.tiles[off+id] = tileImage{tex, r}
+		}
+		if f, ok := src.ImageFile(id); ok {
+			if t.files == nil {
+				t.files = map[int]string{}
+			}
+			t.files[off+id] = f
 		}
 	}
 	t.solid = shifted(t.solid, src.solid, off, same)

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"image"
 	"image/png"
+	"strings"
 	"testing"
 	"testing/fstest"
 
@@ -346,4 +347,132 @@ func TestABodyShapeReachingPastItsCellIsFoundFromTheNextCell(t *testing.T) {
 		m.SolidIn(below),
 		"its 4 points below its cell, asked from the cell under it",
 	)
+}
+
+func TestLoadTiledKeepsATileObjectsTileAndItsPictureFile(t *testing.T) {
+	const flipX = 0x80000000
+	rocks := `{"tilewidth": 32, "tileheight": 24, "tiles": [
+	  {"id": 0, "image": "../art/pebble.png", "imagewidth": 8, "imageheight": 8},
+	  {"id": 2, "image": "../art/rock.png", "imagewidth": 32, "imageheight": 24,
+	   "properties": [{"name": "kind", "type": "string", "value": "rock"}]}]}`
+	tmj := `{"orientation": "orthogonal", "tilewidth": 16, "tileheight": 16,
+	 "tilesets": [{"firstgid": 1, "source": "tilesets/tiles.tsj"}, {"firstgid": 10, "source": "tilesets/rocks.tsj"}],
+	 "layers": [
+	  {"type": "tilelayer", "name": "floor", "width": 1, "height": 1, "data": [1]},
+	  {"type": "objectgroup", "name": "props", "objects": [
+	   {"name": "boulder", "type": "prop", "gid": ` + fmt.Sprint(flipX|12) + `, "x": 40, "y": 64, "width": 32, "height": 24},
+	   {"name": "spot", "x": 4, "y": 6, "width": 8, "height": 8}]}
+	 ]}`
+	fsys := fstest.MapFS{
+		"levels/one.tmj":            {Data: []byte(tmj)},
+		"levels/tilesets/tiles.tsj": {Data: []byte(tsj)},
+		"levels/tilesets/rocks.tsj": {Data: []byte(rocks)},
+		"levels/art/tiles.png":      {Data: pngOf(t, 32, 8)},
+		"levels/art/pebble.png":     {Data: pngOf(t, 8, 8)},
+		"levels/art/rock.png":       {Data: pngOf(t, 32, 24)},
+	}
+	m, err := LoadTiled(fsys, "levels/one.tmj")
+	require.NoError(t, err)
+	objects := m.Objects("props")
+	require.Len(t, objects, 2)
+	boulder := objects[0]
+	require.NotNil(t, boulder.Tile)
+	assert.Equal(
+		t,
+		TiledTile{GID: flipX | 12, Tileset: m.Tilesets()[1], ID: 3, Flip: TileFlipX},
+		*boulder.Tile,
+		"Tiled's tile 2 of the set starting at 10, flipped across",
+	)
+	assert.Equal(t, geom.Rect{X: 40, Y: 64, W: 32, H: 24}, boulder.Rect, "Tiled's rule: y is the picture's bottom")
+	assert.Equal(t, TiledRectangle, boulder.Shape)
+	kind, _ := boulder.Tile.Tileset.Property(boulder.Tile.ID, "kind")
+	assert.Equal(t, "rock", kind)
+	file, ok := boulder.Tile.Tileset.ImageFile(boulder.Tile.ID)
+	assert.True(t, ok)
+	assert.Equal(t, "levels/art/rock.png", file, "the picture's path in the file system, from the tileset's folder")
+	atlas, _ := m.Tilesets()[0].ImageFile(2)
+	assert.Equal(t, "levels/art/tiles.png", atlas, "an atlas's tiles share its file")
+	tex, _ := boulder.Tile.Tileset.image(boulder.Tile.ID, 0)
+	assert.Equal(t, geom.V2(32, 24), tex.Size(), "the picture is loaded: the set is used by an object")
+	assert.Nil(t, objects[1].Tile, "a plain object has no tile")
+}
+
+func TestLoadTiledKeepsEachObjectsShape(t *testing.T) {
+	tmj := `{"orientation": "orthogonal", "tilewidth": 16, "tileheight": 16, "layers": [
+	  {"type": "objectgroup", "name": "markers", "objects": [
+	   {"name": "box", "x": 1, "y": 2, "width": 3, "height": 4},
+	   {"name": "ring", "ellipse": true, "x": 10, "y": 20, "width": 30, "height": 40},
+	   {"name": "wake", "point": true, "x": 5, "y": 6},
+	   {"name": "pool", "x": 100, "y": 200, "polygon": [{"x": 0, "y": 0}, {"x": 10, "y": 0}, {"x": 5, "y": -8}]},
+	   {"name": "path", "x": 50, "y": 60, "polyline": [{"x": 0, "y": 0}, {"x": 16, "y": 16}]}]}
+	 ]}`
+	m, err := LoadTiled(fstest.MapFS{"m.tmj": {Data: []byte(tmj)}}, "m.tmj")
+	require.NoError(t, err)
+	byName := map[string]TiledObject{}
+	for _, o := range m.Objects("markers") {
+		byName[o.Name] = o
+	}
+	assert.Equal(t, TiledRectangle, byName["box"].Shape)
+	assert.Equal(t, TiledEllipse, byName["ring"].Shape)
+	assert.Equal(t, geom.Rect{X: 10, Y: 20, W: 30, H: 40}, byName["ring"].Rect, "an ellipse by its box")
+	assert.Equal(t, TiledPoint, byName["wake"].Shape)
+	assert.Equal(t, geom.Rect{X: 5, Y: 6}, byName["wake"].Rect, "a point at its x, y, sized 0")
+	assert.Equal(t, TiledPolygon, byName["pool"].Shape)
+	assert.Equal(
+		t,
+		[]geom.Vec2{geom.V2(100, 200), geom.V2(110, 200), geom.V2(105, 192)},
+		byName["pool"].Points,
+		"points in the map's pixels",
+	)
+	assert.Equal(t, TiledPolyline, byName["path"].Shape)
+	assert.Equal(t, []geom.Vec2{geom.V2(50, 60), geom.V2(66, 76)}, byName["path"].Points)
+	for _, o := range byName {
+		assert.Nil(t, o.Tile, o.Name)
+	}
+}
+
+func TestLoadTiledLoadsOnlyTheTilesetsItUses(t *testing.T) {
+	// The library's and the atlas's pictures are not in the file system:
+	// loading either would fail.
+	library := `{"tilewidth": 16, "tileheight": 16, "tiles": [
+	  {"id": 0, "image": "../art/missing.png", "imagewidth": 16, "imageheight": 16,
+	   "properties": [{"name": "kind", "type": "string", "value": "moss"}]}]}`
+	atlas := `{"image": "../art/missing-atlas.png", "tilewidth": 8, "tileheight": 8,
+	 "tiles": [{"id": 0, "properties": [{"name": "solid", "type": "bool", "value": true}]}]}`
+	rocks := `{"tilewidth": 16, "tileheight": 16, "tiles": [{"id": 0, "image": "../art/rock.png"}]}`
+	tmj := `{"orientation": "orthogonal", "tilewidth": 16, "tileheight": 16,
+	 "tilesets": [{"firstgid": 1, "source": "tilesets/tiles.tsj"}, {"firstgid": 10, "source": "tilesets/library.tsj"},
+	  {"firstgid": 20, "source": "tilesets/atlas.tsj"}, {"firstgid": 100, "source": "tilesets/rocks.tsj"}],
+	 "layers": [
+	  {"type": "tilelayer", "name": "floor", "width": 2, "height": 1, "data": [1, 0]},
+	  {"type": "objectgroup", "name": "props", "objects": [{"gid": 100, "x": 0, "y": 16, "width": 16, "height": 16}]}
+	 ]}`
+	files := func(level string) fstest.MapFS {
+		return fstest.MapFS{
+			"levels/one.tmj":              {Data: []byte(level)},
+			"levels/tilesets/tiles.tsj":   {Data: []byte(tsj)},
+			"levels/tilesets/library.tsj": {Data: []byte(library)},
+			"levels/tilesets/atlas.tsj":   {Data: []byte(atlas)},
+			"levels/tilesets/rocks.tsj":   {Data: []byte(rocks)},
+			"levels/art/tiles.png":        {Data: pngOf(t, 32, 8)},
+			"levels/art/rock.png":         {Data: pngOf(t, 16, 16)},
+		}
+	}
+	m, err := LoadTiled(files(tmj), "levels/one.tmj")
+	require.NoError(t, err, "the unused tilesets' pictures are never opened")
+	sets := m.Tilesets()
+	require.Len(t, sets, 4, "every tileset is listed")
+	assert.Equal(t, []*Tileset{sets[0], sets[3]}, m.UsedTilesets(), "a tile layer's set and a tile object's")
+	unused := sets[1]
+	kind, _ := unused.Property(1, "kind")
+	assert.Equal(t, "moss", kind, "an unused set's properties are read")
+	file, _ := unused.ImageFile(1)
+	assert.Equal(t, "levels/art/missing.png", file, "and its files named")
+	tex, _ := unused.image(1, 0)
+	assert.Nil(t, tex, "but its picture isn't loaded")
+	assert.True(t, sets[2].Solid(1), "an unused atlas keeps its tiles' properties")
+	assert.Nil(t, sets[2].texture)
+
+	_, err = LoadTiled(files(strings.Replace(tmj, `"data": [1, 0]`, `"data": [1, 10]`, 1)), "levels/one.tmj")
+	assert.Error(t, err, "once a cell takes a library tile, its picture loads, and a missing one is an error")
 }

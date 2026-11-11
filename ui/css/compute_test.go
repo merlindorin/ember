@@ -260,7 +260,7 @@ func TestComputedValues(t *testing.T) {
   font-weight: bolder; font-style: italic; text-overflow: ellipsis; white-space: nowrap;
   box-shadow: 1px 2px 3px #000, inset 0 0 4px 1px; transform: translate(10px, 50%) rotate(0.5turn) scale(2);
   transition: opacity 200ms, color 1s ease-in 0.5s; z-index: 3; cursor: pointer; visibility: hidden;
-  border-radius: 4px 50%; outline: 2px dashed #fff; border-image: url(p.png) 8 4;
+  border-radius: 4px 50%; outline: 2px dashed #fff; border-image: url(p.png) 8 4 round repeat;
   font-family: "My Face", monospace;
 }`)})
 	s := styleOf(d)
@@ -311,6 +311,9 @@ func lookOf(t *testing.T, s *style.Computed) {
 	if s.BorderImage.Source != "p.png" ||
 		s.BorderImage.Slice != (style.Sides[float32]{Top: 8, Right: 4, Bottom: 8, Left: 4}) {
 		t.Errorf("border-image: %+v", s.BorderImage)
+	}
+	if s.BorderImageRepeat != [2]style.ImageRepeat{style.RepeatRound, style.RepeatTile} {
+		t.Errorf("border-image-repeat: %v", s.BorderImageRepeat)
 	}
 	if len(s.Font.Family) != 2 || s.Font.Family[0] != "My Face" || s.Font.Family[1] != "monospace" {
 		t.Errorf("family: %v", s.Font.Family)

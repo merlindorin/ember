@@ -446,6 +446,8 @@ type Look struct {
 	BorderColor    Sides[color.Color]
 	BorderStyle    Sides[BorderStyle]
 	BorderImage    Image
+	// BorderImageRepeat is border-image-repeat across and down.
+	BorderImageRepeat [2]ImageRepeat
 	// Radius is each corner's horizontal and vertical radius.
 	Radius        Corners[Size[Length]]
 	Shadows       []Shadow
@@ -545,6 +547,22 @@ const (
 	FitNone
 	// FitScaleDown is FitNone or FitContain, whichever is smaller.
 	FitScaleDown
+)
+
+// ImageRepeat is border-image-repeat along one axis: how a border image's
+// edges and centre fill their length.
+type ImageRepeat uint8
+
+const (
+	// RepeatStretch stretches the slice over the whole length.
+	RepeatStretch ImageRepeat = iota
+	// RepeatTile tiles it at its size, centred, cut at both ends.
+	RepeatTile
+	// RepeatRound tiles it a whole number of times, scaled to fit.
+	RepeatRound
+	// RepeatSpace tiles it a whole number of times at its size, the
+	// leftover shared out as equal gaps.
+	RepeatSpace
 )
 
 // ImageRendering is image-rendering.

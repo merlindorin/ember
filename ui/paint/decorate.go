@@ -114,7 +114,7 @@ func (p *painter) decorate(e entry, alpha float32) {
 			}
 		}
 		if tex := p.find(st.BorderImage, st); tex != nil {
-			p.picture(r, tex, st.BorderImage.Slice, alpha)
+			p.picture(r, tex, st.BorderImage.Slice, st.BorderImageRepeat, alpha)
 		} else {
 			p.border(r, pc.edges, radius, st, alpha)
 		}
@@ -199,14 +199,17 @@ func place(l style.Length, fromEnd bool, origin, extent, img float32) float32 {
 	return origin + off
 }
 
-// picture stretches tex over r, keeping slice unstretched when set.
-func (p *painter) picture(r geom.Rect, tex *twod.Texture, slice style.Sides[float32], alpha float32) {
+// picture stretches tex over r, keeping slice unstretched when set and
+// laying its edges and centre by repeat.
+func (p *painter) picture(
+	r geom.Rect, tex *twod.Texture, slice style.Sides[float32], repeat [2]style.ImageRepeat, alpha float32,
+) {
 	tint := fade(color.White, alpha)
 	if slice == (style.Sides[float32]{}) {
 		p.s.Image(r, tex, whole, tint)
 		return
 	}
-	p.ninePatch(r, tex, slice, tint)
+	p.ninePatch(r, tex, slice, repeat, tint)
 }
 
 func (p *painter) fill(r geom.Rect, radius radii, c color.Color) {

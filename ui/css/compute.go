@@ -1041,6 +1041,28 @@ var props = func() map[string]prop {
 				return style.Sides[float32]{Top: n[pick[0]], Right: n[pick[1]], Bottom: n[pick[2]], Left: n[pick[3]]}
 			},
 		),
+		"border-image-repeat": field(
+			func(c *style.Computed) *[2]style.ImageRepeat { return &c.BorderImageRepeat },
+			func(_ *ctx, v []Component) [2]style.ImageRepeat {
+				of := func(c Component) style.ImageRepeat {
+					switch {
+					case isWord(c, "repeat"):
+						return style.RepeatTile
+					case isWord(c, "round"):
+						return style.RepeatRound
+					case isWord(c, "space"):
+						return style.RepeatSpace
+					}
+					return style.RepeatStretch
+				}
+				across := of(v[0])
+				down := across
+				if len(v) > 1 {
+					down = of(v[1])
+				}
+				return [2]style.ImageRepeat{across, down}
+			},
+		),
 		"box-shadow":    field(func(c *style.Computed) *[]style.Shadow { return &c.Shadows }, (*ctx).shadows),
 		"outline-width": field(func(c *style.Computed) *float32 { return &c.OutlineWidth }, borderWidthOf),
 		"outline-style": keyword(func(c *style.Computed) *style.BorderStyle { return &c.OutlineStyle }, borderStyles),
@@ -1083,7 +1105,7 @@ var props = func() map[string]prop {
 			func(c *style.Computed) *color.Color { return sideOf(&c.BorderColor, i) })
 	}
 	noop := prop{set: func(*ctx, []Component) {}, inherit: func(_, _ *style.Computed) {}}
-	for _, n := range []string{"border-image-width", "border-image-outset", "border-image-repeat"} {
+	for _, n := range []string{"border-image-width", "border-image-outset"} {
 		m[n] = noop
 	}
 	for i, n := range shorthands["transition"] {

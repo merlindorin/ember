@@ -38,6 +38,8 @@ func TestPagesLookLikeChrome(t *testing.T) {
 		{"./internal/pages/canvas", 520, 300, 0.0005},
 		{"./internal/pages/nine-patch", 360, 160, 0.0003},
 		{"./internal/pages/border-image-only", 320, 100, 0.0002},
+		{"./internal/pages/border-repeat", 420, 130, 0.0017},
+		{"./internal/pages/img-crisp", 160, 104, 0.0002},
 		{"./internal/pages/bevels", 480, 120, 0.0003},
 		{"./internal/pages/disabled", 480, 110, 0.0024},
 		{"./internal/pages/gradients", 520, 240, 0.0009},

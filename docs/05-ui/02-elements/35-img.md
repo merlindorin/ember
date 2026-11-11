@@ -14,7 +14,7 @@ ui.Img(ui.Attr("src", "panel.png"), ui.Style("width: 72px; image-rendering: pixe
 | `src` | a PNG in the Document's `ui.Images` and stylesheets' file systems, the last added first; one missing is in `doc.Warnings()` |
 | `alt` | its name for automation (an `aria-label` wins); a picture that isn't found draws Chrome's broken-image icon and the alt text, wrapped and clipped to the box, a silver frame round the icon without `alt`, nothing with `alt=""`; unsized, it's as wide as the icon and its text |
 
-Its natural size is one point per pixel; with one side set, the other keeps the ratio. `object-fit`, `object-position` and `image-rendering: pixelated` apply.
+Its natural size is one point per pixel; with one side set, the other keeps the ratio. `object-fit`, `object-position` and `image-rendering: pixelated` apply; a pixelated picture snaps to device pixels, as in Chrome, so each texel covers whole pixels wherever the image stands.
 
 | Default CSS | |
 |---|---|

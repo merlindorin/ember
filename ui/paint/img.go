@@ -8,7 +8,9 @@ import (
 
 // img draws an img element's picture, its src found through Images, in
 // its content box by object-fit and object-position, cut to the box where
-// it overflows; a src Images doesn't find draws as a broken image.
+// it overflows; a src Images doesn't find draws as a broken image. The box
+// and the picture snap to device pixels as Chrome's do, so a pixelated
+// picture's texels fall on whole pixels as a background's do.
 func (p *painter) img(e entry, alpha float32) {
 	src, hasSrc := e.b.Node.Attr("src")
 	st := shown(e.b)
@@ -23,8 +25,9 @@ func (p *painter) img(e entry, alpha float32) {
 	if size.X <= 0 || size.Y <= 0 {
 		return
 	}
-	box := content(e)
+	box := p.snap(content(e))
 	at, overflows := objectFit(st.ObjectFit, box, size, st.ObjectPosition)
+	at = p.snap(at)
 	if overflows {
 		p.s.PushClip(box)
 		defer p.s.PopClip()

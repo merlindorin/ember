@@ -1,6 +1,8 @@
 package paint
 
 import (
+	"math"
+
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/twod"
@@ -30,9 +32,50 @@ func clamped(d0, d1, s0, s1, n float32, out []sliceSpan) []sliceSpan {
 		sliceSpan{d0, d0 + edge, lo, lo}, sliceSpan{d0 + edge, d1 - edge, lo, hi}, sliceSpan{d1 - edge, d1, hi, hi})
 }
 
-// ninePatch draws tex over r cut by slice, its corners unstretched, its
-// edges and centre stretched, each slice sampled within itself.
-func (p *painter) ninePatch(r geom.Rect, tex *twod.Texture, slice style.Sides[float32], tint color.Color) {
+// tiles are where copies of a slice length long go over d0 to d1 by
+// repeat, and whether the first or last is cut by the ends: one stretched
+// over it all; copies at their length centred on it (Tile); a whole number
+// of copies scaled to fill it (Round); or a whole number at their length
+// with the rest shared out as equal gaps (Space), none when one won't fit.
+// Copies beyond maxTiles are dropped.
+func tiles(d0, d1, length float32, repeat style.ImageRepeat, out [][2]float32) ([][2]float32, bool) {
+	extent := d1 - d0
+	if extent <= 0 || length <= 0 || repeat == style.RepeatStretch {
+		return append(out, [2]float32{d0, d1}), false
+	}
+	switch repeat {
+	case style.RepeatRound:
+		n := max(float32(math.Round(float64(extent/length))), 1)
+		step := extent / n
+		for k := float32(0); k < n && len(out) < maxTiles; k++ {
+			out = append(out, [2]float32{d0 + k*step, d0 + (k+1)*step})
+		}
+		return out, false
+	case style.RepeatSpace:
+		n := float32(math.Floor(float64(extent / length)))
+		gap := (extent - n*length) / (n + 1)
+		for k := float32(0); k < n && len(out) < maxTiles; k++ {
+			at := d0 + gap + k*(length+gap)
+			out = append(out, [2]float32{at, at + length})
+		}
+		return out, false
+	case style.RepeatStretch, style.RepeatTile:
+	}
+	mid := (d0 + d1) / 2
+	at := mid - length/2 - float32(math.Ceil(float64((mid-length/2-d0)/length)))*length
+	for ; at < d1 && len(out) < maxTiles; at += length {
+		out = append(out, [2]float32{at, at + length})
+	}
+	return out, out[0][0] < d0 || out[len(out)-1][1] > d1
+}
+
+// ninePatch draws tex over r cut by slice: its corners at their size, its
+// edges and centre stretched or tiled along each axis as repeat says
+// (across, then down), each copy sampled within its slice. Copies cut by
+// the ends of their part are clipped to it.
+func (p *painter) ninePatch(
+	r geom.Rect, tex *twod.Texture, slice style.Sides[float32], repeat [2]style.ImageRepeat, tint color.Color,
+) {
 	size := tex.Size()
 	if size.X <= 0 || size.Y <= 0 {
 		return
@@ -41,16 +84,39 @@ func (p *painter) ninePatch(r geom.Rect, tex *twod.Texture, slice style.Sides[fl
 	ys := [4]float32{r.Y, r.Y + slice.Top, r.Y + r.H - slice.Bottom, r.Y + r.H}
 	us := [4]float32{0, slice.Left, size.X - slice.Right, size.X}
 	vs := [4]float32{0, slice.Top, size.Y - slice.Bottom, size.Y}
+	// Only the middle column and row are laid by repeat; the corners and
+	// the edges' widths keep their slices' size.
+	lay := func(d, s [4]float32, k int, how style.ImageRepeat, out [][2]float32) ([][2]float32, bool) {
+		if k != 1 {
+			how = style.RepeatStretch
+		}
+		return tiles(d[k], d[k+1], s[k+1]-s[k], how, out)
+	}
+	var colTiles, rowTiles [][2]float32
 	var cols, rows [9]sliceSpan
 	for j := range 3 {
-		across := clamped(ys[j], ys[j+1], vs[j], vs[j+1], size.Y, rows[:0])
+		var cutY bool
+		rowTiles, cutY = lay(ys, vs, j, repeat[1], rowTiles[:0])
 		for i := range 3 {
-			along := clamped(xs[i], xs[i+1], us[i], us[i+1], size.X, cols[:0])
-			for _, y := range across {
-				for _, x := range along {
-					p.s.Image(geom.Rect{X: x.from, Y: y.from, W: x.to - x.from, H: y.to - y.from}, tex,
-						geom.Rect{X: x.u0, Y: y.u0, W: x.u1 - x.u0, H: y.u1 - y.u0}, tint)
+			var cutX bool
+			colTiles, cutX = lay(xs, us, i, repeat[0], colTiles[:0])
+			if cutX || cutY {
+				p.s.PushClip(geom.Rect{X: xs[i], Y: ys[j], W: xs[i+1] - xs[i], H: ys[j+1] - ys[j]})
+			}
+			for _, ty := range rowTiles {
+				across := clamped(ty[0], ty[1], vs[j], vs[j+1], size.Y, rows[:0])
+				for _, tx := range colTiles {
+					along := clamped(tx[0], tx[1], us[i], us[i+1], size.X, cols[:0])
+					for _, y := range across {
+						for _, x := range along {
+							p.s.Image(geom.Rect{X: x.from, Y: y.from, W: x.to - x.from, H: y.to - y.from}, tex,
+								geom.Rect{X: x.u0, Y: y.u0, W: x.u1 - x.u0, H: y.u1 - y.u0}, tint)
+						}
+					}
 				}
+			}
+			if cutX || cutY {
+				p.s.PopClip()
 			}
 		}
 	}

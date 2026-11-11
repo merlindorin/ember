@@ -507,6 +507,15 @@ var everything = func() map[string]func(s *style.Computed) string {
 			}
 			return num(b.Top)
 		},
+		"border-image-repeat": func(s *style.Computed) string {
+			words := map[style.ImageRepeat]string{style.RepeatStretch: "stretch", style.RepeatTile: "repeat",
+				style.RepeatRound: "round", style.RepeatSpace: "space"}
+			r := s.BorderImageRepeat
+			if r[0] == r[1] {
+				return words[r[0]]
+			}
+			return words[r[0]] + " " + words[r[1]]
+		},
 		"box-shadow":    func(s *style.Computed) string { return shadowsCSS(s.Shadows) },
 		"outline-style": func(s *style.Computed) string { return borderStyle(s.OutlineStyle) },
 		"outline-color": func(s *style.Computed) string { return rgb(s.OutlineColor) },
@@ -647,6 +656,7 @@ func TestComputedValuesMatchChrome(t *testing.T) {
   box-shadow: 1px 2px 3px black, inset 0 0 4px 1px; opacity: 75%;
   transition: opacity 200ms, color 1s ease-in 0.5s, transform 3s cubic-bezier(0.1, 0.7, 1, 0.1);
   border-image-slice: 8 4; background-image: url(img/panel.png); border-image-source: url("img/frame 2.png");
+  border-image-repeat: round repeat;
 }
 .x1 { transform: translate(10px, -4px) rotate(30deg) scale(2, 0.5); transform-origin: left 25%; }
 .x2 { transform: skew(10deg, 0.1rad) translateY(1em) scaleX(3); transform-origin: bottom; }

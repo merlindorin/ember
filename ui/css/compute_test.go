@@ -364,6 +364,32 @@ func TestZeroPercentIsAPercent(t *testing.T) {
 	}
 }
 
+func TestBorderImageWidth(t *testing.T) {
+	w := func(k style.ImageWidthKind, v float32) style.ImageWidth { return style.ImageWidth{Kind: k, V: v} }
+	all := func(iw style.ImageWidth) style.Sides[style.ImageWidth] {
+		return style.Sides[style.ImageWidth]{Top: iw, Right: iw, Bottom: iw, Left: iw}
+	}
+	a, b, c, d := el(dom.Div, "a"), el(dom.Div, "b"), el(dom.Div, "c"), el(dom.Div, "d")
+	Compute(page(a, b, c, d), []*Sheet{sheet(t, `#b { border-image-width: 0 16px }
+		#c { font-size: 10px; border-image-width: 2 25% auto 1em }
+		#d { border-image: url(p.png) 8 / 4px }`)})
+	for _, c := range []struct {
+		n    *dom.Node
+		want style.Sides[style.ImageWidth]
+	}{
+		{a, all(w(style.WidthTimes, 1))},
+		{b, style.Sides[style.ImageWidth]{Top: w(style.WidthTimes, 0), Right: w(style.WidthLength, 16),
+			Bottom: w(style.WidthTimes, 0), Left: w(style.WidthLength, 16)}},
+		{c, style.Sides[style.ImageWidth]{Top: w(style.WidthTimes, 2), Right: w(style.WidthPercent, 25),
+			Bottom: w(style.WidthAuto, 0), Left: w(style.WidthLength, 10)}},
+		{d, all(w(style.WidthLength, 4))},
+	} {
+		if got := styleOf(c.n).BorderImageWidth; got != c.want {
+			t.Errorf("%s: %+v, want %+v", c.n.ID(), got, c.want)
+		}
+	}
+}
+
 func TestOverflowWrap(t *testing.T) {
 	a, b := el(dom.Div, "a"), el(dom.Div, "b")
 	Compute(page(a, b), []*Sheet{sheet(t, `#a { overflow-wrap: break-word } #b { overflow-wrap: anywhere }`)})

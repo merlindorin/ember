@@ -114,7 +114,8 @@ func (p *painter) decorate(e entry, alpha float32) {
 			}
 		}
 		if tex := p.find(st.BorderImage, st); tex != nil {
-			p.picture(r, tex, st.BorderImage.Slice, st.BorderImageRepeat, alpha)
+			p.picture(r, tex, st.BorderImage.Slice, imageWidths(r, st.BorderImageWidth, st.Border, st.BorderImage.Slice),
+				st.BorderImageRepeat, alpha)
 		} else {
 			p.border(r, pc.edges, radius, st, alpha)
 		}
@@ -199,17 +200,55 @@ func place(l style.Length, fromEnd bool, origin, extent, img float32) float32 {
 	return origin + off
 }
 
-// picture stretches tex over r, keeping slice unstretched when set and
-// laying its edges and centre by repeat.
+// picture stretches tex over r, or when slice is set draws it cut by
+// slice, its sides widths thick, its edges and centre laid by repeat.
 func (p *painter) picture(
-	r geom.Rect, tex *twod.Texture, slice style.Sides[float32], repeat [2]style.ImageRepeat, alpha float32,
+	r geom.Rect, tex *twod.Texture, slice, widths style.Sides[float32], repeat [2]style.ImageRepeat, alpha float32,
 ) {
 	tint := fade(color.White, alpha)
 	if slice == (style.Sides[float32]{}) {
 		p.s.Image(r, tex, whole, tint)
 		return
 	}
-	p.ninePatch(r, tex, slice, repeat, tint)
+	p.ninePatch(r, tex, slice, widths, repeat, tint)
+}
+
+// imageWidths is how thick a border image's sides are drawn over r, as
+// border-image-width w gives them: times the border's width, a length, a
+// share of r's side, or the slice's own size. When two opposite sides
+// would overlap, all four shrink by the same factor until they meet.
+func imageWidths(
+	r geom.Rect, w style.Sides[style.ImageWidth], border, slice style.Sides[float32],
+) style.Sides[float32] {
+	side := func(iw style.ImageWidth, b, s, extent float32) float32 {
+		switch iw.Kind {
+		case style.WidthLength:
+			return iw.V
+		case style.WidthPercent:
+			return iw.V * extent / 100
+		case style.WidthAuto:
+			return s
+		case style.WidthTimes:
+		}
+		return iw.V * b
+	}
+	out := style.Sides[float32]{
+		Top:    side(w.Top, border.Top, slice.Top, r.H),
+		Right:  side(w.Right, border.Right, slice.Right, r.W),
+		Bottom: side(w.Bottom, border.Bottom, slice.Bottom, r.H),
+		Left:   side(w.Left, border.Left, slice.Left, r.W),
+	}
+	f := float32(1)
+	if across := out.Left + out.Right; across > 0 {
+		f = min(f, r.W/across)
+	}
+	if down := out.Top + out.Bottom; down > 0 {
+		f = min(f, r.H/down)
+	}
+	if f < 1 {
+		out = style.Sides[float32]{Top: out.Top * f, Right: out.Right * f, Bottom: out.Bottom * f, Left: out.Left * f}
+	}
+	return out
 }
 
 func (p *painter) fill(r geom.Rect, radius radii, c color.Color) {

@@ -1041,6 +1041,26 @@ var props = func() map[string]prop {
 				return style.Sides[float32]{Top: n[pick[0]], Right: n[pick[1]], Bottom: n[pick[2]], Left: n[pick[3]]}
 			},
 		),
+		"border-image-width": field(
+			func(c *style.Computed) *style.Sides[style.ImageWidth] { return &c.BorderImageWidth },
+			func(x *ctx, v []Component) style.Sides[style.ImageWidth] {
+				var w []style.ImageWidth
+				for _, c := range v {
+					switch {
+					case isWord(c, "auto"):
+						w = append(w, style.ImageWidth{Kind: style.WidthAuto})
+					case c.Kind == Number:
+						w = append(w, style.ImageWidth{Kind: style.WidthTimes, V: float32(c.Num)})
+					case c.Kind == Percentage:
+						w = append(w, style.ImageWidth{Kind: style.WidthPercent, V: float32(c.Num)})
+					default:
+						w = append(w, style.ImageWidth{Kind: style.WidthLength, V: x.px(c)})
+					}
+				}
+				pick := [4][4]int{{0, 0, 0, 0}, {0, 1, 0, 1}, {0, 1, 2, 1}, {0, 1, 2, 3}}[len(w)-1]
+				return style.Sides[style.ImageWidth]{Top: w[pick[0]], Right: w[pick[1]], Bottom: w[pick[2]], Left: w[pick[3]]}
+			},
+		),
 		"border-image-repeat": field(
 			func(c *style.Computed) *[2]style.ImageRepeat { return &c.BorderImageRepeat },
 			func(_ *ctx, v []Component) [2]style.ImageRepeat {
@@ -1105,9 +1125,7 @@ var props = func() map[string]prop {
 			func(c *style.Computed) *color.Color { return sideOf(&c.BorderColor, i) })
 	}
 	noop := prop{set: func(*ctx, []Component) {}, inherit: func(_, _ *style.Computed) {}}
-	for _, n := range []string{"border-image-width", "border-image-outset"} {
-		m[n] = noop
-	}
+	m["border-image-outset"] = noop
 	for i, n := range shorthands["transition"] {
 		m[n] = prop{
 			set:     func(x *ctx, v []Component) { x.trans[i] = v },

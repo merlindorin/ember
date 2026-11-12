@@ -45,7 +45,13 @@ func Initial() Computed {
 			Color:      color.Color{A: 1},
 			TextAlign:  Start,
 		},
-		Look: Look{Opacity: 1, Visible: true, TransformOrigin: Size[Length]{Percent(50), Percent(50)}},
+		Look: Look{
+			Opacity: 1, Visible: true, TransformOrigin: Size[Length]{Percent(50), Percent(50)},
+			BorderImageWidth: Sides[ImageWidth]{
+				Top: ImageWidth{WidthTimes, 1}, Right: ImageWidth{WidthTimes, 1},
+				Bottom: ImageWidth{WidthTimes, 1}, Left: ImageWidth{WidthTimes, 1},
+			},
+		},
 	}
 }
 
@@ -448,6 +454,9 @@ type Look struct {
 	BorderImage    Image
 	// BorderImageRepeat is border-image-repeat across and down.
 	BorderImageRepeat [2]ImageRepeat
+	// BorderImageWidth is border-image-width: how thick the border image's
+	// edges are drawn, side by side.
+	BorderImageWidth Sides[ImageWidth]
 	// Radius is each corner's horizontal and vertical radius.
 	Radius        Corners[Size[Length]]
 	Shadows       []Shadow
@@ -563,6 +572,28 @@ const (
 	// RepeatSpace tiles it a whole number of times at its size, the
 	// leftover shared out as equal gaps.
 	RepeatSpace
+)
+
+// ImageWidth is one side of border-image-width: V times the border's
+// width, V points, V percent of the box's side, or the slice's own size.
+type ImageWidth struct {
+	Kind ImageWidthKind
+	V    float32
+}
+
+// ImageWidthKind is what an ImageWidth's V measures.
+type ImageWidthKind uint8
+
+const (
+	// WidthTimes is a number: V times the border's width.
+	WidthTimes ImageWidthKind = iota
+	// WidthLength is V points.
+	WidthLength
+	// WidthPercent is V percent of the box's width, or height for the top
+	// and bottom.
+	WidthPercent
+	// WidthAuto is the slice's own size.
+	WidthAuto
 )
 
 // ImageRendering is image-rendering.

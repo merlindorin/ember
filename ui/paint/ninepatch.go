@@ -69,37 +69,45 @@ func tiles(d0, d1, length float32, repeat style.ImageRepeat, out [][2]float32) (
 	return out, out[0][0] < d0 || out[len(out)-1][1] > d1
 }
 
-// ninePatch draws tex over r cut by slice: its corners at their size, its
-// edges and centre stretched or tiled along each axis as repeat says
-// (across, then down), each copy sampled within its slice. Copies cut by
-// the ends of their part are clipped to it.
+// ninePatch draws tex over r cut by slice, its sides widths thick: its
+// corners scaled to their widths, its edges and centre stretched or tiled
+// along each axis as repeat says (across, then down), each copy sampled
+// within its slice and scaled as its edge is. Copies cut by the ends of
+// their part are clipped to it.
 func (p *painter) ninePatch(
-	r geom.Rect, tex *twod.Texture, slice style.Sides[float32], repeat [2]style.ImageRepeat, tint color.Color,
+	r geom.Rect, tex *twod.Texture, slice, widths style.Sides[float32], repeat [2]style.ImageRepeat,
+	tint color.Color,
 ) {
 	size := tex.Size()
 	if size.X <= 0 || size.Y <= 0 {
 		return
 	}
-	xs := [4]float32{r.X, r.X + slice.Left, r.X + r.W - slice.Right, r.X + r.W}
-	ys := [4]float32{r.Y, r.Y + slice.Top, r.Y + r.H - slice.Bottom, r.Y + r.H}
+	xs := [4]float32{r.X, r.X + widths.Left, r.X + r.W - widths.Right, r.X + r.W}
+	ys := [4]float32{r.Y, r.Y + widths.Top, r.Y + r.H - widths.Bottom, r.Y + r.H}
 	us := [4]float32{0, slice.Left, size.X - slice.Right, size.X}
 	vs := [4]float32{0, slice.Top, size.Y - slice.Bottom, size.Y}
+	// A copy along the top or bottom edge, or across the centre, is scaled
+	// as its edge is drawn thicker or thinner than its slice: the top's
+	// scale for the centre across, the left's down.
+	scaleAcross := [3]float32{ratio(widths.Top, slice.Top), ratio(widths.Top, slice.Top),
+		ratio(widths.Bottom, slice.Bottom)}
+	scaleDown := [3]float32{ratio(widths.Left, slice.Left), ratio(widths.Left, slice.Left),
+		ratio(widths.Right, slice.Right)}
 	// Only the middle column and row are laid by repeat; the corners and
-	// the edges' widths keep their slices' size.
-	lay := func(d, s [4]float32, k int, how style.ImageRepeat, out [][2]float32) ([][2]float32, bool) {
+	// the edges' thickness are stretched over theirs.
+	lay := func(d, s [4]float32, k int, how style.ImageRepeat, scale float32, out [][2]float32) ([][2]float32, bool) {
 		if k != 1 {
 			how = style.RepeatStretch
 		}
-		return tiles(d[k], d[k+1], s[k+1]-s[k], how, out)
+		return tiles(d[k], d[k+1], (s[k+1]-s[k])*scale, how, out)
 	}
 	var colTiles, rowTiles [][2]float32
 	var cols, rows [9]sliceSpan
 	for j := range 3 {
-		var cutY bool
-		rowTiles, cutY = lay(ys, vs, j, repeat[1], rowTiles[:0])
 		for i := range 3 {
-			var cutX bool
-			colTiles, cutX = lay(xs, us, i, repeat[0], colTiles[:0])
+			var cutX, cutY bool
+			rowTiles, cutY = lay(ys, vs, j, repeat[1], scaleDown[i], rowTiles[:0])
+			colTiles, cutX = lay(xs, us, i, repeat[0], scaleAcross[j], colTiles[:0])
 			if cutX || cutY {
 				p.s.PushClip(geom.Rect{X: xs[i], Y: ys[j], W: xs[i+1] - xs[i], H: ys[j+1] - ys[j]})
 			}
@@ -120,4 +128,13 @@ func (p *painter) ninePatch(
 			}
 		}
 	}
+}
+
+// ratio is how much thicker an edge drawn w thick is than its slice s,
+// 1 for an empty slice.
+func ratio(w, s float32) float32 {
+	if s <= 0 {
+		return 1
+	}
+	return w / s
 }

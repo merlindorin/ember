@@ -706,7 +706,7 @@ func (t *tree) flexContainerMainSize(avail spaces, lines []*flexLine, c *flexCon
 	inset := d.mainSum(c.contentBoxInset)
 	itemMainLength := func(it *flexItem) float32 {
 		pb := d.mainSum(it.padding.add(it.border))
-		return fmax(mMax(it.flexBasis, it.minSize.get(d.main()))+d.mainSum(it.margin), pb)
+		return fmax(mMax(it.flexBasis, it.minSize.get(d.main())), pb) + d.mainSum(it.margin)
 	}
 	longestLine := func() float32 {
 		longest := float32(0)
@@ -781,9 +781,9 @@ func (t *tree) flexIntrinsicMainSize(avail spaces, lines []*flexLine, c *flexCon
 				pb := d.mainSum(it.padding) + d.mainSum(it.border)
 				innerMain := fmax(stylePreferred, pb)
 				if c.isRow {
-					contribution = mClamp(innerMain+marginSum, styleMin, styleMax)
+					contribution = mClamp(innerMain, styleMin, styleMax) + marginSum
 				} else {
-					contribution = mClamp(fmax(innerMain, it.flexBasis)+marginSum, styleMin, styleMax)
+					contribution = mClamp(fmax(innerMain, it.flexBasis), styleMin, styleMax) + marginSum
 				}
 			default:
 				crossParent := c.nodeInnerSize.get(d.cross())
@@ -809,9 +809,9 @@ func (t *tree) flexIntrinsicMainSize(avail spaces, lines []*flexLine, c *flexCon
 				}
 				innerMain := mMax(measured, transferred)
 				if c.isRow {
-					contribution = mClamp(innerMain+marginSum, styleMin, styleMax)
+					contribution = mClamp(innerMain, styleMin, styleMax) + marginSum
 				} else {
-					contribution = mClamp(fmax(innerMain, it.flexBasis)+marginSum, styleMin, styleMax)
+					contribution = mClamp(fmax(innerMain, it.flexBasis), styleMin, styleMax) + marginSum
 				}
 			}
 			diff := contribution - marginSum - it.flexBasis

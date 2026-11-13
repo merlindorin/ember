@@ -23,7 +23,7 @@ F3 also shows "lights 1 (1 cast) of 256, 0 static, budget 3 (1 fading), pictures
 
 | Check | Fix |
 |---|---|
-| nothing in the occluder view | `light.Occluder()` on the sprite, or `space.AddSolid(map)` and `light.OccludersFrom(space)` on the camera |
+| nothing in the occluder view | `light.Occluder()` on the sprite; for tiles, `tiles.Solid` or collision shapes, the map in the window, and no `light.NoShadows()` on it |
 | the tile shows, but no shadow | its `shadow` property is `none` |
 | shadows from some things only | the light's `BlockedBy` groups |
 

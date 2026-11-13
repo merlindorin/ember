@@ -4,26 +4,31 @@ The classes and properties a Tiled map can carry, set in Tiled or the engine's t
 
 ## The engine's properties
 
-`twod.LoadTiled` and `twod.LoadTiledTileset(fsys, name, opts…)` read these from each tile, and `twod.EngineTileProperties()` lists them:
+Each system declares the tile properties it reads, and reads them itself ([decision 0071](../99-decisions/0071-each-system-reads-its-own-tile-properties.md)): twod only `tall`, which it draws by, `collide/tiles` what stops bodies, and `twod/light` what blocks light. A game gives the loader the declarations of the systems it uses, so their properties are checked and filled with their defaults:
 
-| Property | Kind | Default | Meaning |
-|---|---|---|---|
-| `solid` | bool | false | blocks bodies, as its collision shapes or its whole cell; true when it has shapes |
-| `tall` | bool | false | drawn from its foot, sorted by y with the characters, lit at its base |
-| `shadow` | `cast` or `none` | `cast` | `none`: it blocks bodies but not light |
-| `occluder_group` | int, 0 to 2 | 0 | its occluder group, for lights `BlockedBy` others |
-| `height` | float, in its pixels | 0 | how tall it stands, for the length of its shadows; 0 is its picture's height when it's tall, its cell's when it's solid, and nothing otherwise |
-| `emissive` | float, in its pixels | 0 | how far round it it glows: read, checked and returned by `ts.Emissive(id)`, but map tiles don't glow from it yet; a sprite glows with [`light.Emissive`](19-lights/06-shape-lights.md) |
+```go
+level, err := twod.LoadTiled(files, "level.tmj", tiles.Properties(), light.TileProperties())
+```
 
-The tileset reads them back with `ts.Solid(id)`, `ts.Height(id)`, `ts.Emissive(id)` and the like; lights use the height for their shadows' length.
+| Property | Declared by | Kind | Default | Meaning |
+|---|---|---|---|---|
+| `tall` | twod, `twod.EngineTileProperties()` | bool | false | drawn from its foot, sorted by y with the characters, lit at its base |
+| `solid` | collide/tiles, `tiles.Properties()` | bool | false | blocks bodies, as its collision shapes or its whole cell; true when it has shapes |
+| `shadow` | twod/light, `light.TileProperties()` | `cast` or `none` | `cast` | `none`: it blocks bodies but not light |
+| `occluder_group` | twod/light, `light.TileProperties()` | int, 0 to 2 | 0 | its occluder group, for lights `BlockedBy` others |
+| `height` | twod/light, `light.TileProperties()` | float, in its pixels | 0 | how tall it stands, for the length of its shadows; 0 is its picture's height when it's tall, its cell's when it's solid, and nothing otherwise |
+
+`twod.Declared(opts…)` lists the properties declarations give, as `[]twod.Property`. A tileset keeps every property as set and every shape with its class; `ts.Value(id, name)` reads a property and `ts.Shapes(id)` the shapes, each a `twod.TileShape{Rect, Class}`, and the systems read them through those. `tiles.Stops(ts, id)` says whether a tile stops bodies and `tiles.Rects(ts, id)` the shapes it stops them with, for code that asks a tileset without a map.
+
+A tileset made in code sets them with each system's options: `twod.Tall(ids…)`; `tiles.Solid(ids…)`, `tiles.Collision(id, rects…)` and `tiles.BodyShapes(id, rects…)`; `light.TileShadow(on, ids…)`, `light.TileOccluderGroup(n, ids…)`, `light.TileHeight(pixels, ids…)` and `light.TileShadowShapes(id, rects…)`. `twod.TileValue(id, name, v)` and `twod.TileShapes(id, class, rects…)` set any property or shape, a game's own too.
 
 ## The engine's classes
 
-| Class | On | Meaning |
-|---|---|---|
-| `ember.Tile` | a tile, declared in the [project file](#in-tiled) | Tiled shows the tile's properties as typed fields with their defaults |
-| `shadow` | a collision object in a tile | blocks light only |
-| `body` | a collision object in a tile | blocks bodies only |
+| Class | On | Read by | Meaning |
+|---|---|---|---|
+| `ember.Tile` | a tile, declared in the [project file](#in-tiled) | Tiled | Tiled shows the tile's properties as typed fields with their defaults |
+| `shadow` | a collision object in a tile | twod/light | blocks light only |
+| `body` | a collision object in a tile | collide/tiles | blocks bodies only |
 
 A collision object without a class blocks both: see [Shadows in Tiled](19-lights/03-shadows.md#in-tiled). A tile's own class, set on the tile in Tiled (its type before Tiled 1.9), reads with `ts.Class(id)`, empty when it has none.
 
@@ -55,7 +60,7 @@ wall := twod.Class{Name: "wall", On: twod.OnTile, Properties: []twod.Property{
 exit := twod.Class{Name: "exit", On: twod.OnObject, Properties: []twod.Property{
 	{Name: "to", Kind: twod.KindString, Required: true, Doc: "the level it leads to"},
 }}
-level, err := twod.LoadTiled(files, "level.tmj", twod.Classes(wall, exit))
+level, err := twod.LoadTiled(files, "level.tmj", tiles.Properties(), light.TileProperties(), twod.Classes(wall, exit))
 if err != nil {
 	log.Fatal(err)
 }
@@ -83,10 +88,10 @@ An unknown tile property is kept as it is; `twod.NearMiss(name, defs…)` return
 
 ## In Tiled
 
-`twod.TiledProject(opts…)`, given the same `twod.TileProperties` and `twod.Classes` as the loader, writes a Tiled project file declaring them: the engine's tile properties and the game's as a class, `ember.Tile`, with an enum for each enum property, and every declared class, a tile class with `ember.Tile`'s members first. Open it as the project in Tiled and give the tiles the class `ember.Tile`, or one of the game's: Tiled then shows their properties as typed fields with their defaults, `shadow` a list of its two values. A game keeps its project file beside its maps and tests that it is what its declarations write, so the two never drift. The engine's alone are in [ember.tiled-project](../../twod/tiled/ember.tiled-project); `go run ./tools/tileset -tiled-project -props game.json` prints one with a game's tile properties too.
+`twod.TiledProject(opts…)`, given the same declarations as the loader, the systems' such as `tiles.Properties()` and `light.TileProperties()`, the game's `twod.TileProperties` and its `twod.Classes`, writes a Tiled project file declaring them: `tall` and every declared tile property as a class, `ember.Tile`, with an enum for each enum property, and every declared class, a tile class with `ember.Tile`'s members first. Open it as the project in Tiled and give the tiles the class `ember.Tile`, or one of the game's: Tiled then shows their properties as typed fields with their defaults, `shadow` a list of its two values. A game keeps its project file beside its maps and tests that it is what its declarations write, so the two never drift. The engine's alone, twod's, collide/tiles' and twod/light's, are in [ember.tiled-project](../../twod/tiled/ember.tiled-project); `go run ./tools/tileset -tiled-project -props game.json` prints one with a game's tile properties too.
 
 ## In the tileset tool
 
 The [tileset tool](19-lights/03-shadows.md#in-tiled) shows a tile's engine properties as Tiled names them, in a table of names and values: a switch for each bool, a pop-up for each enum and `occluder_group`, a field for each number, and the animation read only; an unset one shows its default with "(default)", muted, and the first change sets it. A set false is written to the file and kept. A misspelling of an engine property is flagged among them. A game's own properties show beside them when the tool is given them, `-props props.json`, a JSON list of `{name, kind, default, values, min, max, doc}`; without it they don't show, and are saved byte for byte.
 
-![The tileset tool's tile 0: solid switched on, tall off with (default), shadow cast (default), occluder_group 0 (default), height 64, emissive 0, animation none](tile-properties.png "tileset · walls.tsj")
+![The tileset tool's tile 0: tall off with (default), solid switched on, shadow cast (default), occluder_group 0 (default), height 64, animation none](tile-properties.png "tileset · walls.tsj")

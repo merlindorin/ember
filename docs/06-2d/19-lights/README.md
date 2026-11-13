@@ -5,11 +5,9 @@
 ![Ambient, plus a light, plus shadows, plus an unlit crate: the four parts of a lit picture](parts.png "ember · light")
 
 ```go
-floor := twod.NewLayer(-1, light.Lit()).Add(ground)        // lit layers
-space.AddSolid(walls)                                      // what casts shadows
+floor := twod.NewLayer(-1, light.Lit()).Add(ground, walls) // lit layers; the walls' solid tiles cast shadows
 camera := twod.NewCamera(
-	light.Ambient(color.RGB(0.05, 0.05, 0.06)),            // the dark
-	light.OccludersFrom(space),
+	light.Ambient(color.RGB(0.05, 0.05, 0.06)), // the dark
 )
 torch := light.NewPoint(150, color.RGB(1, 0.75, 0.45), light.At(320, 192))
 win.Add(floor, camera, torch)

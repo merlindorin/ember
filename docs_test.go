@@ -14,8 +14,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/internal/shots"
 	"github.com/merlindorin/ember/twod"
+	"github.com/merlindorin/ember/twod/light"
 )
 
 var (
@@ -34,10 +36,6 @@ var (
 	status   = regexp.MustCompile(`^(?:Accepted|Superseded by \[(\d{4})\]\(([^)]+)\))`)
 	rowName  = regexp.MustCompile("(?m)^\\| `([^`]+)` +\\|")
 )
-
-// engineTiledClasses are the Tiled classes the engine reads: the tile class its project file declares, and the
-// collision object classes of twod/tiled.go.
-var engineTiledClasses = []string{"ember.Tile", "shadow", "body"}
 
 func TestTheGuideShowsTheExamplesAsTheyAre(t *testing.T) {
 	public := buildGuide(t)
@@ -349,21 +347,22 @@ func pageOf(source string) string {
 }
 
 // TestClassesAndPropertiesNamesEveryEngineClassAndProperty keeps the guide's Classes and properties page from falling
-// behind the engine: each property twod.EngineTileProperties declares has a row in a table headed Property, and each
-// class the engine reads a row in a table headed Class. twod exports no list of its classes, so engineTiledClasses
-// names them.
+// behind the engine: each tile property twod, collide/tiles and twod/light declare has a row in a table headed
+// Property, and each class the engine reads a row in a table headed Class. The engine exports no list of its classes,
+// so the test names them: the tile class the project file declares, and the shape classes light and collide/tiles
+// read.
 func TestClassesAndPropertiesNamesEveryEngineClassAndProperty(t *testing.T) {
 	md, err := os.ReadFile(filepath.Join("docs", "06-2d", "12-classes-and-properties.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	rows := tableNames(string(md))
-	for _, p := range twod.EngineTileProperties() {
+	for _, p := range append(twod.EngineTileProperties(), twod.Declared(tiles.Properties(), light.TileProperties())...) {
 		if !rows["Property"][p.Name] {
 			t.Errorf("12-classes-and-properties.md: no Property row for the engine property %s", p.Name)
 		}
 	}
-	for _, c := range engineTiledClasses {
+	for _, c := range []string{"ember.Tile", "shadow", tiles.Body} {
 		if !rows["Class"][c] {
 			t.Errorf("12-classes-and-properties.md: no Class row for the engine class %s", c)
 		}
@@ -396,7 +395,8 @@ func tableNames(md string) map[string]map[string]bool {
 }
 
 func TestTableNamesReadsEachTableByItsFirstColumn(t *testing.T) {
-	md := "| Property | Kind |\n|---|---|\n| `solid` | bool |\n\ntext\n\n| Class | Meaning |\n| --- | --- |\n| `body` | x |\n"
+	md := "| Property | Kind |\n|---|---|\n| `solid` | bool |\n\ntext\n\n" +
+		"| Class | Meaning |\n| --- | --- |\n| `body` | x |\n"
 	got := tableNames(md)
 	if !got["Property"]["solid"] || got["Property"]["body"] || !got["Class"]["body"] || got["Class"]["solid"] {
 		t.Errorf("tableNames = %v", got)

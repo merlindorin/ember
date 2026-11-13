@@ -10,8 +10,13 @@ import (
 	"github.com/merlindorin/ember/twod"
 )
 
-func rgba(img image.Image, x, y int) stdcolor.NRGBA {
-	return stdcolor.NRGBAModel.Convert(img.At(x, y)).(stdcolor.NRGBA)
+func rgba(t *testing.T, img image.Image, x, y int) stdcolor.NRGBA {
+	t.Helper()
+	c, ok := stdcolor.NRGBAModel.Convert(img.At(x, y)).(stdcolor.NRGBA)
+	if !ok {
+		t.Fatalf("pixel %d,%d is not NRGBA", x, y)
+	}
+	return c
 }
 
 func TestTheVariantsRecolourAndCut(t *testing.T) {
@@ -28,13 +33,13 @@ func TestTheVariantsRecolourAndCut(t *testing.T) {
 	b := crate.Image.Bounds()
 	for y := b.Min.Y; y < b.Max.Y; y++ {
 		for x := b.Min.X; x < b.Max.X; x++ {
-			if rgba(crate.Image, x, y) != wood {
+			if rgba(t, crate.Image, x, y) != wood {
 				continue
 			}
-			if got := rgba(mossy.Image, x, y); got != (stdcolor.NRGBA{0x6f, 0xa6, 0x4c, 0xff}) {
+			if got := rgba(t, mossy.Image, x, y); got != (stdcolor.NRGBA{0x6f, 0xa6, 0x4c, 0xff}) {
 				t.Fatalf("the moss palette turns the wood at %d,%d into %v", x, y, got)
 			}
-			if got := rgba(stony.Image, x, y); got == wood {
+			if got := rgba(t, stony.Image, x, y); got == wood {
 				t.Fatalf("the stone palette leaves the wood at %d,%d", x, y)
 			}
 		}
@@ -47,10 +52,10 @@ func TestTheVariantsRecolourAndCut(t *testing.T) {
 	if cut.Size() != geom.V2(16, 16) || holed.Size() != geom.V2(16, 16) {
 		t.Fatalf("a masked tile is its region's size: %v, %v", cut.Size(), holed.Size())
 	}
-	if rgba(cut.Image, 8, 8).A != 255 || rgba(cut.Image, 0, 0).A != 0 {
+	if rgba(t, cut.Image, 8, 8).A != 255 || rgba(t, cut.Image, 0, 0).A != 0 {
 		t.Fatal("the disc keeps the middle of the wall and cuts its corners")
 	}
-	if rgba(holed.Image, 8, 8).A != 0 || rgba(holed.Image, 0, 0).A != 255 {
+	if rgba(t, holed.Image, 8, 8).A != 0 || rgba(t, holed.Image, 0, 0).A != 255 {
 		t.Fatal("the inverted disc cuts the middle of the wall and keeps its corners")
 	}
 }
@@ -72,7 +77,8 @@ func TestEqualAsksShareOneTexture(t *testing.T) {
 	if a != b {
 		t.Fatal("the same crate through an equal palette is the same texture")
 	}
-	if _, err := twod.Recolour(crate, twod.NewPalette(twod.Swap(color.Hex("#123456"), color.Hex("#654321")))); err == nil {
+	_, err = twod.Recolour(crate, twod.NewPalette(twod.Swap(color.Hex("#123456"), color.Hex("#654321"))))
+	if err == nil {
 		t.Fatal("a palette that matches no colour of the crate is an error")
 	}
 }

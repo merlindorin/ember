@@ -20,12 +20,6 @@ import (
 //go:embed crate.png stone.png tiles.png disc.png
 var files embed.FS
 
-// wall is the brick tile in tiles.png, and disc the whole of disc.png.
-var (
-	wall = geom.Rect{X: 16, W: 16, H: 16}
-	disc = geom.Rect{W: 16, H: 16}
-)
-
 func main() {
 	win := platform.NewWindow(
 		platform.Title("ember · recolours and masks"),
@@ -47,6 +41,10 @@ func main() {
 
 // variants makes the six pictures and stands them in two rows.
 func variants() ([]*twod.Sprite, error) {
+	// wall is the brick tile in tiles.png, and disc the whole of disc.png.
+	wall := geom.Rect{X: 16, W: 16, H: 16}
+	disc := geom.Rect{W: 16, H: 16}
+
 	crate, err := twod.LoadTexture(files, "crate.png", twod.Pixelated())
 	if err != nil {
 		return nil, err

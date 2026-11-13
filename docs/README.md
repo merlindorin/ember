@@ -22,7 +22,7 @@ Every page walks through a complete example from [examples](../examples), file b
 5. [2D](06-2d/README.md)
    - Drawing: [Sprites](06-2d/01-sprites.md), [Sprite sheets](06-2d/02-sprite-sheets.md), [Lines and shapes](06-2d/03-lines-and-shapes.md), [Nine-patch](06-2d/04-nine-patch.md)
    - Layers and cameras: [A 2D camera](06-2d/05-a-2d-camera.md), [Many sprites](06-2d/06-many-sprites.md), [Clipping](06-2d/07-clipping.md)
-   - Levels: [Tile maps](06-2d/08-tile-maps.md), [Collision](06-2d/09-collision.md), [Y-sorting](06-2d/10-y-sorting.md), [Tiled maps](06-2d/11-tiled.md), [Tile properties](06-2d/12-tile-properties.md)
+   - Levels: [Tile maps](06-2d/08-tile-maps.md), [Collision](06-2d/09-collision.md), [Y-sorting](06-2d/10-y-sorting.md), [Tiled maps](06-2d/11-tiled.md), [Classes and properties](06-2d/12-classes-and-properties.md)
    - Effects: [Pixel-perfect](06-2d/13-pixel-perfect.md), [Blend modes and masks](06-2d/14-blend-modes.md), [Render to texture](06-2d/15-render-to-texture.md), [2D shaders](06-2d/16-2d-shader.md), [Particles](06-2d/17-particles.md)
    - Motion: [Easing and paths](06-2d/18-easing.md)
    - [Light](06-2d/19-lights/README.md): [Lit layers and ambient](06-2d/19-lights/01-lit-layers.md), [Point lights](06-2d/19-lights/02-point-lights.md), [Shadows](06-2d/19-lights/03-shadows.md), [Cone lights](06-2d/19-lights/04-cone-lights.md), [Directional lights](06-2d/19-lights/05-directional-lights.md), [Shape lights and Emissive](06-2d/19-lights/06-shape-lights.md), [Probes](06-2d/19-lights/07-probes.md), [Debugging and performance](06-2d/19-lights/08-debugging.md)

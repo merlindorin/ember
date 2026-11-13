@@ -310,13 +310,13 @@ func buildGuide(t *testing.T) string {
 // subject in pictures and snippets rather than an example: a page of the
 // components reference, whose section page shows the gallery example they
 // come from, a page of the ui section, whose pictures come from the kit's
-// own kit pages, Tile properties, the Light pages on lit layers and on
+// own kit pages, Classes and properties, the Light pages on lit layers and on
 // debugging, or a game's page, which shows the game itself.
 func reference(source string) bool {
 	return strings.HasPrefix(source, filepath.Join("docs", "05-ui")+string(filepath.Separator)) ||
 		strings.HasPrefix(source, filepath.Join("docs", "10-games")+string(filepath.Separator)) ||
 		slices.Contains([]string{
-			filepath.Join("docs", "06-2d", "12-tile-properties.md"),
+			filepath.Join("docs", "06-2d", "12-classes-and-properties.md"),
 			filepath.Join("docs", "06-2d", "19-lights", "01-lit-layers.md"),
 			filepath.Join("docs", "06-2d", "19-lights", "08-debugging.md"),
 		}, source)
@@ -348,23 +348,24 @@ func pageOf(source string) string {
 	return path.Join(parts...)
 }
 
-// TestTilePropertiesNamesEveryEngineClassAndProperty keeps the guide's Tile properties page from falling behind the
-// engine: each property twod.EngineTileProperties declares has a row in a table headed Property, and each class the
-// engine reads a row in a table headed Class.
-func TestTilePropertiesNamesEveryEngineClassAndProperty(t *testing.T) {
-	md, err := os.ReadFile(filepath.Join("docs", "06-2d", "12-tile-properties.md"))
+// TestClassesAndPropertiesNamesEveryEngineClassAndProperty keeps the guide's Classes and properties page from falling
+// behind the engine: each property twod.EngineTileProperties declares has a row in a table headed Property, and each
+// class the engine reads a row in a table headed Class. twod exports no list of its classes, so engineTiledClasses
+// names them.
+func TestClassesAndPropertiesNamesEveryEngineClassAndProperty(t *testing.T) {
+	md, err := os.ReadFile(filepath.Join("docs", "06-2d", "12-classes-and-properties.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	rows := tableNames(string(md))
 	for _, p := range twod.EngineTileProperties() {
 		if !rows["Property"][p.Name] {
-			t.Errorf("12-tile-properties.md: no Property row for the engine property %s", p.Name)
+			t.Errorf("12-classes-and-properties.md: no Property row for the engine property %s", p.Name)
 		}
 	}
 	for _, c := range engineTiledClasses {
 		if !rows["Class"][c] {
-			t.Errorf("12-tile-properties.md: no Class row for the engine class %s", c)
+			t.Errorf("12-classes-and-properties.md: no Class row for the engine class %s", c)
 		}
 	}
 }

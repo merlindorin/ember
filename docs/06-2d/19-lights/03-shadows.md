@@ -41,7 +41,7 @@ box := twod.NewSprite(tex, light.Occluder(), light.Height(12))       // in its p
 light.SetHeight(box, 20)                                             // while the game runs
 ```
 
-Unset, a tall tile stands as high as its picture, a solid one as its cell, others lie flat; in Tiled, the `height` [tile property](../12-tile-properties.md).
+Unset, a tall tile stands as high as its picture, a solid one as its cell, others lie flat; in Tiled, the `height` [tile property](../12-classes-and-properties.md).
 
 ## Silhouette
 
@@ -142,7 +142,7 @@ A tile casts its collision and its `shadow` shapes together, never its `body` sh
 twod.Collision(id, rects…)   // bodies and light
 twod.ShadowShapes(id, rects…) // light only
 twod.BodyShapes(id, rects…)   // bodies only: a rail, a bar's reach past its art
-``` All the properties are on [Tile properties](../12-tile-properties.md).
+``` All the properties are on [Classes and properties](../12-classes-and-properties.md).
 
 ![The tileset tool with wall tile 0 picked: its Inspector window a table of names and values, solid switched on, tall off with (default) after it, then the objectgroup with object 1 unfolded, type body, and object 2 on one line, shadow · rectangle · 0,0 · 16×16](tileset-tool.png "tileset · walls.tsj")
 

@@ -57,13 +57,13 @@ var tiledKeys = map[string]map[string]tiledKey{
 		"id": keyExposed, "name": keyExposed, "type": keyExposed, "class": keyExposed, "x": keyExposed,
 		"y": keyExposed, "width": keyExposed, "height": keyExposed, "rotation": keyExposed, "visible": keyExposed,
 		"properties": keyExposed,
-		"template":   keyRefused, "text": keyRefused,
+		"template":   keyApplied, "text": keyExposed,
 	},
 	"tileset": {
 		"firstgid": keyApplied, "source": keyApplied, "image": keyApplied, "tilewidth": keyApplied,
 		"tileheight": keyApplied, "spacing": keyApplied, "margin": keyApplied, "tiles": keyApplied,
 		"grid": keyApplied, "objectalignment": keyApplied,
-		"tileoffset": keyRefused, "tilerendersize": keyRefused, "fillmode": keyRefused,
+		"tileoffset": keyApplied, "tilerendersize": keyRefused, "fillmode": keyRefused,
 		"transparentcolor": keyRefused, "class": keyRefused, "properties": keyRefused,
 		"name": keyNotRead, "type": keyNotRead, "version": keyNotRead, "tiledversion": keyNotRead,
 		"columns": keyNotRead, "tilecount": keyNotRead, "imagewidth": keyNotRead, "imageheight": keyNotRead,
@@ -86,6 +86,12 @@ var tiledKeys = map[string]map[string]tiledKey{
 		"rotation": keyRefused,
 		"id":       keyNotRead, "name": keyNotRead, "visible": keyNotRead,
 	},
+	"text": {
+		"text": keyExposed, "fontfamily": keyExposed, "pixelsize": keyExposed, "color": keyExposed, "wrap": keyExposed,
+		"bold": keyExposed, "italic": keyExposed, "underline": keyExposed, "strikeout": keyExposed,
+		"kerning": keyExposed, "halign": keyExposed, "valign": keyExposed,
+	},
+	"template": {"object": keyApplied, "tileset": keyApplied, "type": keyNotRead},
 	"property": {"name": keyApplied, "type": keyApplied, "value": keyApplied, "propertytype": keyApplied},
 	"frame":    {"tileid": keyApplied, "duration": keyApplied},
 	"grid":     {"width": keyApplied, "height": keyApplied, "orientation": keyNotRead},
@@ -98,7 +104,8 @@ var tiledKeys = map[string]map[string]tiledKey{
 var tiledParts = map[string]map[string]string{
 	"map":       {"layers": "layer", "tilesets": "tileset", "properties": "property"},
 	"layer":     {"objects": "object", "properties": "property", "layers": "layer"},
-	"object":    {"properties": "property", "polygon": "point", "polyline": "point"},
+	"object":    {"properties": "property", "polygon": "point", "polyline": "point", "text": "text"},
+	"template":  {"object": "object", "tileset": "tileset"},
 	"tileset":   {"tiles": "tile", "properties": "property", "grid": "grid", "tileoffset": "point"},
 	"tile":      {"properties": "property", "animation": "frame", "objectgroup": "collision"},
 	"collision": {"objects": "shape"},
@@ -137,7 +144,7 @@ func TestEveryKeyOfEmbersTiledFilesIsAppliedExposedRefusedOrListedNotRead(t *tes
 		if err != nil {
 			return err
 		}
-		if !d.IsDir() && (strings.HasSuffix(p, ".tmj") || strings.HasSuffix(p, ".tsj")) {
+		if !d.IsDir() && (strings.HasSuffix(p, ".tmj") || strings.HasSuffix(p, ".tsj") || strings.HasSuffix(p, ".tj")) {
 			files = append(files, p)
 		}
 		return nil
@@ -149,8 +156,11 @@ func TestEveryKeyOfEmbersTiledFilesIsAppliedExposedRefusedOrListedNotRead(t *tes
 		var v any
 		require.NoError(t, json.Unmarshal(data, &v), f)
 		kind := "map"
-		if strings.HasSuffix(f, ".tsj") {
+		switch {
+		case strings.HasSuffix(f, ".tsj"):
 			kind = "tileset"
+		case strings.HasSuffix(f, ".tj"):
+			kind = "template"
 		}
 		assert.Empty(t, unlistedKeys(kind, f, v), "%s holds keys the loader would drop silently", f)
 	}

@@ -384,6 +384,10 @@ func (m *TileMap) tallSprite(i, id int) *Sprite {
 		o, cell = o.Add(m.position), cell.Add(m.position)
 	}
 	s := m.tileset.sprite(id, o, m.tileSize, m.Flip(x, y))
+	if m.tallIn != nil {
+		s.SetHidden(m.hidden)
+		s.SetTint(m.tint)
+	}
 	litAtBase(
 		s,
 		m.light.Mode,
@@ -401,6 +405,29 @@ func (m *TileMap) cellCorner(x, y int) geom.Vec2 {
 		o = o.Sub(geom.V2(m.tileSize.X/2, 0))
 	}
 	return o
+}
+
+// SetHidden hides the map, its tall tiles included wherever TallIn stands
+// them. A hidden map is only not drawn: it still collides and casts its
+// shadows.
+func (m *TileMap) SetHidden(hidden bool) {
+	m.Look.SetHidden(hidden)
+	if m.tallIn != nil {
+		for _, s := range m.talls {
+			s.SetHidden(hidden)
+		}
+	}
+}
+
+// SetTint tints the map, its tall tiles included wherever TallIn stands
+// them.
+func (m *TileMap) SetTint(c color.Color) {
+	m.Look.SetTint(c)
+	if m.tallIn != nil {
+		for _, s := range m.talls {
+			s.SetTint(c)
+		}
+	}
 }
 
 // Draw draws the cells in view, the tall ones aside.

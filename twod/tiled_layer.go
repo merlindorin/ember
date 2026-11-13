@@ -33,10 +33,12 @@ const (
 )
 
 // TiledLayer is a layer of a Tiled map as the file writes it: what it
-// holds, by Kind, and its settings. Visible, Opacity, Offset, Tint and
-// Parallax are the layer's own values, read and not applied: its TileMap
-// draws whatever they say, and its objects stand where the file puts
-// them.
+// holds, by Kind, and its settings, the layer's own values. A tile
+// layer's TileMap is hidden when the layer isn't Visible, tinted by Tint
+// with its alpha times Opacity and moved by Offset, its tall tiles too
+// wherever TallIn stands them; hidden is only not drawn, so the map still
+// collides and casts. An object layer's objects are moved by Offset.
+// Parallax is read and not applied.
 type TiledLayer struct {
 	// ID is Tiled's id of the layer, unique in its map.
 	ID int
@@ -118,8 +120,9 @@ func tiledColor(s string) (color.Color, error) {
 
 // Sprite is tile object o's picture where it stands, in the map's points:
 // its tile's picture at the object's width and height, which a tile
-// object resized in Tiled changes, turned by its rotation and flipped as
-// Tiled shows it, about the object's anchor. The anchor is the tileset's
+// object resized in Tiled changes, moved by its tileset's drawing offset,
+// turned by its rotation and flipped as Tiled shows it, about the object's
+// anchor. The anchor is the tileset's
 // object alignment: the bottom-left corner of an orthogonal map's object
 // unless the tileset says otherwise, the bottom middle of an isometric
 // map's. It is hidden when the object is. opts come after, so they can
@@ -135,7 +138,7 @@ func (t *Tiled) Sprite(o TiledObject, opts ...SpriteOption) *Sprite {
 		Region(region),
 		Size(o.Rect.W*t.scale, o.Rect.H*t.scale),
 		Pivot(px, py),
-		At(o.Rect.X*t.scale, o.Rect.Y*t.scale),
+		At((o.Rect.X+tile.Tileset.offset.X)*t.scale, (o.Rect.Y+tile.Tileset.offset.Y)*t.scale),
 		Rotation(o.Rotation),
 		Flip(tile.Flip&TileFlipX != 0, tile.Flip&TileFlipY != 0),
 	}
@@ -143,4 +146,33 @@ func (t *Tiled) Sprite(o TiledObject, opts ...SpriteOption) *Sprite {
 		all = append(all, Hidden())
 	}
 	return NewSprite(tex, append(all, opts...)...)
+}
+
+// mapOptions are what the layer's settings make of its TileMap: not drawn
+// when hidden, tinted by its tint and opacity, moved by its offset of map
+// pixels, scale points each.
+func (l *TiledLayer) mapOptions(scale float32) []TileMapOption {
+	var out []TileMapOption
+	if !l.Visible {
+		out = append(out, Hidden())
+	}
+	if tint := l.Tint; tint != color.White || l.Opacity != 1 {
+		tint.A *= l.Opacity
+		out = append(out, Tint(tint))
+	}
+	if l.Offset != (geom.Vec2{}) {
+		out = append(out, At(l.Offset.X*scale, l.Offset.Y*scale))
+	}
+	return out
+}
+
+// shift moves o by offset, in map pixels: its box and its points.
+func (o *TiledObject) shift(offset geom.Vec2) {
+	if offset == (geom.Vec2{}) {
+		return
+	}
+	o.Rect.X, o.Rect.Y = o.Rect.X+offset.X, o.Rect.Y+offset.Y
+	for i := range o.Points {
+		o.Points[i] = o.Points[i].Add(offset)
+	}
 }

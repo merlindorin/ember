@@ -68,6 +68,9 @@ type Tileset struct {
 	// objectAlign is Tiled's object alignment: where a tile object of the
 	// tileset is anchored.
 	objectAlign string
+	// offset moves every tile's picture by that many pixels: Tiled's
+	// drawing offset.
+	offset geom.Vec2
 	// bounds caches each tile's opaque bounds, found the first time asked;
 	// names each tile's name property, made the first time asked.
 	bounds map[int]geom.Rect
@@ -349,6 +352,7 @@ func (t *Tileset) draw(c *Canvas, id int, origin, cell geom.Vec2, time float32, 
 		return
 	}
 	at, k := t.standing(id, origin, cell), t.scale(cell)
+	at = at.Add(t.offset.Scale(k))
 	dst, uv := geom.Rect{X: at.X, Y: at.Y, W: r.W * k, H: r.H * k}, tex.uv(r)
 	if f != 0 {
 		c.list.ImageCorners(dst, &tex.Texture, flipped(uv, f), tint)
@@ -382,7 +386,7 @@ func (t *Tileset) sprite(id int, origin, cell geom.Vec2, f TileFlip) *Sprite {
 		tex,
 		Region(r),
 		Pivot(pivot, up),
-		At(origin.X+cell.X/2, origin.Y+cell.Y-(r.H-foot)*k),
+		At(origin.X+cell.X/2+t.offset.X*k, origin.Y+cell.Y-(r.H-foot)*k+t.offset.Y*k),
 		Scale(k, k),
 		Flip(f&TileFlipX != 0, f&TileFlipY != 0),
 	)
@@ -828,6 +832,9 @@ func (t *Tileset) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// alignLeft is Tiled's word for the left, in alignments and text.
+const alignLeft = "left"
+
 // anchor is where a tile object of the tileset is anchored, as a share of
 // its picture: Tiled's object alignment, by default the bottom-left corner
 // of an orthogonal map's object and the bottom middle of an isometric
@@ -840,7 +847,7 @@ func (t *Tileset) anchor(isometric bool) (float32, float32) {
 		return 0.5, 0
 	case "topright":
 		return 1, 0
-	case "left":
+	case alignLeft:
 		return 0, 0.5
 	case "center":
 		return 0.5, 0.5

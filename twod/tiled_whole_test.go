@@ -145,7 +145,8 @@ func TestTiledSpriteStandsATileObjectAsTiledDrawsIt(t *testing.T) {
 		crate, _ := m.Object(12)
 		s := m.Sprite(crate)
 		assert.Equal(t, c.pivot, s.Pivot(), "%q: anchored by the tileset's object alignment", c.alignment)
-		assert.Equal(t, geom.V2(32, 64), s.Position(), "%q: at the object's x, y, in points", c.alignment)
+		assert.Equal(t, geom.V2(38, 60), s.Position(), "%q: at the object's x, y moved by its layer's offset, in points",
+			c.alignment)
 		assert.Equal(t, geom.V2(64, 32), s.Size(), "%q: the object's size, resized in Tiled", c.alignment)
 		assert.InDelta(t, math.Pi/2, s.Rotation(), 1e-6, "%q: turned as Tiled turns it", c.alignment)
 		assert.True(t, s.Hidden(), "%q: hidden as the object is", c.alignment)
@@ -180,12 +181,7 @@ func TestTiledRefusesWhatItCantReadNamingIt(t *testing.T) {
 		{"a group", tileset(""), `{"type": "group", "name": "outside", "layers": []}`, "group layers are not supported"},
 		{"an image layer", tileset(""), `{"type": "imagelayer", "name": "sky", "image": "sky.png"}`,
 			"imagelayer layers are not supported"},
-		{"a template", tileset(""), layer(`, "template": "crate.tj"`), "object 3 (it): objects made from a template"},
-		{"a text object", tileset(""), layer(`, "text": {"text": "hi"}`), "object 3 (it): text objects"},
-		{"a class property", tileset(""),
-			layer(`, "properties": [{"name": "look", "type": "class", "propertytype": "look", "value": {}}]`),
-			"property look: properties of a custom class"},
-		{"a drawing offset", tileset(`, "tileoffset": {"x": 0, "y": 4}`), tiles, "drawing offset"},
+		{"an XML template", tileset(""), layer(`, "template": "crate.tx"`), "only templates saved as JSON"},
 		{"a render size", tileset(`, "tilerendersize": "grid"`), tiles, "render size grid"},
 		{"a fill mode", tileset(`, "fillmode": "preserve-aspect-fit"`), tiles, "fill mode"},
 		{"a transparent colour", tileset(`, "transparentcolor": "#ff00ff"`), tiles, "transparent colour"},

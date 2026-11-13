@@ -1,0 +1,5 @@
+{
+  "image": "objects.png",
+  "tilewidth": 16, "tileheight": 32,
+  "objectalignment": "bottom"
+}

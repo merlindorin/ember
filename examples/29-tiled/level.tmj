@@ -2,7 +2,7 @@
   "orientation": "orthogonal",
   "width": 20, "height": 12,
   "tilewidth": 32, "tileheight": 32,
-  "tilesets": [{"firstgid": 1, "source": "tiles.tsj"}],
+  "tilesets": [{"firstgid": 1, "source": "tiles.tsj"}, {"firstgid": 9, "source": "objects.tsj"}],
   "layers": [
    {"type": "tilelayer", "name": "ground", "width": 20, "height": 12, "data": [
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -33,10 +33,10 @@
     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
    ]},
    {"type": "objectgroup", "name": "things", "objects": [
-    {"name": "hero", "type": "start", "x": 160, "y": 288},
-    {"name": "west pillar", "type": "pillar", "x": 432, "y": 224},
-    {"name": "east pillar", "type": "pillar", "x": 464, "y": 224},
-    {"name": "garden pillar", "type": "pillar", "x": 240, "y": 160}
+    {"id": 1, "name": "hero", "type": "start", "x": 160, "y": 288},
+    {"id": 2, "name": "west pillar", "type": "pillar", "gid": 10, "x": 432, "y": 224, "width": 32, "height": 64},
+    {"id": 3, "name": "east pillar", "type": "pillar", "gid": 10, "x": 464, "y": 224, "width": 32, "height": 64},
+    {"id": 4, "name": "garden pillar", "type": "pillar", "gid": 10, "x": 240, "y": 160, "width": 32, "height": 64}
    ]}
   ]
 }

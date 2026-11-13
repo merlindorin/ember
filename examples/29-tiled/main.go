@@ -1,7 +1,8 @@
-// A level made in Tiled: level.tmj and tiles.tsj are what the editor saves.
-// LoadTiled turns its tile layers into tile maps, whose wall tiles are
-// solid by a property set on the tileset, and gives back its objects, from
-// which the game spawns the hero and the pillars.
+// A level made in Tiled: level.tmj, tiles.tsj and objects.tsj are what the
+// editor saves. LoadTiled gives back its layers in the file's order: tile
+// layers as tile maps, whose wall tiles are solid by a property set on the
+// tileset, and an object layer, from which the game spawns the hero and the
+// pillars, tile objects drawn as Tiled draws them.
 //
 //	go run ./examples/29-tiled
 package main
@@ -16,7 +17,7 @@ import (
 	"github.com/merlindorin/ember/twod"
 )
 
-//go:embed level.tmj tiles.tsj tiles.png walker.png objects.png
+//go:embed level.tmj tiles.tsj tiles.png objects.tsj objects.png walker.png
 var files embed.FS
 
 func main() {
@@ -31,17 +32,20 @@ func main() {
 		log.Fatal(err)
 	}
 	space := collide.NewSpace()
-	for _, layer := range level.TileLayers() {
-		win.Add(layer)
-		space.AddSolid(layer)
-	}
-
 	things := twod.NewLayer(1, twod.SortByY())
-	hero, err := spawn(things, level.Objects("things"))
-	if err != nil {
-		log.Fatal(err)
+	var hero *twod.Sprite
+	for _, layer := range level.Layers() {
+		switch layer.Kind {
+		case twod.TiledTiles:
+			win.Add(layer.TileMap())
+			space.AddSolid(layer.TileMap())
+		case twod.TiledObjects:
+			if hero, err = spawn(things, level, layer.Objects()); err != nil {
+				log.Fatal(err)
+			}
+			win.Add(things)
+		}
 	}
-	win.Add(things)
 
 	ember.New().
 		AddEntities(win).

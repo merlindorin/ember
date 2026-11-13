@@ -23,7 +23,7 @@ func TestTheTiledLevelSpawnsItsThingsAndItsWallsBlock(t *testing.T) {
 		t.Fatal("the wall tile is solid by its property in tiles.tsj")
 	}
 	things := twod.NewLayer(1, twod.SortByY())
-	hero, err := spawn(things, level.Objects("things"))
+	hero, err := spawn(things, level, level.Objects("things"))
 	if err != nil {
 		t.Fatal(err)
 	}

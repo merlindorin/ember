@@ -6,7 +6,7 @@
 
 ## The level file
 
-`level.tmj` is the map as Tiled saves it in JSON: 20 × 12 cells of 32 points, two tilesets, `tiles.tsj` and `objects.tsj`, two tile layers, "ground" and "walls", and an object layer, "things", with the start and three pillars. In `tiles.tsj`, the wall tile has a `solid` property and the water an animation, so the map knows what stops the hero and what moves; [Tile properties](12-tile-properties.md) lists every property and class the engine reads. The pillars are tile objects, placed from `objects.tsj`, whose object alignment is `bottom`: an object stands on its bottom centre.
+`level.tmj` is the map as Tiled saves it in JSON: 20 × 12 cells of 32 points, two tilesets, `tiles.tsj` and `objects.tsj`, two tile layers, "ground" and "walls", and an object layer, "things", with the start and three pillars. In `tiles.tsj`, the wall tile has a `solid` property and the water an animation, so the map knows what stops the hero and what moves, each frame for its own duration in Tiled, looping; [Tile properties](12-tile-properties.md) lists every property and class the engine reads. The pillars are tile objects, placed from `objects.tsj`, whose object alignment is `bottom`: an object stands on its bottom centre.
 
 [level.tmj](../../examples/29-tiled/level.tmj)
 
@@ -16,7 +16,7 @@
 
 `level.Walk(visit)` visits every layer in draw order, a group before what it holds, and stops when `visit` returns false. `level.TileLayers()` gives every tile map, those inside groups included; `level.Layer(name)`, `level.TileLayer(name)`, `level.Objects(name)` and `level.LayerProperties(name)` name top layers only.
 
-The cells are 32 points while the tiles are 16 pixels, so object positions are already in screen points. A layer may draw from several tilesets, a floor grid and a collection of wall pieces, for instance: the map's tilesets are merged, and each cell keeps its global id over them.
+The cells are 32 points while the tiles are 16 pixels, so object positions are already in screen points. A map drawn smaller than its screen loads with `twod.PixelScale(n)`: each map pixel takes n points, a cell is the map's tile size times n, and `level.Scale()` returns n; given beside `twod.CellSize`, the later of the two wins. A layer may draw from several tilesets, a floor grid and a collection of wall pieces, for instance: the map's tilesets are merged, and each cell keeps its global id over them.
 
 Only the tilesets the map places a tile from are loaded, pictures and all ([0067](../99-decisions/0067-a-tiled-map-reads-only-the-tilesets-it-uses.md)), so a level can carry a whole library of tilesets to pick pieces from in Tiled at no cost. `level.UsedTilesets()` lists those; `level.Tilesets()` lists them all, in order: an unused tileset of its own file isn't even read (its .tsj may be left out of the game) and is empty but for its `Source()`; an unused one embedded in the map keeps its properties and shapes, without pictures. A used tileset whose .tsj is missing is an error naming that file. `ImageFile(id)` names a tile's picture file. To draw a tile from a tileset the map never places, load that tileset with `twod.LoadTiledTileset`.
 
@@ -30,7 +30,7 @@ A layer carries its `ID`, `Name`, `Class` and `Properties`, and its settings as 
 
 A tile layer's map draws as they say. A hidden one is drawn no more, and still blocks bodies and casts shadows; its tint, alpha times opacity, tints its tiles; and its offset moves its cells inside the map, through the map's `twod.CellOffset(x, y)`, read back with `CellOffset()`, so it stays when the game places the map with `SetPosition` or `Translate`. Tall tiles stood up from the layer follow all of it, and a tile map's `SetHidden`, `SetTint`, `SetPosition` and `Translate` reach them too. An object layer's offset shifts its objects. An image layer's `Picture()` is a `*Sprite` of its image, pixelated, pivoted at its top-left and standing at the layer's offset, tinted and hidden as folded, for the game to add where it wants; with no image it is nil. `Parallax` and an object layer's `DrawOrder` are told, not applied. A tileset's drawing offset moves its tiles, on a map and in `level.Sprite`.
 
-What the engine can't show yet is refused when the map loads, with an error naming the file, the layer or the object: two layers of one name in the same group (or both at the top), an image layer that repeats or has a transparent colour, infinite, staggered and hexagonal maps, `.tx` templates, a tileset's transparent colour, its class or its own properties, and a tile's class.
+What the engine can't show yet is refused when the map loads, with an error naming the file, the layer or the object: two layers of one name in the same group (or both at the top), an image layer that repeats or has a transparent colour, infinite, staggered and hexagonal maps, `.tx` templates, and a tileset's transparent colour, its class or its own properties.
 
 ## The objects
 

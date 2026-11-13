@@ -23,7 +23,7 @@ The engine reads three Tiled classes:
 | `shadow` | a collision object in a tile | blocks light only |
 | `body` | a collision object in a tile | blocks bodies only |
 
-A collision object without a class blocks both: see [Shadows in Tiled](19-lights/03-shadows.md#in-tiled). The tileset reads the properties back with `ts.Solid(id)`, `ts.Height(id)`, `ts.Emissive(id)` and the like; lights use the height for their shadows' length.
+A tile can carry a class of its own too, set on the tile in Tiled (its type before Tiled 1.9): `ts.Class(id)` returns it, empty when it has none. A collision object without a class blocks both: see [Shadows in Tiled](19-lights/03-shadows.md#in-tiled). The tileset reads the properties back with `ts.Solid(id)`, `ts.Height(id)`, `ts.Emissive(id)` and the like; lights use the height for their shadows' length.
 
 ## A game's own properties
 

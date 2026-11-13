@@ -79,6 +79,9 @@ type TiledObject struct {
 	Text       string
 	TextStyle  *TiledTextStyle
 	Properties TiledProperties
+
+	// look is what a tile object is drawn through, nil for its tile's own.
+	look *tileLook
 }
 
 // TiledTextStyle is how Tiled sets a text object's text, exposed for the
@@ -436,6 +439,20 @@ const (
 // pictures needn't be in fsys; one embedded in the map keeps its
 // properties and shapes but loads no pictures. A map can so hold a whole
 // library of tilesets for editing in Tiled at no cost.
+//
+// A tile, a tile object or a layer is drawn as a variant of its picture
+// by the properties tint, recolour and mask (decision 0069): recolour
+// names a palette given by Palettes, mask a tile of the mask tileset
+// given by Masks, by its name property, and a name the loader does not
+// hold is an error naming the nearest one. They apply in that order,
+// recolour, mask, tint, made once at load: a tile object's own recolour or
+// mask over its layer's, a layer's over its tiles' own, tints multiplied;
+// a layer's tint multiplies Tiled's own. A layer's recolour leaves a tile
+// whose picture holds none of its colours as it is, and is an error when
+// it recolours none of the layer's tiles. A tile layer of class mask cuts
+// the tile layer its cuts property names, cell by cell, by its tiles,
+// turned as each mask cell and each cut cell is; it is never drawn. A
+// variant changes what is drawn, never what blocks or casts.
 func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 	var m tiledMap
 	if err := readJSON(fsys, name, &m); err != nil {
@@ -449,7 +466,7 @@ func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 	t.dir, t.load = path.Dir(name), loadOf(opts)
 	class, err := t.load.classOf(m.Class, OnMap)
 	if err == nil {
-		t.properties, err = t.load.propertiesOf(class, m.Properties, t.dir)
+		t.properties, err = t.load.propertiesOf(class, OnMap, m.Properties, t.dir)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("twod: %s: %w", name, err)
@@ -470,6 +487,9 @@ func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 	}
 	t.scale = scaleOf(m, opts)
 	if t.layers, err = t.layersOf(fsys, m.Layers, nil, firsts, m, opts); err != nil {
+		return nil, fmt.Errorf("twod: %s: %w", name, err)
+	}
+	if err = t.cutMasks(firsts); err != nil {
 		return nil, fmt.Errorf("twod: %s: %w", name, err)
 	}
 	return t, nil
@@ -649,7 +669,7 @@ func (t *Tiled) layerOf(
 	if err != nil {
 		return nil, err
 	}
-	props, err := t.load.propertiesOf(class, l.Properties, t.dir)
+	props, err := t.load.propertiesOf(class, OnLayer, l.Properties, t.dir)
 	if err != nil {
 		return nil, err
 	}
@@ -672,10 +692,11 @@ func (t *Tiled) layerOf(
 			return nil, err
 		}
 	}
+	if err = t.tilesOf(layer, l, class, firsts, m, opts); err != nil {
+		return nil, err
+	}
 	switch l.Type {
 	case tileLayerType:
-		layer.Kind = TiledTiles
-		layer.tileMap = t.tileLayer(l, l.gids, firsts, m, append(layer.mapOptions(t.scale), opts...))
 	case groupType:
 		layer.Kind = TiledGroup
 		layer.layers, err = t.layersOf(fsys, l.Layers, layer, firsts, m, opts)
@@ -689,7 +710,7 @@ func (t *Tiled) layerOf(
 		}
 		offset := layer.FoldedOffset()
 		for _, o := range l.Objects {
-			obj, objErr := t.objectOf(o, firsts, t.dir)
+			obj, objErr := t.objectOf(o, firsts, t.dir, layer)
 			if objErr != nil {
 				return nil, objErr
 			}
@@ -702,6 +723,32 @@ func (t *Tiled) layerOf(
 		return nil, err
 	}
 	return layer, nil
+}
+
+// tilesOf reads layer's variant properties and, for tile layer l, makes
+// its TileMap, or keeps its cells for a mask layer, of class mask.
+func (t *Tiled) tilesOf(
+	layer *TiledLayer, l tiledLayer, class *Class, firsts []int, m tiledMap, opts []TileMapOption,
+) error {
+	if err := t.variantOf(layer); err != nil {
+		return err
+	}
+	mask := class != nil && class.Name == maskClass
+	switch {
+	case l.Type == tileLayerType && mask:
+		layer.Kind, layer.masks = TiledMask, l.gids
+	case l.Type == tileLayerType:
+		layer.Kind = TiledTiles
+		layer.tileMap = t.tileLayer(l, l.gids, firsts, m, append(layer.mapOptions(t.scale), opts...))
+		if pal := layer.recolouring(); pal != nil {
+			if err := layer.tileMap.setRecolour(pal); err != nil {
+				return fmt.Errorf("property %s: %w", propRecolour, err)
+			}
+		}
+	case mask:
+		return errors.New("a mask layer is a tile layer")
+	}
+	return nil
 }
 
 // pictureOf is image layer l's picture, nil when it names none: its
@@ -720,6 +767,11 @@ func (t *Tiled) pictureOf(fsys fs.FS, l tiledLayer, layer *TiledLayer) (*Sprite,
 	if err != nil {
 		return nil, err
 	}
+	if pal := layer.recolouring(); pal != nil {
+		if tex, err = Recolour(tex, pal); err != nil {
+			return nil, fmt.Errorf("property %s: %w", propRecolour, err)
+		}
+	}
 	size, at := tex.Size().Scale(t.scale), layer.FoldedOffset().Scale(t.scale)
 	tint := layer.FoldedTint()
 	tint.A *= layer.FoldedOpacity()
@@ -730,8 +782,9 @@ func (t *Tiled) pictureOf(fsys fs.FS, l tiledLayer, layer *TiledLayer) (*Sprite,
 	return NewSprite(tex, opts...), nil
 }
 
-// objectOf is o as a TiledObject, its tile found among the map's tilesets.
-func (t *Tiled) objectOf(o tiledObject, firsts []int, dir string) (TiledObject, error) {
+// objectOf is o as a TiledObject of layer, its tile found among the map's
+// tilesets.
+func (t *Tiled) objectOf(o tiledObject, firsts []int, dir string, layer *TiledLayer) (TiledObject, error) {
 	kind := o.Type
 	if kind == "" {
 		kind = o.Class
@@ -740,7 +793,7 @@ func (t *Tiled) objectOf(o tiledObject, firsts []int, dir string) (TiledObject, 
 	if err != nil {
 		return TiledObject{}, fmt.Errorf("object %d (%s): %w", o.ID, o.Name, err)
 	}
-	props, err := t.load.propertiesOf(class, o.Properties, dir)
+	props, err := t.load.propertiesOf(class, OnObject, o.Properties, dir)
 	if err != nil {
 		return TiledObject{}, fmt.Errorf("object %d (%s): %w", o.ID, o.Name, err)
 	}
@@ -786,6 +839,9 @@ func (t *Tiled) objectOf(o tiledObject, firsts []int, dir string) (TiledObject, 
 	if g := o.GID &^ tiledFlags; g != 0 && len(firsts) > 0 {
 		s := tilesetOf(firsts, g)
 		obj.Tile = &TiledTile{GID: o.GID, Tileset: t.tilesets[s], ID: int(g) - firsts[s] + 1, Flip: flipOf(o.GID)}
+	}
+	if err = t.objectLook(&obj, layer); err != nil {
+		return TiledObject{}, fmt.Errorf("object %d (%s): %w", o.ID, o.Name, err)
 	}
 	return obj, nil
 }
@@ -991,7 +1047,9 @@ func tiledTilesetOf(
 			tileset.anims[id] = a
 		}
 	}
-	tileset.load = props
+	if err := tileset.setLoad(props); err != nil {
+		return nil, err
+	}
 	tileset.objectAlign = ts.ObjectAlignment
 	tileset.offset = geom.V2(float32(ts.TileOffset.X), float32(ts.TileOffset.Y))
 	return tileset, nil
@@ -1060,7 +1118,7 @@ func (t *Tileset) setTiledProperty(id int, p tiledProperty, props *tiledLoad, cl
 			names := propertyNames(append(EngineTileProperties(), append(props.defs, class.Properties...)...))
 			return fmt.Errorf("class %s has no such property%s", class.Name, nearOf(p.Name, names))
 		}
-		loose, err := props.loose([]tiledProperty{p}, dir)
+		loose, err := props.loose([]tiledProperty{p}, OnTile, dir)
 		if err != nil {
 			return err
 		}

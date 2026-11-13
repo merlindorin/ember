@@ -74,6 +74,10 @@ type Tileset struct {
 	// largest is the size of its largest tile, in pixels, found the first
 	// time asked.
 	largest *geom.Vec2
+	// specs are what the tiles' own tint, recolour and mask draw them
+	// through, and looks the looks made of them, by id (decision 0069).
+	specs map[int]lookSpec
+	looks []*tileLook
 }
 
 // tileImage is a tile's own picture: rect, in pixels, of texture.
@@ -247,11 +251,17 @@ func (t *Tileset) overhang(area geom.Rect, cell geom.Vec2) geom.Rect {
 }
 
 // draw draws tile id on the cell at origin, of size cell, at time,
-// flipped by f, tinted, standing as picture says.
-func (t *Tileset) draw(c *Canvas, id int, origin, cell geom.Vec2, time float32, f TileFlip, tint color.Color) {
-	tex, r := t.image(id, time)
+// flipped by f, tinted, standing as picture says, through look, nil for
+// its picture as it is.
+func (t *Tileset) draw(
+	c *Canvas, id int, origin, cell geom.Vec2, time float32, f TileFlip, tint color.Color, look *tileLook,
+) {
+	tex, r := t.drawn(id, time, look)
 	if tex == nil || tex.Size() == (geom.Vec2{}) {
 		return
+	}
+	if look != nil {
+		tint = tint.Mul(look.tint)
 	}
 	at, k := t.standing(id, origin, cell), t.scale(cell)
 	at = at.Add(t.offset.Scale(k))
@@ -269,9 +279,9 @@ func (t *Tileset) draw(c *Canvas, id int, origin, cell geom.Vec2, time float32, 
 // is placed, and so sorted, at the foot of its art, the bottom of its
 // Bounds, above the middle of the cell's bottom: a column whose art ends
 // above its cell's bottom sorts behind whoever stands in front of its
-// base.
-func (t *Tileset) sprite(id int, origin, cell geom.Vec2, f TileFlip) *Sprite {
-	tex, r := t.image(id, 0)
+// base. It shows the tile through look, nil for its picture as it is.
+func (t *Tileset) sprite(id int, origin, cell geom.Vec2, f TileFlip, look *tileLook) *Sprite {
+	tex, r := t.drawn(id, 0, look)
 	k := t.scale(cell)
 	pivot, foot := float32(0.5), r.H
 	if r.W > 0 {
@@ -291,6 +301,7 @@ func (t *Tileset) sprite(id int, origin, cell geom.Vec2, f TileFlip) *Sprite {
 		At(origin.X+cell.X/2+t.offset.X*k, origin.Y+cell.Y-(r.H-foot)*k+t.offset.Y*k),
 		Scale(k, k),
 		Flip(f&TileFlipX != 0, f&TileFlipY != 0),
+		Tint(tintOf(look)),
 	)
 }
 
@@ -503,6 +514,12 @@ func (t *Tileset) merge(src *Tileset, off int) {
 		}
 	}
 	t.props = shifted(t.props, src.props, off, maps.Clone)
+	t.specs = shifted(t.specs, src.specs, off, same)
+	for id, l := range src.looks {
+		if l != nil {
+			t.putLook(off+id, l.shifted(off))
+		}
+	}
 	for id, a := range src.anims {
 		frames := make([]int, len(a.frames))
 		for i, f := range a.frames {

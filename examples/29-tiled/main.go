@@ -46,7 +46,7 @@ func main() {
 				log.Fatal(err)
 			}
 			win.Add(things)
-		case twod.TiledImage, twod.TiledGroup:
+		case twod.TiledImage, twod.TiledGroup, twod.TiledMask:
 		}
 	}
 

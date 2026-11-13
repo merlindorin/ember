@@ -20,6 +20,9 @@ const (
 	TiledImage
 	// TiledGroup is a group: layers of its own.
 	TiledGroup
+	// TiledMask is a tile layer of class mask: it cuts the tile layer its
+	// cuts property names at load, and is never drawn (decision 0069).
+	TiledMask
 )
 
 // TiledDrawOrder is how Tiled orders an object layer's objects.
@@ -54,7 +57,8 @@ type TiledLayer struct {
 	Opacity float32
 	// Offset is in the map's pixels.
 	Offset geom.Vec2
-	// Tint is white unless the layer sets one.
+	// Tint is white unless the layer sets one: Tiled's tint times its tint
+	// property.
 	Tint     color.Color
 	Parallax geom.Vec2
 	// DrawOrder is an object layer's.
@@ -65,6 +69,11 @@ type TiledLayer struct {
 	objects []TiledObject
 	layers  []*TiledLayer
 	parent  *TiledLayer
+	// recolour is the palette its recolour property names, tinted its tint
+	// property, white for none, and masks a mask layer's cells.
+	recolour *Palette
+	tinted   color.Color
+	masks    []uint32
 }
 
 // TileMap is a tile layer's map, else nil.
@@ -167,7 +176,9 @@ func tiledColor(s string) (color.Color, error) {
 // anchor. The anchor is the tileset's
 // object alignment: the bottom-left corner of an orthogonal map's object
 // unless the tileset says otherwise, the bottom middle of an isometric
-// map's. It is hidden when the object is, see-through as its opacity.
+// map's. It is hidden when the object is, see-through as its opacity,
+// and recoloured, masked and tinted as its tile, its layer and its own
+// tint, recolour and mask properties say (LoadTiled).
 // opts come after, so they can
 // change any of it. o must be a tile object of this map.
 func (t *Tiled) Sprite(o TiledObject, opts ...SpriteOption) *Sprite {
@@ -175,7 +186,11 @@ func (t *Tiled) Sprite(o TiledObject, opts ...SpriteOption) *Sprite {
 	if tile == nil || tile.Tileset == nil {
 		panic(fmt.Sprintf("twod: object %d (%s) is not a tile object", o.ID, o.Name))
 	}
-	tex, region := tile.Tileset.image(tile.ID, 0)
+	look := o.look
+	if look == nil {
+		look = tile.Tileset.lookOf(tile.ID)
+	}
+	tex, region := tile.Tileset.drawn(tile.ID, 0, look)
 	px, py := tile.Tileset.anchor(t.isometric)
 	all := []SpriteOption{
 		Region(region),
@@ -188,8 +203,9 @@ func (t *Tiled) Sprite(o TiledObject, opts ...SpriteOption) *Sprite {
 	if !o.Visible {
 		all = append(all, Hidden())
 	}
-	if o.Opacity != 1 {
-		all = append(all, Tint(color.RGBA(1, 1, 1, o.Opacity)))
+	if tint := tintOf(look); tint != color.White || o.Opacity != 1 {
+		tint.A *= o.Opacity
+		all = append(all, Tint(tint))
 	}
 	return NewSprite(tex, append(all, opts...)...)
 }

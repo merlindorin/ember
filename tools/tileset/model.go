@@ -127,9 +127,13 @@ var core = map[string]bool{propSolid: true, propTall: true, propShadow: true, pr
 var declared = engineTileProperties()
 
 // engineTileProperties are the tile properties the engine reads: twod's,
-// collide/tiles' and light's, each name once.
+// collide/tiles' and light's, each name once. tint, recolour and mask are
+// left out: they name the game's palettes and masks, which the tool has
+// not got to preview them with.
 func engineTileProperties() []twod.Property {
-	out := twod.EngineTileProperties()
+	out := slices.DeleteFunc(twod.EngineTileProperties(), func(d twod.Property) bool {
+		return d.Name == "tint" || d.Name == "recolour" || d.Name == "mask"
+	})
 	for _, d := range twod.Declared(tiles.Properties(), light.TileProperties()) {
 		if !slices.ContainsFunc(out, func(e twod.Property) bool { return e.Name == d.Name }) {
 			out = append(out, d)

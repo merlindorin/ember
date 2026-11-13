@@ -33,6 +33,16 @@ type TileMap struct {
 	version uint64
 	// flips is each cell's flip, nil while none is flipped.
 	flips []TileFlip
+	// recolour is the palette a Tiled layer's recolour draws the tiles
+	// through, held which tiles' pictures it holds colours of, cuts the
+	// mask each cell is cut by, nil while none is, and looks each cell's
+	// look, nil while every cell draws its tile's own; made are the looks
+	// made, by tile and spec (decision 0069).
+	recolour *Palette
+	held     map[int]bool
+	cuts     []maskCut
+	looks    []*tileLook
+	made     map[lookKey]*tileLook
 }
 
 // TileFlip is how a map cell turns its tile: mirrored across, upside down,
@@ -70,6 +80,7 @@ func (m *TileMap) SetFlip(x, y int, f TileFlip) {
 	}
 	m.flips[i] = f
 	m.version++
+	m.relook(i)
 	m.syncTalls()
 }
 
@@ -244,7 +255,9 @@ func (m *TileMap) At(x, y int) int {
 	return m.cells[y*m.columns+x]
 }
 
-// Set puts tile id in cell x, y; cells outside the map are ignored.
+// Set puts tile id in cell x, y; cells outside the map are ignored. A
+// cell a Tiled layer recolours or a mask layer cuts draws the new tile so
+// too, unless it can't, such as a cut of another size than the tile.
 func (m *TileMap) Set(x, y, id int) {
 	columns, rows := m.Columns(), m.Rows()
 	if x < 0 || y < 0 || x >= columns || y >= rows {
@@ -252,6 +265,7 @@ func (m *TileMap) Set(x, y, id int) {
 	}
 	m.cells[y*m.columns+x] = id
 	m.version++
+	m.relook(y*m.columns + x)
 	m.syncTalls()
 }
 
@@ -354,9 +368,10 @@ func (m *TileMap) syncTalls() {
 			drop(s)
 			delete(m.talls, i)
 		case has:
-			tex, r := m.tileset.image(id, 0)
+			tex, r := m.tileset.drawn(id, 0, m.cellLook(i, id))
 			s.SetTexture(tex)
 			s.SetRegion(r)
+			s.SetTint(m.tallTint(i, id))
 			f := m.Flip(i%m.columns, i/m.columns)
 			s.SetFlip(f&TileFlipX != 0, f&TileFlipY != 0)
 		}
@@ -369,10 +384,10 @@ func (m *TileMap) tallSprite(i, id int) *Sprite {
 	if m.tallIn != nil {
 		o, cell = o.Add(m.position), cell.Add(m.position)
 	}
-	s := m.tileset.sprite(id, o, m.tileSize, m.Flip(x, y))
+	s := m.tileset.sprite(id, o, m.tileSize, m.Flip(x, y), m.cellLook(i, id))
+	s.SetTint(m.tallTint(i, id))
 	if m.tallIn != nil {
 		s.SetHidden(m.hidden)
-		s.SetTint(m.tint)
 	}
 	litAtBase(
 		s,
@@ -381,6 +396,16 @@ func (m *TileMap) tallSprite(i, id int) *Sprite {
 		m.tileset.blocksOf(nil, id, cell, m.tileSize, m.Flip(x, y)),
 	)
 	return s
+}
+
+// tallTint is the tint of the sprite standing for cell i's tall tile id:
+// its look's, times the map's when it stands outside the map.
+func (m *TileMap) tallTint(i, id int) color.Color {
+	tint := tintOf(m.cellLook(i, id))
+	if m.tallIn != nil {
+		tint = tint.Mul(m.tint)
+	}
+	return tint
 }
 
 // cellCorner is the top-left corner of cell x, y's square in the map's
@@ -410,8 +435,8 @@ func (m *TileMap) SetHidden(hidden bool) {
 func (m *TileMap) SetTint(c color.Color) {
 	m.Look.SetTint(c)
 	if m.tallIn != nil {
-		for _, s := range m.talls {
-			s.SetTint(c)
+		for i, s := range m.talls {
+			s.SetTint(m.tallTint(i, m.cells[i]))
 		}
 	}
 }
@@ -424,11 +449,13 @@ func (m *TileMap) Draw(c *Canvas) {
 	view := m.tileset.overhang(viewed(c), m.tileSize)
 	time := c.Time()
 	cell := func(x, y int) {
-		id := m.At(x, y)
+		i := y*m.columns + x
+		id := m.cells[i]
 		if id == 0 || m.tileset.Tall(id) {
 			return
 		}
-		m.tileset.drawLit(c, id, m.cellCorner(x, y), m.origin(x, y), m.tileSize, time, m.Flip(x, y), color.White)
+		m.tileset.drawLit(c, id, m.cellCorner(x, y), m.origin(x, y), m.tileSize, time, m.Flip(x, y), color.White,
+			m.cellLook(i, id))
 	}
 	columns, rows := m.Columns(), m.Rows()
 	if m.isometric {

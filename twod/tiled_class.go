@@ -91,6 +91,13 @@ func (l *tiledLoad) classOf(name string, use ClassUse) (*Class, error) {
 	if name == "" {
 		return nil, nil //nolint:nilnil // an element of no class has none
 	}
+	if name == maskClass || strings.HasPrefix(name, "ember.") {
+		for _, c := range engineClasses() {
+			if c.Name == name && c.On&use != 0 {
+				return &c, nil
+			}
+		}
+	}
 	c, ok := l.class(name)
 	switch {
 	case ok && c.On&use != 0:
@@ -129,19 +136,23 @@ func nearOf(name string, names []string) string {
 	return ""
 }
 
-// propertiesOf are list's values for an element of class c, nil for one of
-// no class: each checked against c's property, a class-typed one's members
+// propertiesOf are list's values for an element of use and class c, nil
+// for one of no class: each checked against c's property, or the engine's
+// for any element of use (elementProperties), a class-typed one's members
 // filled, and every property of c the file leaves out at its default.
-func (l *tiledLoad) propertiesOf(c *Class, list []tiledProperty, dir string) (TiledProperties, error) {
+func (l *tiledLoad) propertiesOf(c *Class, use ClassUse, list []tiledProperty, dir string) (TiledProperties, error) {
 	if c == nil {
-		return l.loose(list, dir)
+		return l.loose(list, use, dir)
 	}
 	out := TiledProperties{}
 	for _, p := range list {
 		d, ok := c.property(p.Name)
 		if !ok {
+			d, ok = elementProperty(use, p.Name)
+		}
+		if !ok {
 			return nil, fmt.Errorf("property %s: class %s has no such property%s", p.Name, c.Name, nearOf(p.Name,
-				propertyNames(c.Properties)))
+				propertyNames(append(c.Properties, elementProperties(use)...))))
 		}
 		v, err := l.value(d, p.Type, p.PropertyType, p.Value, dir)
 		if err != nil {
@@ -155,12 +166,21 @@ func (l *tiledLoad) propertiesOf(c *Class, list []tiledProperty, dir string) (Ti
 	return out, nil
 }
 
-// loose are list's values as Tiled saved them, for an element of no
-// declared class; a property of a declared class still has its members
-// checked and filled.
-func (l *tiledLoad) loose(list []tiledProperty, dir string) (TiledProperties, error) {
+// loose are list's values as Tiled saved them, for an element of use and
+// of no declared class; a property the engine reads on any element of use
+// is still checked, and one of a declared class has its members checked
+// and filled.
+func (l *tiledLoad) loose(list []tiledProperty, use ClassUse, dir string) (TiledProperties, error) {
 	out := properties(list, dir)
 	for _, p := range list {
+		if d, ok := elementProperty(use, p.Name); ok {
+			v, err := l.value(d, p.Type, p.PropertyType, p.Value, dir)
+			if err != nil {
+				return nil, fmt.Errorf("property %s: %w", p.Name, err)
+			}
+			out[p.Name] = v
+			continue
+		}
 		if p.Type != typeClass {
 			continue
 		}
@@ -260,6 +280,15 @@ func (l *tiledLoad) members(name string, m map[string]any, dir string) (TiledPro
 		return nil, err
 	}
 	return out, nil
+}
+
+// propertyNamed is the property of defs called name.
+func propertyNamed(defs []Property, name string) (Property, bool) {
+	i := slices.IndexFunc(defs, func(d Property) bool { return d.Name == name })
+	if i < 0 {
+		return Property{}, false
+	}
+	return defs[i], true
 }
 
 func propertyNames(defs []Property) []string {

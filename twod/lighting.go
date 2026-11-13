@@ -127,15 +127,16 @@ func (t *Tileset) drawLit(
 	time float32,
 	f TileFlip,
 	tint color.Color,
+	look *tileLook,
 ) {
 	box, ok := t.face(id, cell, f)
 	if !ok {
-		t.draw(c, id, corner, cell, time, f, tint)
+		t.draw(c, id, corner, cell, time, f, tint, look)
 		return
 	}
 	saved := c.list.Light()
 	c.list.SetLightFacing(geom.Rect{X: origin.X + box.X, Y: origin.Y + box.Y, W: box.W, H: box.H})
-	t.draw(c, id, corner, cell, time, f, tint)
+	t.draw(c, id, corner, cell, time, f, tint, look)
 	c.list.RestoreLight(saved)
 }
 

@@ -151,6 +151,20 @@ game names the palette in its data, beside the sheet.
 R1 and R2 are new files in `ember/twod` and touch nothing of the Tiled work, so they can be built while
 engine-render is on Tiled maps.
 
+## R3 as built
+
+- `tint`, `recolour` and `mask` are in `twod.EngineTileProperties()` and read on any layer or object, of a class or
+  not; the project file declares `ember.Layer`, `ember.Object` (the three as typed fields) and `mask`. A game's
+  layer and object classes take the properties too, added in Tiled by hand: their members stay the game's own.
+- Nearer wins: an object's recolour or mask over its layer's (or its nearest group's), a layer's over its tiles'
+  own; tints multiply. A layer's recolour leaves a tile whose picture holds none of its colours as it is, and is an
+  error when it recolours none of the layer's tiles.
+- A mask layer's cells name their mask by the tile's `name`, looked up in `Masks`; a cell turned in Tiled cuts
+  turned. `cuts` names a sibling layer, else the one layer of the map so called. Cells keep their tile ids, so
+  collision and light read the uncut tile; `Set` and `SetFlip` keep a cell's recolour and cut.
+- The tileset tool leaves the three out of its panel: it has no palettes or masks to preview them with, and it
+  refuses a tileset whose tiles name them.
+
 ## Decided (user, 2026-11-13)
 
 1. Lantervale's palettes are pairs of colours in YAML (`lantervale/data/palettes.yaml`, made in R4). The engine

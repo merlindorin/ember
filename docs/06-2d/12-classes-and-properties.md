@@ -4,7 +4,7 @@ The classes and properties a Tiled map can carry, set in Tiled or the engine's t
 
 ## The engine's properties
 
-Each system declares the tile properties it reads, and reads them itself ([decision 0071](../99-decisions/0071-each-system-reads-its-own-tile-properties.md)): twod only `tall`, which it draws by, `collide/tiles` what stops bodies, and `twod/light` what blocks light. A game gives the loader the declarations of the systems it uses, so their properties are checked and filled with their defaults:
+Each system declares the tile properties it reads, and reads them itself ([decision 0071](../99-decisions/0071-each-system-reads-its-own-tile-properties.md)): twod `tall`, `tint`, `recolour` and `mask`, which it draws by, `collide/tiles` what stops bodies, and `twod/light` what blocks light. A game gives the loader the declarations of the systems it uses, so their properties are checked and filled with their defaults:
 
 ```go
 level, err := twod.LoadTiled(files, "level.tmj", tiles.Properties(), light.TileProperties())
@@ -17,6 +17,9 @@ level, err := twod.LoadTiled(files, "level.tmj", tiles.Properties(), light.TileP
 | `shadow` | twod/light, `light.TileProperties()` | `cast` or `none` | `cast` | `none`: it blocks bodies but not light |
 | `occluder_group` | twod/light, `light.TileProperties()` | int, 0 to 2 | 0 | its occluder group, for lights `BlockedBy` others |
 | `height` | twod/light, `light.TileProperties()` | float, in its pixels | 0 | how tall it stands, for the length of its shadows; 0 is its picture's height when it's tall, its cell's when it's solid, and nothing otherwise |
+| `tint` | twod, `twod.EngineTileProperties()` | color | none | multiplies its colours and opacity when drawn; also on a tile object and a layer, where it multiplies Tiled's own tint ([decision 0069](../99-decisions/0069-variants-of-a-picture-are-made-at-load.md)) |
+| `recolour` | twod, `twod.EngineTileProperties()` | string | none | the palette, given to the loader by `twod.Palettes`, its colours are swapped by; also on a tile object and a layer |
+| `mask` | twod, `twod.EngineTileProperties()` | string | none | the tile of the mask tileset, given by `twod.Masks`, by its `name`, that cuts it; also on a tile object |
 
 `twod.Declared(opts…)` lists the properties declarations give, as `[]twod.Property`. A tileset keeps every property as set and every shape with its class; `ts.Value(id, name)` reads a property and `ts.Shapes(id)` the shapes, each a `twod.TileShape{Rect, Class}`, and the systems read them through those. `tiles.Stops(ts, id)` says whether a tile stops bodies and `tiles.Rects(ts, id)` the shapes it stops them with, for code that asks a tileset without a map.
 
@@ -29,6 +32,9 @@ A tileset made in code sets them with each system's options: `twod.Tall(ids…)`
 | `ember.Tile` | a tile, declared in the [project file](#in-tiled) | Tiled | Tiled shows the tile's properties as typed fields with their defaults |
 | `shadow` | a collision object in a tile | twod/light | blocks light only |
 | `body` | a collision object in a tile | collide/tiles | blocks bodies only |
+| `ember.Layer` | a layer, declared in the project file | Tiled | Tiled shows `tint` and `recolour` as typed fields |
+| `ember.Object` | an object, declared in the project file | Tiled | Tiled shows `tint`, `recolour` and `mask` as typed fields |
+| `mask` | a tile layer | twod | a mask layer: its tiles, from the mask tileset, cut the tiles under them in the tile layer its `cuts` property names; never drawn |
 
 A collision object without a class blocks both: see [Shadows in Tiled](19-lights/03-shadows.md#in-tiled). A tile's own class, set on the tile in Tiled (its type before Tiled 1.9), reads with `ts.Class(id)`, empty when it has none.
 

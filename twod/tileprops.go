@@ -75,16 +75,17 @@ type Property struct {
 	Doc      string
 }
 
-// EngineTileProperties are the tile properties twod reads: tall. The
-// systems declare their own: collide/tiles' Properties (solid),
+// EngineTileProperties are the tile properties twod reads: tall, and tint,
+// recolour and mask, which draw a variant of its picture (decision 0069).
+// The systems declare their own: collide/tiles' Properties (solid),
 // twod/light's TileProperties (shadow, occluder_group, height).
 func EngineTileProperties() []Property {
-	return []Property{{
+	return append([]Property{{
 		Name:    propTall,
 		Kind:    KindBool,
 		Default: false,
 		Doc:     "drawn from its foot, sorted by y with characters, lit at its base",
-	}}
+	}}, variantProperties()...)
 }
 
 // TiledOption sets up the loading of a Tiled tileset or map.
@@ -94,10 +95,12 @@ type TiledOption interface {
 }
 
 // tiledLoad is what loading a Tiled file is told: the game's tile
-// properties and classes.
+// properties and classes, and its palettes and mask tileset by name.
 type tiledLoad struct {
-	defs    []Property
-	classes []Class
+	defs     []Property
+	classes  []Class
+	palettes map[string]*Palette
+	masks    *Tileset
 	// folders are a project's, for TiledProject.
 	folders []string
 }
@@ -137,10 +140,9 @@ func loadOf(opts []TileMapOption) *tiledLoad {
 
 // def is the definition of property name, the engine's or the game's.
 func (l *tiledLoad) def(name string) (Property, bool) {
-	for _, d := range EngineTileProperties() {
-		if d.Name == name {
-			return d, true
-		}
+	switch name {
+	case propTall, propTint, propRecolour, propMask:
+		return propertyNamed(EngineTileProperties(), name)
 	}
 	for _, d := range l.defs {
 		if d.Name == name {
@@ -340,12 +342,14 @@ func ProjectFolders(folders ...string) TiledOption {
 
 // TiledProject is a Tiled project file declaring what opts declare, by
 // TileProperties and Classes: the engine's tile properties and the game's
-// as an ember.Tile class, every class with its uses, its colour and its
-// members at their defaults, a tile class with ember.Tile's members too,
-// and an enum per enum property, in the folders ProjectFolders lists.
-// Opened as the project in Tiled, maps, layers, objects and tiles show
-// their properties as typed fields. It is written as Tiled 1.12 writes a
-// project, so Tiled saves it back unchanged.
+// as an ember.Tile class, the engine's classes (ember.Layer and
+// ember.Object, with the properties the engine reads on any layer or
+// object, and mask), every class with its uses, its colour and its members
+// at their defaults, a tile class with ember.Tile's members too, and an
+// enum per enum property, in the
+// folders ProjectFolders lists. Opened as the project in Tiled, maps,
+// layers, objects and tiles show their properties as typed fields. It is
+// written as Tiled 1.12 writes a project, so Tiled saves it back unchanged.
 func TiledProject(opts ...TiledOption) []byte {
 	load := &tiledLoad{}
 	for _, o := range opts {
@@ -357,7 +361,7 @@ func TiledProject(opts ...TiledOption) []byte {
 		tile = append(tile, p.member(d, d.Name))
 	}
 	p.add(projectType{Name: "ember.Tile", Type: typeClass, UseAs: []string{useTile}, Members: tile}, color.Color{})
-	for _, c := range load.classes {
+	for _, c := range append(engineClasses(), load.classes...) {
 		members := []projectMember{}
 		if c.On&OnTile != 0 {
 			members = append(members, tile...)

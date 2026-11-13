@@ -2,6 +2,7 @@ package twod //nolint:testpackage // white-box: shares twod's test helpers
 
 import (
 	"encoding/json"
+	stdcolor "image/color"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 	"testing"
 	"testing/fstest"
 
+	"github.com/merlindorin/ember/color"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -84,7 +86,7 @@ var tiledKeys = map[string]map[string]tiledKey{
 		"x": keyApplied, "y": keyApplied, "width": keyApplied, "height": keyApplied, "polygon": keyApplied,
 		"ellipse": keyApplied, "point": keyApplied, "class": keyApplied, "type": keyApplied,
 		"rotation": keyRefused,
-		"id":       keyNotRead, "name": keyNotRead, "visible": keyNotRead,
+		"id":       keyNotRead, "name": keyNotRead, "visible": keyNotRead, "opacity": keyNotRead,
 	},
 	"text": {
 		"text": keyExposed, "fontfamily": keyExposed, "pixelsize": keyExposed, "color": keyExposed, "wrap": keyExposed,
@@ -187,27 +189,44 @@ func TestAMapUsingEveryKeyTheLoaderTakesLoads(t *testing.T) {
 	   "columns": 2, "tilecount": 2, "spacing": 0, "margin": 0, "objectalignment": "bottomleft",
 	   "grid": {"orientation": "orthogonal", "width": 16, "height": 16}, "transformations": {"hflip": true},
 	   "wangsets": [],
-	   "tiles": [{"id": 0, "probability": 0.5, "properties": [{"name": "solid", "type": "bool", "value": true}],
+	   "tiles": [{"id": 0, "probability": 0.5, "properties": [{"name": "solid", "type": "bool", "value": true},
+	     {"name": "tint", "type": "color", "value": "#ffff8080"},
+	     {"name": "recolour", "type": "string", "value": "night"}, {"name": "mask", "type": "string",
+	     "value": "edge"}],
 	     "animation": [{"tileid": 0, "duration": 100}, {"tileid": 1, "duration": 100}],
 	     "objectgroup": {"type": "objectgroup", "name": "", "id": 2, "draworder": "index", "opacity": 1,
 	       "visible": true, "x": 0, "y": 0, "objects": [{"id": 1, "name": "", "visible": true, "class": "shadow",
-	       "type": "", "x": 0, "y": 8, "width": 16, "height": 8}]}}]}],
+	       "type": "", "x": 0, "y": 8, "width": 16, "height": 8}]}},
+	    {"id": 1, "properties": [{"name": "name", "type": "string", "value": "edge"}]}]}],
 	 "layers": [
 	  {"id": 1, "type": "tilelayer", "name": "floor", "class": "", "x": 0, "y": 0, "width": 1, "height": 1,
 	   "visible": true, "locked": false, "opacity": 1, "offsetx": 0, "offsety": 0, "tintcolor": "#ffffff",
-	   "parallaxx": 1, "parallaxy": 1, "data": [1]},
+	   "parallaxx": 1, "parallaxy": 1, "data": [1], "properties": [{"name": "tint", "type": "color",
+	   "value": "#ff8080ff"}, {"name": "recolour", "type": "string", "value": "night"}]},
+	  {"id": 3, "type": "tilelayer", "name": "cut", "class": "mask", "x": 0, "y": 0, "width": 1, "height": 1,
+	   "visible": true, "opacity": 1, "data": [2147483650],
+	   "properties": [{"name": "cuts", "type": "string", "value": "floor"}]},
 	  {"id": 2, "type": "objectgroup", "name": "things", "draworder": "topdown", "x": 0, "y": 0, "visible": true,
 	   "opacity": 1, "objects": [
 	    {"id": 1, "name": "spot", "type": "", "class": "spawn", "x": 4, "y": 4, "width": 0, "height": 0,
 	     "rotation": 0, "visible": true, "point": true},
 	    {"id": 2, "name": "pool", "class": "", "x": 0, "y": 0, "width": 8, "height": 8, "rotation": 30,
 	     "visible": true, "ellipse": true,
-	     "properties": [{"name": "deep", "type": "bool", "value": true}]}]}
+	     "properties": [{"name": "deep", "type": "bool", "value": true}]},
+	    {"id": 3, "name": "crate", "x": 0, "y": 16, "width": 16, "height": 16, "rotation": 0, "visible": true,
+	     "gid": 2, "properties": [{"name": "tint", "type": "color", "value": "#ff808080"},
+	     {"name": "recolour", "type": "string", "value": "night"}, {"name": "mask", "type": "string",
+	     "value": "edge"}]}]}
 	 ]}`
 	var v any
 	require.NoError(t, json.Unmarshal([]byte(tmj), &v))
 	require.Empty(t, unlistedKeys("map", "m", v), "the test's map holds only listed keys")
-	_, err := LoadTiled(fstest.MapFS{"one.tmj": {Data: []byte(tmj)}, "tiles.png": {Data: pngOf(t, 32, 16)}},
-		"one.tmj")
+	night := NewPalette(Swap(color.RGB8(0x40, 0x80, 0xc0), color.RGB8(0x10, 0x20, 0x30)))
+	edge := NewTileset(NewTexture(solidImage(16, 16, stdcolor.NRGBA{A: 0x80})), Cell(16, 16), TileValue(1, "name", "edge"))
+	level, err := LoadTiled(fstest.MapFS{"one.tmj": {Data: []byte(tmj)},
+		"tiles.png": {Data: pngImage(t, solidImage(32, 16, stdcolor.NRGBA{0x40, 0x80, 0xc0, 0xff}))}},
+		"one.tmj", Palettes(map[string]*Palette{"night": night}), Masks(edge))
 	require.NoError(t, err)
+	floor, _ := level.TileLayer("floor")
+	assert.Equal(t, stdcolor.NRGBA{0x10, 0x20, 0x30, 0x80}, cellPixel(floor, 0, 4, 4), "recoloured, cut by the mask layer")
 }

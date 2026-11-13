@@ -221,7 +221,7 @@ func (m *InfiniteMap) standTalls(k chunkKey, c *chunk) {
 			if m.tallIn != nil {
 				o = o.Add(m.position)
 			}
-			s := m.tileset.sprite(id, o, m.tileSize, 0)
+			s := m.tileset.sprite(id, o, m.tileSize, 0, m.tileset.lookOf(id))
 			litAtBase(s, m.light.Mode, m.tileset.scale(m.tileSize), m.tileset.blocksOf(nil, id, o, m.tileSize, 0))
 			c.talls = append(c.talls, s)
 			add(parent, []world.BasicFace{s})
@@ -360,7 +360,7 @@ func (m *InfiniteMap) Draw(c *Canvas) {
 			if ch.tints != nil {
 				tint = ch.tints[ly*m.chunkSize+lx]
 			}
-			m.tileset.drawLit(c, id, m.origin(x, y), m.origin(x, y), m.tileSize, time, 0, tint)
+			m.tileset.drawLit(c, id, m.origin(x, y), m.origin(x, y), m.tileSize, time, 0, tint, m.tileset.lookOf(id))
 		}
 	}
 }

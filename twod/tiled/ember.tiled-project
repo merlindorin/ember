@@ -30,9 +30,19 @@
                     "value": 0
                 },
                 {
+                    "name": "mask",
+                    "type": "string",
+                    "value": ""
+                },
+                {
                     "name": "occluder_group",
                     "type": "int",
                     "value": 0
+                },
+                {
+                    "name": "recolour",
+                    "type": "string",
+                    "value": ""
                 },
                 {
                     "name": "shadow",
@@ -49,12 +59,86 @@
                     "name": "tall",
                     "type": "bool",
                     "value": false
+                },
+                {
+                    "name": "tint",
+                    "type": "color",
+                    "value": ""
                 }
             ],
             "name": "ember.Tile",
             "type": "class",
             "useAs": [
                 "tile"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 3,
+            "members": [
+                {
+                    "name": "recolour",
+                    "type": "string",
+                    "value": ""
+                },
+                {
+                    "name": "tint",
+                    "type": "color",
+                    "value": ""
+                }
+            ],
+            "name": "ember.Layer",
+            "type": "class",
+            "useAs": [
+                "property",
+                "layer"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 4,
+            "members": [
+                {
+                    "name": "mask",
+                    "type": "string",
+                    "value": ""
+                },
+                {
+                    "name": "recolour",
+                    "type": "string",
+                    "value": ""
+                },
+                {
+                    "name": "tint",
+                    "type": "color",
+                    "value": ""
+                }
+            ],
+            "name": "ember.Object",
+            "type": "class",
+            "useAs": [
+                "property",
+                "object"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 5,
+            "members": [
+                {
+                    "name": "cuts",
+                    "type": "string",
+                    "value": ""
+                }
+            ],
+            "name": "mask",
+            "type": "class",
+            "useAs": [
+                "property",
+                "layer"
             ]
         }
     ]

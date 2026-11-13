@@ -362,7 +362,7 @@ func TestClassesAndPropertiesNamesEveryEngineClassAndProperty(t *testing.T) {
 			t.Errorf("12-classes-and-properties.md: no Property row for the engine property %s", p.Name)
 		}
 	}
-	for _, c := range []string{"ember.Tile", "shadow", tiles.Body} {
+	for _, c := range []string{"ember.Tile", "shadow", tiles.Body, "ember.Layer", "ember.Object", "mask"} {
 		if !rows["Class"][c] {
 			t.Errorf("12-classes-and-properties.md: no Class row for the engine class %s", c)
 		}

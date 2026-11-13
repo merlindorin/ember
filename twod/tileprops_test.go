@@ -63,12 +63,12 @@ func TestTheLoaderNamesTheTilesetTileAndPropertyThatAreWrong(t *testing.T) {
 func TestAGamesPropertiesReadTypedWithTheirDefaults(t *testing.T) {
 	defs := TileProperties(
 		Property{Name: "reach_down", Kind: KindInt, Default: 0},
-		Property{Name: "tint", Kind: KindColor, Default: "#ff8000"},
+		Property{Name: "glow", Kind: KindColor, Default: "#ff8000"},
 	)
 	ts, err := LoadTiledTileset(
 		propsTileset(
 			t,
-			`{"name": "reach_down", "type": "int", "value": 4}, {"name": "tint", "type": "color", "value": "#ff00ff00"}`,
+			`{"name": "reach_down", "type": "int", "value": 4}, {"name": "glow", "type": "color", "value": "#ff00ff00"}`,
 		),
 		"set.tsj",
 		defs,
@@ -76,7 +76,7 @@ func TestAGamesPropertiesReadTypedWithTheirDefaults(t *testing.T) {
 	require.NoError(t, err)
 	v, _ := ts.Value(1, "reach_down")
 	assert.Equal(t, 4, v.Int())
-	c, _ := ts.Value(1, "tint")
+	c, _ := ts.Value(1, "glow")
 	assert.Equal(t, color.Hex("#00ff00"), c.Color(), "Tiled's #aarrggbb read")
 	d, ok := ts.Value(2, "reach_down")
 	assert.True(t, ok, "a tile without it reads the default")

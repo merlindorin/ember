@@ -23,7 +23,6 @@ import (
 	"os"
 
 	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/twod"
 )
 
 func main() {
@@ -53,8 +52,7 @@ func main() {
 		declared = append(engineTileProperties(), defs...)
 	}
 	if *project {
-		game := declared[len(engineTileProperties()):]
-		if _, err := os.Stdout.Write(twod.TiledProject(twod.TileProperties(game...))); err != nil {
+		if _, err := os.Stdout.Write(tiledProject()); err != nil {
 			fmt.Fprintln(os.Stderr, "tileset:", err)
 			os.Exit(1)
 		}

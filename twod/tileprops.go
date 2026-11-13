@@ -1,8 +1,10 @@
 package twod
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"math"
 	"slices"
 	"strings"
 
@@ -96,6 +98,8 @@ type TiledOption interface {
 type tiledLoad struct {
 	defs    []Property
 	classes []Class
+	// folders are a project's, for TiledProject.
+	folders []string
 }
 
 type tiledOption func(*tiledLoad)
@@ -327,12 +331,21 @@ func edits(a, b string) int {
 	return prev[len(b)]
 }
 
+// ProjectFolders are the folders, relative to the project file, that
+// TiledProject's project shows in Tiled's project panel, in this order;
+// "." alone when none is given. Loading a map or tileset ignores it.
+func ProjectFolders(folders ...string) TiledOption {
+	return tiledOption(func(l *tiledLoad) { l.folders = append(l.folders, folders...) })
+}
+
 // TiledProject is a Tiled project file declaring what opts declare, by
 // TileProperties and Classes: the engine's tile properties and the game's
-// as an ember.Tile class, every class with its uses and its members at
-// their defaults, a tile class with ember.Tile's members first, and an enum
-// per enum property. Opened as the project in Tiled, maps, layers,
-// objects and tiles show their properties as typed fields.
+// as an ember.Tile class, every class with its uses, its colour and its
+// members at their defaults, a tile class with ember.Tile's members too,
+// and an enum per enum property, in the folders ProjectFolders lists.
+// Opened as the project in Tiled, maps, layers, objects and tiles show
+// their properties as typed fields. It is written as Tiled 1.12 writes a
+// project, so Tiled saves it back unchanged.
 func TiledProject(opts ...TiledOption) []byte {
 	load := &tiledLoad{}
 	for _, o := range opts {
@@ -343,9 +356,9 @@ func TiledProject(opts ...TiledOption) []byte {
 	for _, d := range append(EngineTileProperties(), load.defs...) {
 		tile = append(tile, p.member(d, d.Name))
 	}
-	p.add(projectType{Name: "ember.Tile", Type: typeClass, UseAs: []string{useTile}, Members: tile})
+	p.add(projectType{Name: "ember.Tile", Type: typeClass, UseAs: []string{useTile}, Members: tile}, color.Color{})
 	for _, c := range load.classes {
-		var members []projectMember
+		members := []projectMember{}
 		if c.On&OnTile != 0 {
 			members = append(members, tile...)
 		}
@@ -358,17 +371,26 @@ func TiledProject(opts ...TiledOption) []byte {
 				uses = append(uses, u.name)
 			}
 		}
-		p.add(projectType{Name: c.Name, Type: typeClass, UseAs: uses, Members: members})
+		p.add(projectType{Name: c.Name, Type: typeClass, UseAs: uses, Members: members}, c.Color)
 	}
-	b, _ := json.MarshalIndent(map[string]any{
+	folders := load.folders
+	if len(folders) == 0 {
+		folders = []string{"."}
+	}
+	var b bytes.Buffer
+	enc := json.NewEncoder(&b)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "    ")
+	_ = enc.Encode(map[string]any{
 		"automappingRulesFile": "",
 		"commands":             []any{},
 		"compatibilityVersion": 1100,
 		"extensionsPath":       "extensions",
-		"folders":              []string{"."},
+		"folders":              folders,
+		"properties":           []any{},
 		"propertyTypes":        p.types,
-	}, "", "    ")
-	return append(b, '\n')
+	})
+	return b.Bytes()
 }
 
 // tiledProject are a project file's property types, as Tiled writes them.
@@ -385,23 +407,34 @@ type projectType struct {
 	Color         string          `json:"color,omitempty"`
 	DrawFill      *bool           `json:"drawFill,omitempty"`
 	ID            int             `json:"id"`
-	Members       []projectMember `json:"members,omitempty"`
+	Members       []projectMember `json:"members,omitzero"`
 	Name          string          `json:"name"`
 	StorageType   string          `json:"storageType,omitempty"`
 	Type          string          `json:"type"`
-	UseAs         []string        `json:"useAs,omitempty"`
+	UseAs         []string        `json:"useAs,omitzero"`
 	Values        []string        `json:"values,omitempty"`
 	ValuesAsFlags *bool           `json:"valuesAsFlags,omitempty"`
 }
 
-// add numbers t and adds it, a class drawn as Tiled draws its own.
-func (p *tiledProject) add(t projectType) {
+// add numbers t and adds it, a class drawn in c, else as Tiled draws its
+// own, with its members by name, as Tiled keeps them.
+func (p *tiledProject) add(t projectType, c color.Color) {
 	t.ID = len(p.types) + 1
 	if t.Type == typeClass {
 		yes := true
-		t.Color, t.DrawFill = "#ffa0a0a4", &yes
+		t.Color, t.DrawFill = tiledColour(c), &yes
+		slices.SortStableFunc(t.Members, func(a, b projectMember) int { return strings.Compare(a.Name, b.Name) })
 	}
 	p.types = append(p.types, t)
+}
+
+// tiledColour is c as Tiled writes a colour, #aarrggbb in sRGB; Tiled's
+// grey for the zero colour.
+func tiledColour(c color.Color) string {
+	if c == (color.Color{}) {
+		return "#ffa0a0a4"
+	}
+	return fmt.Sprintf("#%02x%s", uint8(math.Round(float64(c.A)*255)), c.Hex()[1:])
 }
 
 // member is d as a class member, an enum's type named enum and added.
@@ -410,7 +443,8 @@ func (p *tiledProject) member(d Property, enum string) projectMember {
 	switch d.Kind {
 	case KindEnum:
 		no := false
-		p.add(projectType{Name: enum, StorageType: typeString, Type: "enum", Values: d.Values, ValuesAsFlags: &no})
+		enumType := projectType{Name: enum, StorageType: typeString, Type: "enum", Values: d.Values, ValuesAsFlags: &no}
+		p.add(enumType, color.Color{})
 		m.PropertyType = enum
 	case KindClass:
 		m.PropertyType, m.Value = d.Class, map[string]any{}

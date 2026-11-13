@@ -138,6 +138,18 @@ func engineTileProperties() []twod.Property {
 	return out
 }
 
+// tiledOptions are what the tool's loads and project declare: the
+// engine's systems' tile properties and the game's.
+func tiledOptions() []twod.TiledOption {
+	return []twod.TiledOption{
+		tiles.Properties(), light.TileProperties(), twod.TileProperties(declared[len(engineTileProperties()):]...),
+	}
+}
+
+// tiledProject is the Tiled project of every tile property the tool
+// knows, for -tiled-project.
+func tiledProject() []byte { return twod.TiledProject(tiledOptions()...) }
+
 // definition is property name's definition, when declared.
 func definition(name string) (twod.Property, bool) {
 	for _, d := range declared {

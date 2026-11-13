@@ -572,8 +572,7 @@ func (t *Tool) load() {
 		return
 	}
 	fsys, name := t.ed.fs()
-	ts, err := twod.LoadTiledTileset(fsys, name, tiles.Properties(), light.TileProperties(),
-		twod.TileProperties(declared[len(engineTileProperties()):]...))
+	ts, err := twod.LoadTiledTileset(fsys, name, tiledOptions()...)
 	t.err = err
 	if err != nil {
 		return
@@ -646,15 +645,11 @@ func (t *Tool) loadRoom() error {
 		return err
 	}
 	cell := geom.V2(size.TileWidth, size.TileHeight).Scale(2)
-	room, err := twod.LoadTiled(
-		fsys,
-		name,
-		twod.CellSize(cell.X, cell.Y),
-		twod.At(-size.Width*cell.X/2, -size.Height*cell.Y/2),
-		tiles.Properties(),
-		light.TileProperties(),
-		twod.TileProperties(declared[len(engineTileProperties()):]...),
-	)
+	opts := []twod.TileMapOption{twod.CellSize(cell.X, cell.Y), twod.At(-size.Width*cell.X/2, -size.Height*cell.Y/2)}
+	for _, o := range tiledOptions() {
+		opts = append(opts, o)
+	}
+	room, err := twod.LoadTiled(fsys, name, opts...)
 	if err != nil {
 		return err
 	}

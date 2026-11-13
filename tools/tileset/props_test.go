@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -94,6 +95,38 @@ func TestAGamesPropertiesComeFromItsPropsFile(t *testing.T) {
 	}
 	if got := string(twod.TiledProject(twod.TileProperties(defs...))); !strings.Contains(got, `"name": "loot"`) {
 		t.Fatal("the Tiled project carries the game's properties")
+	}
+}
+
+func TestTheTiledProjectHoldsEveryEnginePropertyAndTheGames(t *testing.T) {
+	var project struct {
+		PropertyTypes []struct {
+			Name    string `json:"name"`
+			Members []struct {
+				Name string `json:"name"`
+			} `json:"members"`
+		} `json:"propertyTypes"`
+	}
+	if err := json.Unmarshal(tiledProject(), &project); err != nil {
+		t.Fatal(err)
+	}
+	has := map[string]bool{}
+	for _, c := range project.PropertyTypes {
+		if c.Name == "ember.Tile" {
+			for _, m := range c.Members {
+				has[m.Name] = true
+			}
+		}
+	}
+	for _, d := range declared {
+		if !has[d.Name] {
+			t.Errorf("ember.Tile lacks %s: the project holds twod's, collide/tiles', light's and the game's", d.Name)
+		}
+	}
+	for _, name := range []string{"tall", "solid", "shadow", "occluder_group", "height", "reach_down"} {
+		if !has[name] {
+			t.Errorf("ember.Tile lacks %s", name)
+		}
 	}
 }
 

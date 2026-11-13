@@ -6,6 +6,8 @@ import (
 	"path"
 	"slices"
 	"strings"
+
+	"github.com/merlindorin/ember/color"
 )
 
 // ClassUse is what a Class may be the class of in Tiled: flags, so one
@@ -34,13 +36,15 @@ const useTile = "tile"
 // file's value where Tiled saved one, else the default: Tiled saves only
 // what was changed. Shapes are the shapes an object of the class may
 // have, any when empty. A tile's class adds to the tile properties every
-// tile has (EngineTileProperties and TileProperties).
+// tile has (EngineTileProperties and TileProperties). Color is what Tiled
+// draws its elements in, Tiled's own grey when zero.
 type Class struct {
 	Name       string
 	On         ClassUse
 	Shapes     []TiledShape
 	Properties []Property
 	Doc        string
+	Color      color.Color
 }
 
 // Classes declares a game's Tiled classes. Once a class is declared for a

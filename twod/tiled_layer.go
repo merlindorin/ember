@@ -33,12 +33,14 @@ const (
 )
 
 // TiledLayer is a layer of a Tiled map as the file writes it: what it
-// holds, by Kind, and its settings, the layer's own values. A tile
-// layer's TileMap is hidden when the layer isn't Visible, tinted by Tint
-// with its alpha times Opacity and moved by Offset, its tall tiles too
-// wherever TallIn stands them; hidden is only not drawn, so the map still
-// collides and casts. An object layer's objects are moved by Offset.
-// Parallax is read and not applied.
+// holds, by Kind, and its settings, the layer's own values; a group's
+// reach what it holds, as Shown, FoldedOpacity, FoldedTint and
+// FoldedOffset fold them. A tile layer's TileMap is hidden unless Shown,
+// tinted by FoldedTint with its alpha times FoldedOpacity and moved by
+// FoldedOffset, its tall tiles too wherever TallIn stands them; hidden is
+// only not drawn, so the map still collides and casts. An image layer's
+// Picture is drawn the same way, and an object layer's objects are moved
+// by FoldedOffset. Parallax is read and not applied.
 type TiledLayer struct {
 	// ID is Tiled's id of the layer, unique in its map.
 	ID int
@@ -59,6 +61,7 @@ type TiledLayer struct {
 	DrawOrder TiledDrawOrder
 
 	tileMap *TileMap
+	picture *Sprite
 	objects []TiledObject
 	layers  []*TiledLayer
 	parent  *TiledLayer
@@ -70,12 +73,12 @@ func (l *TiledLayer) TileMap() *TileMap { return l.tileMap }
 // Objects are an object layer's objects, in the file's order.
 func (l *TiledLayer) Objects() []TiledObject { return l.objects }
 
-// Picture is an image layer's picture, else nil. Image layers are not read
-// yet, so it is always nil.
-func (l *TiledLayer) Picture() *Sprite { return nil }
+// Picture is an image layer's picture, its top-left corner at the layer's
+// folded offset in the map's points, else nil. The game adds it where it
+// draws the map.
+func (l *TiledLayer) Picture() *Sprite { return l.picture }
 
 // Layers are a group's layers, bottom first; nil for any other layer.
-// Group layers are not read yet, so it is always nil.
 func (l *TiledLayer) Layers() []*TiledLayer { return l.layers }
 
 // Layer is the group's layer called name.
@@ -83,6 +86,45 @@ func (l *TiledLayer) Layer(name string) (*TiledLayer, bool) { return layerNamed(
 
 // Parent is the group the layer is in, nil at the top of the map.
 func (l *TiledLayer) Parent() *TiledLayer { return l.parent }
+
+// Shown is whether Tiled shows the layer: it and every group above it
+// visible.
+func (l *TiledLayer) Shown() bool {
+	for g := l; g != nil; g = g.parent {
+		if !g.Visible {
+			return false
+		}
+	}
+	return true
+}
+
+// FoldedOpacity is the layer's opacity times every group's above it.
+func (l *TiledLayer) FoldedOpacity() float32 {
+	o := float32(1)
+	for g := l; g != nil; g = g.parent {
+		o *= g.Opacity
+	}
+	return o
+}
+
+// FoldedTint is the layer's tint times every group's above it.
+func (l *TiledLayer) FoldedTint() color.Color {
+	c := color.White
+	for g := l; g != nil; g = g.parent {
+		c = color.Color{R: c.R * g.Tint.R, G: c.G * g.Tint.G, B: c.B * g.Tint.B, A: c.A * g.Tint.A}
+	}
+	return c
+}
+
+// FoldedOffset is the layer's offset plus every group's above it, in map
+// pixels.
+func (l *TiledLayer) FoldedOffset() geom.Vec2 {
+	var o geom.Vec2
+	for g := l; g != nil; g = g.parent {
+		o = o.Add(g.Offset)
+	}
+	return o
+}
 
 func layerNamed(layers []*TiledLayer, name string) (*TiledLayer, bool) {
 	for _, l := range layers {
@@ -148,20 +190,20 @@ func (t *Tiled) Sprite(o TiledObject, opts ...SpriteOption) *Sprite {
 	return NewSprite(tex, append(all, opts...)...)
 }
 
-// mapOptions are what the layer's settings make of its TileMap: not drawn
-// when hidden, tinted by its tint and opacity, moved by its offset of map
-// pixels, scale points each.
+// mapOptions are what the layer's folded settings make of its TileMap: not
+// drawn when hidden, tinted by its tint and opacity, its cells moved by its
+// offset of map pixels, scale points each, wherever the map is placed.
 func (l *TiledLayer) mapOptions(scale float32) []TileMapOption {
 	var out []TileMapOption
-	if !l.Visible {
+	if !l.Shown() {
 		out = append(out, Hidden())
 	}
-	if tint := l.Tint; tint != color.White || l.Opacity != 1 {
-		tint.A *= l.Opacity
+	if tint, opacity := l.FoldedTint(), l.FoldedOpacity(); tint != color.White || opacity != 1 {
+		tint.A *= opacity
 		out = append(out, Tint(tint))
 	}
-	if l.Offset != (geom.Vec2{}) {
-		out = append(out, At(l.Offset.X*scale, l.Offset.Y*scale))
+	if offset := l.FoldedOffset(); offset != (geom.Vec2{}) {
+		out = append(out, CellOffset(offset.X*scale, offset.Y*scale))
 	}
 	return out
 }

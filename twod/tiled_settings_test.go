@@ -38,7 +38,8 @@ func TestAHiddenTintedMovedLayerTakesItsTallTilesAlong(t *testing.T) {
 	want.A = 0.5
 	assert.True(t, walls.Hidden(), "not drawn")
 	assert.Equal(t, want, walls.Tint(), "tinted by its tint and opacity")
-	assert.Equal(t, geom.V2(8, -6), walls.Position(), "moved by its offset, 2 points a pixel")
+	assert.Equal(t, geom.V2(8, -6), walls.CellOffset(), "its cells moved by its offset, 2 points a pixel")
+	assert.Equal(t, geom.Vec2{}, walls.Position(), "the map itself left for the game to place")
 	talls, before := walls.TallSprites(), func() []*Sprite { w, _ := plain.TileLayer("walls"); return w.TallSprites() }()
 	require.Len(t, talls, 1)
 	require.Len(t, before, 1)
@@ -52,6 +53,30 @@ func TestAHiddenTintedMovedLayerTakesItsTallTilesAlong(t *testing.T) {
 	walls.SetTint(color.White)
 	assert.False(t, talls[0].Hidden(), "shown again, its tall tile with it")
 	assert.Equal(t, color.White, talls[0].Tint())
+}
+
+func TestALayersOffsetSurvivesTheGamePlacingItsMap(t *testing.T) {
+	load := func(layer string) *TileMap {
+		m, err := LoadTiled(wallsFS(t, layer, `{"x": 0, "y": 0}`), "one.tmj", CellSize(32, 32), TallIn(NewLayer(1)))
+		require.NoError(t, err)
+		walls, _ := m.TileLayer("walls")
+		walls.SetPosition(geom.V2(100, 200))
+		return walls
+	}
+	plain, moved := load(""), load(`, "offsetx": 4, "offsety": -3`)
+	offset := geom.V2(8, -6)
+	assert.Equal(t, plain.Center(0, 0).Add(offset), moved.Center(0, 0), "its cells at the position plus the offset")
+	x, y, ok := moved.Cell(geom.V2(100+8+1, 200-6+1))
+	assert.True(t, ok)
+	assert.Equal(t, [2]int{0, 0}, [2]int{x, y}, "and found there")
+	want := plain.TallSprites()[0].Position().Add(offset)
+	assert.Equal(t, want, moved.TallSprites()[0].Position(), "its tall tile too, standing in another layer")
+	assert.Equal(t, []geom.Rect{{X: 108, Y: 194, W: 32, H: 32}}, moved.SolidIn(geom.Rect{X: 0, Y: 0, W: 400, H: 400}),
+		"and its solid")
+	assert.NotEmpty(t, moved.ShadowsIn(geom.Rect{X: 108, Y: 194, W: 1, H: 1}), "and its shadow")
+
+	moved.Translate(geom.V2(-10, 5))
+	assert.Equal(t, want.Add(geom.V2(-10, 5)), moved.TallSprites()[0].Position(), "the tall tile following a move")
 }
 
 func TestATilesetsDrawingOffsetMovesItsPictures(t *testing.T) {

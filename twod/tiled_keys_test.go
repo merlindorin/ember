@@ -47,10 +47,10 @@ var tiledKeys = map[string]map[string]tiledKey{
 		"id": keyExposed, "name": keyExposed, "class": keyExposed, "visible": keyExposed, "opacity": keyExposed,
 		"offsetx": keyExposed, "offsety": keyExposed, "tintcolor": keyExposed, "parallaxx": keyExposed,
 		"parallaxy": keyExposed, "draworder": keyExposed, "properties": keyExposed,
-		"layers": keyRefused, "image": keyRefused, "imagewidth": keyRefused, "imageheight": keyRefused,
+		"layers": keyApplied, "image": keyApplied,
 		"repeatx": keyRefused, "repeaty": keyRefused, "transparentcolor": keyRefused, "chunks": keyRefused,
 		"startx": keyRefused, "starty": keyRefused,
-		"x": keyNotRead, "y": keyNotRead, "locked": keyNotRead,
+		"x": keyNotRead, "y": keyNotRead, "locked": keyNotRead, "imagewidth": keyNotRead, "imageheight": keyNotRead,
 	},
 	"object": {
 		"gid": keyApplied, "ellipse": keyApplied, "point": keyApplied, "polygon": keyApplied, "polyline": keyApplied,

@@ -102,7 +102,7 @@ func TestLoadTiledReadsIsometricMapsAndRefusesTheRest(t *testing.T) {
 	for name, body := range map[string]string{
 		"hex.tmj":      `{"orientation": "hexagonal", "layers": []}`,
 		"infinite.tmj": `{"orientation": "orthogonal", "infinite": true, "layers": []}`,
-		"image.tmj":    `{"orientation": "orthogonal", ` + embedded + `, "layers": [{"type": "imagelayer", "name": "sky"}]}`,
+		"chunks.tmj":   `{"orientation": "orthogonal", "layers": [{"type": "chunks", "name": "sky"}]}`,
 	} {
 		write(name, body)
 		_, loadErr := LoadTiled(fsys, name)

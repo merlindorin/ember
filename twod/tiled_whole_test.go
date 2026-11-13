@@ -178,9 +178,13 @@ func TestTiledRefusesWhatItCantReadNamingIt(t *testing.T) {
 		name, tileset, layers, want string
 	}{
 		{"two layers of one name", tileset(""), tiles + `,` + tiles, `both called "floor"`},
-		{"a group", tileset(""), `{"type": "group", "name": "outside", "layers": []}`, "group layers are not supported"},
-		{"an image layer", tileset(""), `{"type": "imagelayer", "name": "sky", "image": "sky.png"}`,
-			"imagelayer layers are not supported"},
+		{"two layers of one name in a group", tileset(""), `{"type": "group", "name": "outside", "layers": [` +
+			tiles + `,` + tiles + `]}`, `layer outside: layers 0 and 0 are both called "floor"`},
+		{"a repeated image", tileset(""), `{"type": "imagelayer", "name": "sky", "image": "sky.png", "repeatx": true}`,
+			"layer sky: a repeated image"},
+		{"an image's transparent colour", tileset(""),
+			`{"type": "imagelayer", "name": "sky", "image": "sky.png", "transparentcolor": "#ff00ff"}`,
+			"layer sky: an image layer's transparent colour"},
 		{"an XML template", tileset(""), layer(`, "template": "crate.tx"`), "only templates saved as JSON"},
 		{"a render size", tileset(`, "tilerendersize": "grid"`), tiles, "render size grid"},
 		{"a fill mode", tileset(`, "fillmode": "preserve-aspect-fit"`), tiles, "fill mode"},

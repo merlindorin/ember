@@ -270,6 +270,29 @@ type tiledLayer struct {
 	Compression string          `json:"compression"`
 	Properties  []tiledProperty `json:"properties"`
 	Objects     []tiledObject   `json:"objects"`
+	// Layers are a group's.
+	Layers []tiledLayer `json:"layers"`
+	// Image is an image layer's picture, from the map's folder.
+	Image            string `json:"image"`
+	RepeatX          bool   `json:"repeatx"`
+	RepeatY          bool   `json:"repeaty"`
+	TransparentColor string `json:"transparentcolor"`
+	// gids are a tile layer's cells, read before the tilesets load.
+	gids []uint32
+}
+
+// eachLayer calls fn on every layer of layers and of the groups among
+// them, a group before what it holds, until fn fails.
+func eachLayer(layers []tiledLayer, fn func(*tiledLayer) error) error {
+	for i := range layers {
+		if err := fn(&layers[i]); err != nil {
+			return err
+		}
+		if err := eachLayer(layers[i].Layers, fn); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type tiledPoint struct {
@@ -389,9 +412,11 @@ const (
 // object with its own values over it. Properties keep their Tiled type: a
 // file is its path from fsys's root, a custom class its members. Layers
 // keep the file's order and their settings (TiledLayer), a tile layer's
-// TileMap drawn as they say. Orthogonal and isometric maps are read;
-// staggered and hexagonal maps, infinite maps, group and image layers and
-// templates saved as XML are errors, as are two layers of one name. What only the editor uses (terrain and Wang sets,
+// TileMap and an image layer's Picture drawn as they say; a group holds
+// its layers, its settings folded onto them. Orthogonal and isometric maps
+// are read; staggered and hexagonal maps, infinite maps, repeated images
+// and templates saved as XML are errors, as are two layers of one name in
+// the same group. What only the editor uses (terrain and Wang sets,
 // export and editor settings, a layer's lock, a tile's probability) is not
 // read.
 //
@@ -420,45 +445,55 @@ func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 	for i, ts := range m.Tilesets {
 		firsts[i] = ts.FirstGID
 	}
-	gids, err := t.readCells(m, firsts)
-	if err != nil {
+	if err = t.readCells(&m, firsts); err != nil {
 		return nil, fmt.Errorf("twod: %s: %w", name, err)
 	}
 	if err = t.loadTilesets(fsys, name, m, loadOf(opts)); err != nil {
 		return nil, err
 	}
 	t.scale = scaleOf(m, opts)
-	for i, l := range m.Layers {
-		layer, layerErr := t.layerOf(l, gids[i], firsts, m, opts)
-		if layerErr != nil {
-			return nil, fmt.Errorf("twod: %s: layer %s: %w", name, l.Name, layerErr)
-		}
-		if other, ok := layerNamed(t.layers, l.Name); ok {
-			return nil, fmt.Errorf("twod: %s: layers %d and %d are both called %q", name, other.ID, l.ID, l.Name)
-		}
-		t.layers = append(t.layers, layer)
+	if t.layers, err = t.layersOf(fsys, m.Layers, nil, firsts, m, opts); err != nil {
+		return nil, fmt.Errorf("twod: %s: %w", name, err)
 	}
 	return t, nil
 }
 
-// readCells reads every tile layer's cells, first, so the map's used
-// tilesets are known before any picture is loaded.
-func (t *Tiled) readCells(m tiledMap, firsts []int) ([][]uint32, error) {
+// layersOf are layers as TiledLayers, in parent, nil at the top of the
+// map; two of one name are an error.
+func (t *Tiled) layersOf(
+	fsys fs.FS, layers []tiledLayer, parent *TiledLayer, firsts []int, m tiledMap, opts []TileMapOption,
+) ([]*TiledLayer, error) {
+	var out []*TiledLayer
+	for _, l := range layers {
+		layer, err := t.layerOf(fsys, l, parent, firsts, m, opts)
+		if err != nil {
+			return nil, fmt.Errorf("layer %s: %w", l.Name, err)
+		}
+		if other, ok := layerNamed(out, l.Name); ok {
+			return nil, fmt.Errorf("layers %d and %d are both called %q", other.ID, l.ID, l.Name)
+		}
+		out = append(out, layer)
+	}
+	return out, nil
+}
+
+// readCells reads every tile layer's cells, groups' included, first, so
+// the map's used tilesets are known before any picture is loaded.
+func (t *Tiled) readCells(m *tiledMap, firsts []int) error {
 	t.used = make([]bool, len(m.Tilesets))
 	use := func(g uint32) {
 		if g &^= tiledFlags; g != 0 && len(firsts) > 0 {
 			t.used[tilesetOf(firsts, g)] = true
 		}
 	}
-	gids := make([][]uint32, len(m.Layers))
-	for i, l := range m.Layers {
+	return eachLayer(m.Layers, func(l *tiledLayer) error {
 		switch l.Type {
-		case "tilelayer":
-			cells, err := cellsOf(l)
+		case tileLayerType:
+			cells, err := cellsOf(*l)
 			if err != nil {
-				return nil, fmt.Errorf("layer %s: %w", l.Name, err)
+				return fmt.Errorf("layer %s: %w", l.Name, err)
 			}
-			gids[i] = cells
+			l.gids = cells
 			for _, g := range cells {
 				use(g)
 			}
@@ -466,12 +501,20 @@ func (t *Tiled) readCells(m tiledMap, firsts []int) ([][]uint32, error) {
 			for _, o := range l.Objects {
 				use(o.GID)
 			}
+		case groupType, imageLayerType:
 		default:
-			return nil, fmt.Errorf("layer %s: %s layers are not supported", l.Name, l.Type)
+			return fmt.Errorf("layer %s: %s layers are not supported", l.Name, l.Type)
 		}
-	}
-	return gids, nil
+		return nil
+	})
 }
+
+// The kinds of layer a map's file names.
+const (
+	tileLayerType  = "tilelayer"
+	groupType      = "group"
+	imageLayerType = "imagelayer"
+)
 
 // loadTilesets loads map name's tilesets: the used ones whole, an unused
 // one of its own file not read at all, so the file needn't even be there.
@@ -562,12 +605,12 @@ const (
 // layerOf is l as a TiledLayer, its tile layer's TileMap made and its
 // objects read.
 func (t *Tiled) layerOf(
-	l tiledLayer, gids []uint32, firsts []int, m tiledMap, opts []TileMapOption,
+	fsys fs.FS, l tiledLayer, parent *TiledLayer, firsts []int, m tiledMap, opts []TileMapOption,
 ) (*TiledLayer, error) {
 	layer := &TiledLayer{
 		ID: l.ID, Name: l.Name, Class: l.Class, Properties: properties(l.Properties, t.dir),
 		Visible: l.Visible == nil || *l.Visible, Opacity: 1, Offset: geom.V2(l.OffsetX, l.OffsetY),
-		Tint: color.White, Parallax: geom.V2(1, 1),
+		Tint: color.White, Parallax: geom.V2(1, 1), parent: parent,
 	}
 	if l.Opacity != nil {
 		layer.Opacity = *l.Opacity
@@ -585,26 +628,63 @@ func (t *Tiled) layerOf(
 		}
 		layer.Tint = c
 	}
+	var err error
 	switch l.Type {
-	case "tilelayer":
+	case tileLayerType:
 		layer.Kind = TiledTiles
-		layer.tileMap = t.tileLayer(l, gids, firsts, m, append(layer.mapOptions(t.scale), opts...))
+		layer.tileMap = t.tileLayer(l, l.gids, firsts, m, append(layer.mapOptions(t.scale), opts...))
+	case groupType:
+		layer.Kind = TiledGroup
+		layer.layers, err = t.layersOf(fsys, l.Layers, layer, firsts, m, opts)
+	case imageLayerType:
+		layer.Kind = TiledImage
+		layer.picture, err = t.pictureOf(fsys, l, layer)
 	default:
 		layer.Kind = TiledObjects
 		if l.DrawOrder == "index" {
 			layer.DrawOrder = TiledIndex
 		}
+		offset := layer.FoldedOffset()
 		for _, o := range l.Objects {
-			obj, err := t.objectOf(o, firsts, t.dir)
-			if err != nil {
-				return nil, err
+			obj, objErr := t.objectOf(o, firsts, t.dir)
+			if objErr != nil {
+				return nil, objErr
 			}
-			obj.shift(layer.Offset)
+			obj.shift(offset)
 			layer.objects = append(layer.objects, obj)
 			t.byID[obj.ID] = obj
 		}
 	}
+	if err != nil {
+		return nil, err
+	}
 	return layer, nil
+}
+
+// pictureOf is image layer l's picture, nil when it names none: its
+// top-left corner at the layer's offset, in the map's points, drawn as the
+// layer's folded settings say.
+func (t *Tiled) pictureOf(fsys fs.FS, l tiledLayer, layer *TiledLayer) (*Sprite, error) {
+	switch {
+	case l.RepeatX || l.RepeatY:
+		return nil, errors.New("a repeated image is not supported")
+	case l.TransparentColor != "":
+		return nil, errors.New("an image layer's transparent colour is not supported")
+	case l.Image == "":
+		return nil, nil //nolint:nilnil // an image layer may hold no picture
+	}
+	tex, err := LoadTexture(fsys, path.Join(t.dir, l.Image), Pixelated())
+	if err != nil {
+		return nil, err
+	}
+	size, at := tex.Size().Scale(t.scale), layer.FoldedOffset().Scale(t.scale)
+	tint := layer.FoldedTint()
+	tint.A *= layer.FoldedOpacity()
+	opts := []SpriteOption{Pivot(0, 0), At(at.X, at.Y), Size(size.X, size.Y), Tint(tint)}
+	if !layer.Shown() {
+		opts = append(opts, Hidden())
+	}
+	return NewSprite(tex, opts...), nil
 }
 
 // objectOf is o as a TiledObject, its tile found among the map's tilesets.

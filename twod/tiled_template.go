@@ -28,20 +28,19 @@ const templateGap = 1 << 20
 // name it.
 func (t *Tiled) applyTemplates(fsys fs.FS, m *tiledMap) error {
 	read := map[string]tiledTemplate{}
-	for li := range m.Layers {
-		objects := m.Layers[li].Objects
-		for oi, o := range objects {
+	return eachLayer(m.Layers, func(l *tiledLayer) error {
+		for i, o := range l.Objects {
 			if o.Template == "" {
 				continue
 			}
 			made, err := t.fromTemplate(fsys, m, o, read)
 			if err != nil {
-				return fmt.Errorf("layer %s: object %d (%s): %w", m.Layers[li].Name, o.ID, o.Name, err)
+				return fmt.Errorf("layer %s: object %d (%s): %w", l.Name, o.ID, o.Name, err)
 			}
-			objects[oi] = made
+			l.Objects[i] = made
 		}
-	}
-	return nil
+		return nil
+	})
 }
 
 // fromTemplate is object o, made from a template: the template's object,

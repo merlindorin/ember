@@ -27,9 +27,11 @@ type TileMap struct {
 	cells     []int     `node:"prop"`
 	tileSize  geom.Vec2 `node:"prop"`
 	isometric bool      `node:"prop"`
-	tallIn    Entity
-	talls     map[int]*Sprite
-	version   uint64
+	// offset moves every cell within the map, so placing the map keeps it.
+	offset  geom.Vec2 `node:"prop"`
+	tallIn  Entity
+	talls   map[int]*Sprite
+	version uint64
 	// flips is each cell's flip, nil while none is flipped.
 	flips []TileFlip
 }
@@ -172,6 +174,44 @@ func CellSize(w, h float32) MapOption {
 	}
 }
 
+// CellOffset moves every cell of the map by x, y points within it: its
+// pictures, its tall tiles, its solids and shadows, and Center and Cell.
+// The map's position adds to it, so placing the map keeps the offset, as
+// LoadTiled does for a Tiled layer's.
+func CellOffset(x, y float32) TileMapOption {
+	return tileMapOption(func(m *TileMap) { m.offset = geom.V2(x, y) })
+}
+
+// CellOffset is how far every cell stands from where the map's position
+// puts it.
+func (m *TileMap) CellOffset() geom.Vec2 { return m.offset }
+
+// SetPosition places the map, its tall tiles moving with it wherever
+// TallIn stands them.
+func (m *TileMap) SetPosition(at geom.Vec2) {
+	delta := at.Sub(m.position)
+	m.Placement.SetPosition(at)
+	m.moveTalls(delta)
+}
+
+// Translate moves the map by delta, its tall tiles with it wherever TallIn
+// stands them.
+func (m *TileMap) Translate(delta geom.Vec2) {
+	m.Placement.Translate(delta)
+	m.moveTalls(delta)
+}
+
+// moveTalls moves the tall tiles standing outside the map by delta; those
+// inside it follow it already.
+func (m *TileMap) moveTalls(delta geom.Vec2) {
+	if m.tallIn == nil || delta == (geom.Vec2{}) {
+		return
+	}
+	for _, s := range m.talls {
+		s.Translate(delta)
+	}
+}
+
 // Isometric lays the cells out as diamonds, drawn back to front.
 func Isometric() TileMapOption { return tileMapOption(func(m *TileMap) { m.isometric = true }) }
 
@@ -246,12 +286,12 @@ func (m *TileMap) Tileset() *Tileset { return m.tileset }
 func (m *TileMap) Version() uint64 { return m.version }
 
 // Origin is the top-left corner of cell x, y in the map's own space, the
-// top corner of its diamond when isometric.
+// top corner of its diamond when isometric, moved by the cells' offset.
 func (m *TileMap) origin(x, y int) geom.Vec2 {
 	if m.isometric {
-		return geom.V2(float32(x-y)*m.tileSize.X/2, float32(x+y)*m.tileSize.Y/2)
+		return m.offset.Add(geom.V2(float32(x-y)*m.tileSize.X/2, float32(x+y)*m.tileSize.Y/2))
 	}
-	return geom.V2(float32(x)*m.tileSize.X, float32(y)*m.tileSize.Y)
+	return m.offset.Add(geom.V2(float32(x)*m.tileSize.X, float32(y)*m.tileSize.Y))
 }
 
 // Center is the middle of cell x, y in the map's parent's space.
@@ -267,7 +307,7 @@ func (m *TileMap) Center(x, y int) geom.Vec2 {
 func (m *TileMap) Cell(p geom.Vec2) (int, int, bool) {
 	var x int
 	var y int
-	p = p.Sub(m.position)
+	p = p.Sub(m.position).Sub(m.offset)
 	var fx, fy float32
 	if m.isometric {
 		u, v := p.X/(m.tileSize.X/2), p.Y/(m.tileSize.Y/2)
@@ -328,6 +368,7 @@ func touching(rs []geom.Rect, area geom.Rect) []geom.Rect {
 // span is the range of cells area, in the map's space, covers, clipped to
 // the map.
 func (m *TileMap) span(area geom.Rect) (int, int, int, int) {
+	area.X, area.Y = area.X-m.offset.X, area.Y-m.offset.Y
 	var x0, y0, x1, y1 int
 	columns, rows := m.Columns(), m.Rows()
 	x0, y0 = int(geom.Floor(area.X/m.tileSize.X)), int(geom.Floor(area.Y/m.tileSize.Y))

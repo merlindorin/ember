@@ -5,6 +5,8 @@ Proposals and design records behind the engine. A proposal waits here for the us
 | Note | Status |
 |---|---|
 | [Windows, dialogs and their components](ui-windows.md) | Mockups approved; being built |
+| [Tiled maps: the whole map, and nothing ignored silently](tiled-maps.md) | Approved (decision 0068 reserved); being built |
+| [Tints, recolours and masks: variants of a picture without a new picture](masks-and-recolours.md) | Proposal, for the user's review |
 | [Tiled tile properties](tiled-tile-properties.md) | Built (decision 0043) |
 | [2D lights and shadows](2d-lighting.md) | Built (decision 0042) |
 | [One renderer on WebGPU](webgpu.md) | Approved (decision 0041); the 2D port is next |

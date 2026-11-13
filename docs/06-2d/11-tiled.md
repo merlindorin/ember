@@ -12,7 +12,9 @@
 
 ## Loading it
 
-`twod.LoadTiled` reads the map and its tilesets. `level.Layers()` gives its layers in the file's order, each a `*twod.TiledLayer` whose `Kind` says what it holds: `twod.TiledTiles`, a tile map from `TileMap()`, or `twod.TiledObjects`, objects from `Objects()`. The example walks them: each tile map goes in the window, with `space.AddSolid` so its solid tiles stop the hero, and the object layer spawns the hero and the pillars. `level.TileLayers()` and `level.TileLayer(name)` give the tile maps alone, `level.Layer(name)` a layer by name.
+`twod.LoadTiled` reads the map and its tilesets. `level.Layers()` gives its layers in the file's order, each a `*twod.TiledLayer` whose `Kind` says what it holds: `twod.TiledTiles`, a tile map from `TileMap()`; `twod.TiledObjects`, objects from `Objects()`; `twod.TiledImage`, a picture from `Picture()`; or `twod.TiledGroup`, layers of its own, from `Layers()` and `Layer(name)`, each knowing its `Parent()`. The example walks the top layers: each tile map goes in the window, with `space.AddSolid` so its solid tiles stop the hero, and the object layer spawns the hero and the pillars.
+
+`level.Walk(visit)` visits every layer in draw order, a group before what it holds, and stops when `visit` returns false. `level.TileLayers()` gives every tile map, those inside groups included; `level.Layer(name)`, `level.TileLayer(name)`, `level.Objects(name)` and `level.LayerProperties(name)` name top layers only.
 
 The cells are 32 points while the tiles are 16 pixels, so object positions are already in screen points. A layer may draw from several tilesets, a floor grid and a collection of wall pieces, for instance: the map's tilesets are merged, and each cell keeps its global id over them.
 
@@ -24,9 +26,11 @@ Only the tilesets the map places a tile from are loaded, pictures and all ([0067
 
 Nothing in the file is dropped without a word ([0068](../99-decisions/0068-a-tiled-map-hides-nothing.md)). The map tells its `Class()`, its size in cells, `Columns()` and `Rows()`, its cell size in pixels, `TilePixels()`, how many points a map pixel draws at, `Scale()`, and its `Background()` colour and `ParallaxOrigin()`.
 
-A layer carries its `ID`, `Name`, `Class` and `Properties`, and its settings as Tiled saved them, and a tile layer's map draws as they say. A layer that isn't `Visible` is hidden, drawn no more, and still blocks bodies and casts shadows; its `Tint`, its alpha times its `Opacity`, tints its tiles; and the layer's `Offset` moves its tiles. Tall tiles stood up from the layer follow all three, and a tile map's `SetHidden` and `SetTint` reach them too. An object layer's `Offset` shifts its objects. `Parallax` and an object layer's `DrawOrder` are told, not applied. A tileset's drawing offset moves its tiles, on a map and in `level.Sprite`.
+A layer carries its `ID`, `Name`, `Class` and `Properties`, and its settings as Tiled saved them: `Visible`, `Opacity`, `Tint` and `Offset`. Inside a group they add up with every group above it, as Tiled draws them: `Shown()` is false when the layer or any group above it is hidden, `FoldedOpacity()` and `FoldedTint()` multiply, and `FoldedOffset()` adds. The folded values are the ones applied.
 
-What the engine can't show yet is refused when the map loads, with an error naming the file, the layer or the object: image and group layers, two sibling layers of one name, infinite, staggered and hexagonal maps, `.tx` templates, a tileset's transparent colour, its class or its own properties, and a tile's class.
+A tile layer's map draws as they say. A hidden one is drawn no more, and still blocks bodies and casts shadows; its tint, alpha times opacity, tints its tiles; and its offset moves its cells inside the map, through the map's `twod.CellOffset(x, y)`, read back with `CellOffset()`, so it stays when the game places the map with `SetPosition` or `Translate`. Tall tiles stood up from the layer follow all of it, and a tile map's `SetHidden`, `SetTint`, `SetPosition` and `Translate` reach them too. An object layer's offset shifts its objects. An image layer's `Picture()` is a `*Sprite` of its image, pixelated, pivoted at its top-left and standing at the layer's offset, tinted and hidden as folded, for the game to add where it wants; with no image it is nil. `Parallax` and an object layer's `DrawOrder` are told, not applied. A tileset's drawing offset moves its tiles, on a map and in `level.Sprite`.
+
+What the engine can't show yet is refused when the map loads, with an error naming the file, the layer or the object: two layers of one name in the same group (or both at the top), an image layer that repeats or has a transparent colour, infinite, staggered and hexagonal maps, `.tx` templates, a tileset's transparent colour, its class or its own properties, and a tile's class.
 
 ## The objects
 

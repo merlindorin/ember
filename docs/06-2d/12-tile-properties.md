@@ -15,7 +15,15 @@ The properties a tile of a Tiled tileset can carry, set in Tiled's tileset edito
 | `height` | float, in its pixels | 0 | how tall it stands, for the length of its shadows; 0 is its picture's height when it's tall, its cell's when it's solid, and nothing otherwise |
 | `emissive` | float, in its pixels | 0 | how far round it it glows: read, checked and returned by `ts.Emissive(id)`, but map tiles don't glow from it yet; a sprite glows with [`light.Emissive`](19-lights/06-shape-lights.md) |
 
-A collision object of the class `shadow` in a tile blocks light only, one of the class `body` blocks bodies only, and one without a class blocks both: see [Shadows in Tiled](19-lights/03-shadows.md#in-tiled). The tileset reads them back with `ts.Solid(id)`, `ts.Height(id)`, `ts.Emissive(id)` and the like; lights use the height for their shadows' length.
+The engine reads three Tiled classes:
+
+| Class | On | Meaning |
+|---|---|---|
+| `ember.Tile` | a tile, declared in the [project file](#in-tiled) | Tiled shows the tile's properties as typed fields with their defaults |
+| `shadow` | a collision object in a tile | blocks light only |
+| `body` | a collision object in a tile | blocks bodies only |
+
+A collision object without a class blocks both: see [Shadows in Tiled](19-lights/03-shadows.md#in-tiled). The tileset reads the properties back with `ts.Solid(id)`, `ts.Height(id)`, `ts.Emissive(id)` and the like; lights use the height for their shadows' length.
 
 ## A game's own properties
 

@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/merlindorin/ember/internal/shots"
+	"github.com/merlindorin/ember/twod"
 )
 
 var (
@@ -31,7 +32,12 @@ var (
 	decision = regexp.MustCompile(`\A# (\d{4})\. .+\n\n((?:- \w+: .+\n)+)`)
 	field    = regexp.MustCompile(`(?m)^- (\w+): (.+)$`)
 	status   = regexp.MustCompile(`^(?:Accepted|Superseded by \[(\d{4})\]\(([^)]+)\))`)
+	rowName  = regexp.MustCompile("(?m)^\\| `([^`]+)` +\\|")
 )
+
+// engineTiledClasses are the Tiled classes the engine reads: the tile class its project file declares, and the
+// collision object classes of twod/tiled.go.
+var engineTiledClasses = []string{"ember.Tile", "shadow", "body"}
 
 func TestTheGuideShowsTheExamplesAsTheyAre(t *testing.T) {
 	public := buildGuide(t)
@@ -340,4 +346,58 @@ func pageOf(source string) string {
 		}
 	}
 	return path.Join(parts...)
+}
+
+// TestTilePropertiesNamesEveryEngineClassAndProperty keeps the guide's Tile properties page from falling behind the
+// engine: each property twod.EngineTileProperties declares has a row in a table headed Property, and each class the
+// engine reads a row in a table headed Class.
+func TestTilePropertiesNamesEveryEngineClassAndProperty(t *testing.T) {
+	md, err := os.ReadFile(filepath.Join("docs", "06-2d", "12-tile-properties.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows := tableNames(string(md))
+	for _, p := range twod.EngineTileProperties() {
+		if !rows["Property"][p.Name] {
+			t.Errorf("12-tile-properties.md: no Property row for the engine property %s", p.Name)
+		}
+	}
+	for _, c := range engineTiledClasses {
+		if !rows["Class"][c] {
+			t.Errorf("12-tile-properties.md: no Class row for the engine class %s", c)
+		}
+	}
+}
+
+// tableNames reads a page's Markdown tables: for each table, by the title of its first column, the names written as
+// code in that column.
+func tableNames(md string) map[string]map[string]bool {
+	names := map[string]map[string]bool{}
+	head := ""
+	for _, line := range strings.Split(md, "\n") {
+		if !strings.HasPrefix(line, "|") {
+			head = ""
+			continue
+		}
+		first := strings.TrimSpace(strings.SplitN(strings.TrimPrefix(line, "|"), "|", 2)[0])
+		switch {
+		case head == "":
+			head = first
+			names[head] = map[string]bool{}
+		case strings.Trim(first, "-: ") == "":
+		default:
+			if m := rowName.FindStringSubmatch(line); m != nil {
+				names[head][m[1]] = true
+			}
+		}
+	}
+	return names
+}
+
+func TestTableNamesReadsEachTableByItsFirstColumn(t *testing.T) {
+	md := "| Property | Kind |\n|---|---|\n| `solid` | bool |\n\ntext\n\n| Class | Meaning |\n| --- | --- |\n| `body` | x |\n"
+	got := tableNames(md)
+	if !got["Property"]["solid"] || got["Property"]["body"] || !got["Class"]["body"] || got["Class"]["solid"] {
+		t.Errorf("tableNames = %v", got)
+	}
 }

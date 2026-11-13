@@ -3,7 +3,7 @@
 // the player types is read as text, so the name comes out right on any
 // layout, and Ctrl or Cmd with V pastes.
 //
-//	go run ./examples/46-keyboard
+//	go run ./examples/47-keyboard
 package main
 
 import (

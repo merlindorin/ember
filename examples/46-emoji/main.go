@@ -5,7 +5,7 @@
 // of matching names opens as one is typed, picked with the arrows and Tab.
 // Enter sends; backspace deletes a whole emoji at a time.
 //
-//	go run ./examples/45-emoji
+//	go run ./examples/46-emoji
 package main
 
 import (

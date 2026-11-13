@@ -3,7 +3,7 @@
 // mixer is an entity like the window; the device opens when the game runs.
 // GIFs carry no sound: run it to hear it.
 //
-//	go run ./examples/52-play-a-sound
+//	go run ./examples/53-play-a-sound
 //
 // hit.wav is synthesised by sounds_gen.go and free to use (CC0).
 package main

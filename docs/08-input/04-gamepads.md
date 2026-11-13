@@ -10,7 +10,7 @@ ember reads game controllers: PlayStation, Xbox, Nintendo and most others. This 
 2. Run the example from the `ember` folder:
 
    ```sh
-   go run ./examples/49-gamepads
+   go run ./examples/50-gamepads
    ```
 
 3. Press buttons, pull the triggers and move the sticks. The drawn pad lights up as you do. The left stick and the cross walk the hero on the right. On macOS, ✕ (South) makes the pad rumble, and each trigger drives one of its motors.
@@ -49,7 +49,7 @@ A pad button reads like a key, from the window's input:
 
 These read every pad plugged in at once. `PadView` draws the pad from these reads every frame.
 
-[pad.go](../../examples/49-gamepads/pad.go)
+[pad.go](../../examples/50-gamepads/pad.go)
 
 ## Sticks and triggers
 
@@ -75,7 +75,7 @@ input.Bind(Left, input.KeyLeft, input.GamepadLeftStickLeft, input.GamepadLeft)
 
 `Direction` keeps how far the stick leans: half way walks at half speed.
 
-[walk.go](../../examples/49-gamepads/walk.go)
+[walk.go](../../examples/50-gamepads/walk.go)
 
 ## Two players
 
@@ -91,9 +91,9 @@ controls.Down(in.Gamepad(1), Left)
 
 When a pad is plugged in, the World gets an `input.GamepadConnected` event, with its ID and name. When one is unplugged, it gets `input.GamepadDisconnected`. Read them like any event.
 
-[plugs.go](../../examples/49-gamepads/plugs.go)
+[plugs.go](../../examples/50-gamepads/plugs.go)
 
-[main.go](../../examples/49-gamepads/main.go)
+[main.go](../../examples/50-gamepads/main.go)
 
 ## Rumble
 
@@ -101,7 +101,7 @@ A pad has two motors: a heavy one on the left, a light one on the right. `pad.Ru
 
 Here ✕ gives a 0.3 s jolt, and the triggers drive the motors live, the left trigger the heavy one and the right trigger the light one, so each can be felt alone.
 
-[rumble.go](../../examples/49-gamepads/rumble.go)
+[rumble.go](../../examples/50-gamepads/rumble.go)
 
 Some players dislike it, so a game's settings usually have a Vibration switch: `in.SetRumbleEnabled(false)` stops every pad and makes every call do nothing until it's on again, and `in.RumbleEnabled()` reads it. It is on by default ([decision 0026](../99-decisions/0026-pads-rumble-through-platform-haptics.md)).
 
@@ -116,7 +116,7 @@ A test plugs in a pad and moves it, with no real pad:
 
 The next frame sees them. `input.NewRumbleRecorder(in)` records the rumbles played: `rec.Last(id)` is the last one on a pad, `input.Rumble{Low, High, Seconds}`, the zero `Rumble` for a stop, and whether any was played; `rec.Reset()` forgets them.
 
-[main_test.go](../../examples/49-gamepads/main_test.go)
+[main_test.go](../../examples/50-gamepads/main_test.go)
 
 ## What isn't supported
 
@@ -126,4 +126,4 @@ The next frame sees them. `input.NewRumbleRecorder(in)` records the rumbles play
 
 ## Try it
 
-[49-gamepads](../../examples/49-gamepads)
+[50-gamepads](../../examples/50-gamepads)

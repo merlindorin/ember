@@ -24,7 +24,7 @@ var goldenScenes = []golden.Scene{
 		Frame: 45,
 		Env:   []string{"EMBER_CAPTURE_MOUSE=320,192@0;160,250@20;left:10-12;left:22-24"},
 	},
-	{Name: "43-text", Pkg: "examples/43-text", Frame: 30},
+	{Name: "44-text", Pkg: "examples/44-text", Frame: 30},
 	{Name: "01-hello-cube", Pkg: "examples/01-hello-cube", Frame: 30, Edges: edges3D},
 	{Name: "09-window", Pkg: "examples/09-window", Frame: 30, Edges: edges3D},
 	{Name: "10-multi-window", Pkg: "examples/10-multi-window", Frame: 30, Edges: edges3D},

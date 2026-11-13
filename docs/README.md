@@ -26,7 +26,7 @@ Every page walks through a complete example from [examples](../examples), file b
    - Effects: [Pixel-perfect](06-2d/13-pixel-perfect.md), [Blend modes and masks](06-2d/14-blend-modes.md), [Render to texture](06-2d/15-render-to-texture.md), [2D shaders](06-2d/16-2d-shader.md), [Particles](06-2d/17-particles.md)
    - Motion: [Easing and paths](06-2d/18-easing.md)
    - [Light](06-2d/19-lights/README.md): [Lit layers and ambient](06-2d/19-lights/01-lit-layers.md), [Point lights](06-2d/19-lights/02-point-lights.md), [Shadows](06-2d/19-lights/03-shadows.md), [Cone lights](06-2d/19-lights/04-cone-lights.md), [Directional lights](06-2d/19-lights/05-directional-lights.md), [Shape lights and Emissive](06-2d/19-lights/06-shape-lights.md), [Probes](06-2d/19-lights/07-probes.md), [Debugging and performance](06-2d/19-lights/08-debugging.md)
-   - Pictures: [Tiled pictures](06-2d/20-tiled-pictures.md)
+   - Pictures: [Tiled pictures](06-2d/20-tiled-pictures.md), [Recolours and masks](06-2d/21-recolours-and-masks.md)
 6. [Text](07-text/README.md)
    - [Text](07-text/01-text.md)
    - [Bitmap font](07-text/02-bitmap-font.md)

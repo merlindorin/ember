@@ -10,7 +10,7 @@ ember reads the fingers on a trackpad: where each one is, and when it lands, mov
 2. Run the example from the `ember` folder:
 
    ```sh
-   go run ./examples/50-touch
+   go run ./examples/51-touch
    ```
 
 3. Rest one or more fingers on the trackpad and move them. Each one shows as a spot with its ID and phase.
@@ -19,7 +19,7 @@ ember reads the fingers on a trackpad: where each one is, and when it lands, mov
 
 A trackpad touch is **not** a point in the window. Its `At` runs from 0 to 1 across the trackpad: (0, 0) is the pad's top-left corner and (1, 1) its bottom-right. The mouse cursor stays where it is; touching the pad doesn't move it to your finger. To draw a finger, the example maps that 0–1 place onto a drawn pad.
 
-[pad.go](../../examples/50-touch/pad.go)
+[pad.go](../../examples/51-touch/pad.go)
 
 ## Reading touches
 
@@ -32,9 +32,9 @@ A trackpad touch is **not** a point in the window. Its `At` runs from 0 to 1 acr
 
 The World also gets events: `input.TouchStarted`, `input.TouchMoved` and `input.TouchEnded`, each with its touch. The example adds a spot on `TouchStarted`, moves it with `Touches()` and removes it on `TouchEnded`.
 
-[fingers.go](../../examples/50-touch/fingers.go)
+[fingers.go](../../examples/51-touch/fingers.go)
 
-[main.go](../../examples/50-touch/main.go)
+[main.go](../../examples/51-touch/main.go)
 
 ## Testing
 
@@ -53,4 +53,4 @@ The next frame sees them.
 
 ## Try it
 
-[50-touch](../../examples/50-touch)
+[51-touch](../../examples/51-touch)

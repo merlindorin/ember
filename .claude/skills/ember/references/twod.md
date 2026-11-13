@@ -95,7 +95,7 @@ func main() {
 }
 ```
 
-Examples: `examples/19-sprites`, `examples/21-lines-and-shapes`, `examples/22-nine-patch`, `examples/43-text`.
+Examples: `examples/19-sprites`, `examples/21-lines-and-shapes`, `examples/22-nine-patch`, `examples/44-text`.
 
 ## Animate a sprite sheet
 

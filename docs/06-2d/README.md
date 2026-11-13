@@ -12,6 +12,6 @@ Layers draw in number order: `twod.NewLayer(1)` is in front of layer 0. Within a
 
 ## The pages
 
-They go from drawing one thing to whole levels: sprites and shapes first, then layers and cameras, then levels made of tiles that the hero collides with, then the effects a layer or a camera can apply, how things move, lights, and last pictures the game paints a piece at a time.
+They go from drawing one thing to whole levels: sprites and shapes first, then layers and cameras, then levels made of tiles that the hero collides with, then the effects a layer or a camera can apply, how things move, lights, pictures the game paints a piece at a time, and last variants of a picture, recoloured or masked, made at load.
 
 Text is a 2D entity too, but fonts are a subject of their own: they have their own section, [Text](../07-text/README.md).

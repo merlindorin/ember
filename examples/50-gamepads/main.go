@@ -5,7 +5,7 @@
 // action map. South rumbles the pad that pressed it, and its triggers
 // drive its two motors.
 //
-//	go run ./examples/49-gamepads
+//	go run ./examples/50-gamepads
 package main
 
 import (

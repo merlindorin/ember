@@ -16,7 +16,7 @@ import (
 // own unlock on mouseup never sees the click.
 func TestAClickOnTheCanvasStartsTheSound(t *testing.T) {
 	t.Setenv("EMBER_CHROME_FLAGS", "--autoplay-policy=document-user-activation-required")
-	sounds := []string{"./examples/52-play-a-sound", "./examples/53-music-and-positional", "./examples/54-audio-effects"}
+	sounds := []string{"./examples/53-play-a-sound", "./examples/54-music-and-positional", "./examples/55-audio-effects"}
 	for _, pkg := range sounds {
 		t.Run(pkg, func(t *testing.T) {
 			srv := servePackage(t, pkg)

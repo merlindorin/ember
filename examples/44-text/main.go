@@ -2,7 +2,7 @@
 // faces, a face read from a font file, a paragraph wrapped to a width, and
 // a clock whose text changes every frame.
 //
-//	go run ./examples/43-text
+//	go run ./examples/44-text
 package main
 
 import (

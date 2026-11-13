@@ -2,7 +2,7 @@
 // pixel, for a crisp retro look. The engine's own bitmap font, and a game's
 // arcade font loaded from a PNG, showing a score that counts up.
 //
-//	go run ./examples/44-bitmap-font
+//	go run ./examples/45-bitmap-font
 package main
 
 import (

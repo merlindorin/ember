@@ -12,13 +12,13 @@ A face draws only the characters it has. `twod.Regular()` has letters but no emo
 
 Colour emoji are pictures. `twod.LoadEmoji(files, "emoji")` reads a folder of PNGs, each named after its characters: Twemoji's `1f1eb-1f1f7.png` for 🇫🇷, or Noto's `emoji_u…` names. Adding `twod.Emoji(set)` to a face draws those as pictures, at the size of the text and in their own colours, untinted. `set.Has("👍🏽")` says whether one is in the set.
 
-[main.go](../../examples/45-emoji/main.go)
+[main.go](../../examples/46-emoji/main.go)
 
 ## One emoji, one unit
 
 Some emoji are several characters drawn as one: a family 👨‍👩‍👧 is three people joined, a skin tone 👍🏽 is a hand and a tone, a flag 🇫🇷 is two letters, a keycap 1️⃣ is a digit and a box. Text measures, wraps and deletes each of these as one unit, so a backspace in the input takes the whole family off. The input is a ui Document's text field: `ui.Emoji(pictures)` on the Document draws its emoji from the same pictures, and `ui.OnSubmit` sends the message to `Chat` and empties the field. The system's emoji picker types into it too: Ctrl+Cmd+Space on macOS. Cmd+V or Ctrl+V pastes, emoji whole and line breaks as spaces, and Cmd+C or Ctrl+C copies.
 
-[chat.go](../../examples/45-emoji/chat.go)
+[chat.go](../../examples/46-emoji/chat.go)
 
 ## Shortcodes
 
@@ -41,4 +41,4 @@ The list only offers emoji the input's face can draw whole. The example carries 
 
 ## Try it
 
-[45-emoji](../../examples/45-emoji)
+[46-emoji](../../examples/46-emoji)

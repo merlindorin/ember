@@ -2,7 +2,7 @@
 // moving two fingers together on the trackpad; a swipe, or R, puts it
 // back.
 //
-//	go run ./examples/51-gestures
+//	go run ./examples/52-gestures
 package main
 
 import (

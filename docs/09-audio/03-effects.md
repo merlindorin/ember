@@ -20,32 +20,32 @@ Every option has a getter and a setter of the same name, `Cutoff()` and `SetCuto
 
 Here the sound effects bus has a reverb, so every footstep and clap rings in the room the hero is in.
 
-[main.go](../../examples/54-audio-effects/main.go)
+[main.go](../../examples/55-audio-effects/main.go)
 
 ## A room that changes
 
 `Acoustics` blends the reverb from the corridor's small room to the hall's large one over the archway, setting its size and wet every frame from where the hero stands.
 
-[acoustics.go](../../examples/54-audio-effects/acoustics.go)
+[acoustics.go](../../examples/55-audio-effects/acoustics.go)
 
 ## Behind the door
 
 The drums are an emitter with its own low-pass, at 350 Hz while the door is shut. E near the door opens it, and an `ease` tween sweeps the cutoff up to 16 kHz over half a second, so the drums come through bright. Shutting the door sweeps it back down.
 
-[door.go](../../examples/54-audio-effects/door.go)
+[door.go](../../examples/55-audio-effects/door.go)
 
 ## The rest
 
 The hero walks with WASD, a footstep every third of a second, and claps on Space; both play on the sound effects bus. The dungeon is two polygons, and the HUD prints the room, the reverb and the cutoff.
 
-[hero.go](../../examples/54-audio-effects/hero.go)
+[hero.go](../../examples/55-audio-effects/hero.go)
 
-[dungeon.go](../../examples/54-audio-effects/dungeon.go)
+[dungeon.go](../../examples/55-audio-effects/dungeon.go)
 
-[status.go](../../examples/54-audio-effects/status.go)
+[status.go](../../examples/55-audio-effects/status.go)
 
 The footsteps, the clap and the drums are synthesised by the example's own generator, free to use (CC0).
 
 ## Try it
 
-[54-audio-effects](../../examples/54-audio-effects)
+[55-audio-effects](../../examples/55-audio-effects)

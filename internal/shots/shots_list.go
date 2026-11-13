@@ -526,6 +526,7 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 			TilesetDir:   settings,
 		},
 	},
+	{Out: "06-2d/recolours-and-masks.png", Run: "./examples/43-recolours-and-masks"},
 	{
 		Out: "06-2d/tiled-pictures.gif",
 		Run: "./examples/42-tiled-pictures",
@@ -571,14 +572,14 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 	},
 	{
 		Out: "07-text/bitmap-font.gif",
-		Run: "./examples/44-bitmap-font",
+		Run: "./examples/45-bitmap-font",
 		Env: map[string]string{
 			CaptureFrames: "60",
 		},
 	},
 	{
 		Out:   "07-text/emoji.png",
-		Run:   "./examples/45-emoji",
+		Run:   "./examples/46-emoji",
 		Frame: 140,
 		Env: map[string]string{
 			CaptureText: "gg 🎉 well played 👍🏽@10",
@@ -586,16 +587,16 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 	},
 	{
 		Out:   "07-text/shortcodes.png",
-		Run:   "./examples/45-emoji",
+		Run:   "./examples/46-emoji",
 		Frame: 60,
 		Env: map[string]string{
 			CaptureText: "gg :fi@10",
 		},
 	},
-	{Out: "07-text/text.png", Run: "./examples/43-text", Frame: 120},
+	{Out: "07-text/text.png", Run: "./examples/44-text", Frame: 120},
 	{
 		Out: "08-input/actions.gif",
-		Run: "./examples/48-actions",
+		Run: "./examples/49-actions",
 		Env: map[string]string{
 			CaptureFrames: "125",
 			CaptureKeys:   "d:0-50;s:50-80;enter:205-207",
@@ -605,7 +606,7 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 	},
 	{
 		Out: "08-input/gamepads.gif",
-		Run: "./examples/49-gamepads",
+		Run: "./examples/50-gamepads",
 		Env: map[string]string{
 			CaptureEvery:  "3",
 			CaptureFrames: "100",
@@ -621,7 +622,7 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 	},
 	{
 		Out: "08-input/gestures.gif",
-		Run: "./examples/51-gestures",
+		Run: "./examples/52-gestures",
 		Env: map[string]string{
 			CaptureFrames: "90",
 			"EMBER_CAPTURE_TOUCH": "pinch:0.3@10-40;rotate:1.0@50-80;1:0.4,0.5@95;2:0.6,0.5@95;" +
@@ -630,7 +631,7 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 	},
 	{
 		Out: "08-input/keyboard.gif",
-		Run: "./examples/46-keyboard",
+		Run: "./examples/47-keyboard",
 		Env: map[string]string{
 			CaptureFrames: "125",
 			CaptureKeys: "d:0-50;leftshift:60-95;a:60-95;enter:110-111;backspace:118-119;" +
@@ -641,7 +642,7 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 	},
 	{
 		Out: "08-input/mouse.gif",
-		Run: "./examples/47-mouse",
+		Run: "./examples/48-mouse",
 		Env: map[string]string{
 			CaptureFrames: "145",
 			CaptureMouse: "300,300@0;200,180@20;left:25-70;200,180@28;200,290@65;440,180@90;" +
@@ -650,10 +651,10 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 				"wheel:3@275",
 		},
 	},
-	{Out: "08-input/move-cursor.png", Copy: "examples/47-mouse/move@2x.png"},
+	{Out: "08-input/move-cursor.png", Copy: "examples/48-mouse/move@2x.png"},
 	{
 		Out: "08-input/touch.gif",
-		Run: "./examples/50-touch",
+		Run: "./examples/51-touch",
 		Env: map[string]string{
 			CaptureFrames: "80",
 			"EMBER_CAPTURE_TOUCH": "1:0.3,0.6@10;1:0.45,0.4@50;1:0.45,0.4@70;2:0.7,0.5@40;2:0.6,0.7@90;" +
@@ -662,7 +663,7 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 	},
 	{
 		Out: "09-audio/effects.gif",
-		Run: "./examples/54-audio-effects",
+		Run: "./examples/55-audio-effects",
 		Env: map[string]string{
 			CaptureEvery:  "3",
 			CaptureFrames: "100",
@@ -671,7 +672,7 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 	},
 	{
 		Out: "09-audio/music-and-positional.gif",
-		Run: "./examples/53-music-and-positional",
+		Run: "./examples/54-music-and-positional",
 		Env: map[string]string{
 			CaptureFrames: "100",
 			CaptureKeys:   "e:0-120;d:125-200",
@@ -679,7 +680,7 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 	},
 	{
 		Out: "09-audio/play-a-sound.gif",
-		Run: "./examples/52-play-a-sound",
+		Run: "./examples/53-play-a-sound",
 		Env: map[string]string{
 			CaptureFrames: "75",
 			CaptureKeys:   "space:20-22;space:110-112",

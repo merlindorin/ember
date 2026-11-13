@@ -5,7 +5,7 @@
 // one is carried, and the Back and Forward buttons undo and redo the last
 // moves.
 //
-//	go run ./examples/47-mouse
+//	go run ./examples/48-mouse
 package main
 
 import (

@@ -1,6 +1,6 @@
 # Input and sound
 
-Packages `github.com/merlindorin/ember/input` and `github.com/merlindorin/ember/audio`. Guide: `docs/08-input`, `docs/09-audio`. Examples: `examples/46-keyboard` … `examples/54-audio-effects`.
+Packages `github.com/merlindorin/ember/input` and `github.com/merlindorin/ember/audio`. Guide: `docs/08-input`, `docs/09-audio`. Examples: `examples/47-keyboard` … `examples/55-audio-effects`.
 
 ## Where input comes from
 
@@ -40,7 +40,7 @@ Gotchas:
 
 - `Text() []rune`: the characters typed this frame, in the player's layout. Append them; handle `KeyBackspace` with `Pressed`.
 - `(w *Window) Clipboard() string` / `SetClipboard(text string)`. Paste on `(Down(KeyControl) || Down(KeySuper)) && Pressed(KeyV)`.
-- For real text fields use a ui `Input`/`TextArea` instead (selection, undo): see ui.md. Example: `examples/46-keyboard`.
+- For real text fields use a ui `Input`/`TextArea` instead (selection, undo): see ui.md. Example: `examples/47-keyboard`.
 
 ## The mouse
 
@@ -53,11 +53,11 @@ Gotchas:
 | pointer in the world | `cam.ScreenToWorld(in.Mouse())` on the `*twod.Camera` |
 | cursor shape | `win.SetCursor(platform.CursorArrow / CursorHand / CursorText / CursorHidden)` |
 
-Example: `examples/47-mouse` (drag crates, wheel zoom, back/forward).
+Example: `examples/48-mouse` (drag crates, wheel zoom, back/forward).
 
 ## Intent instead of keys: an action map
 
-Bind an action type to buttons once; read actions, never keys. Keys, mouse and pads mix in one binding. Example: `examples/48-actions`.
+Bind an action type to buttons once; read actions, never keys. Keys, mouse and pads mix in one binding. Example: `examples/49-actions`.
 
 - `input.Bind[A comparable](action A, buttons ...Button) input.Binding[A]`
 - `input.NewActions[A comparable](binds ...Binding[A]) *input.Actions[A]`
@@ -90,7 +90,7 @@ dir := controls.Direction(in, Left, Right, Up, Down)
 
 ## Gamepads
 
-On the **primary** window's input. Example: `examples/49-gamepads`.
+On the **primary** window's input. Example: `examples/50-gamepads`.
 
 - Buttons by position: `GamepadSouth/East/West/North`, `GamepadUp/Down/Left/Right` (cross), `GamepadLeftShoulder/RightShoulder`, `GamepadStart`, `GamepadBack`, `GamepadGuide`, `GamepadLeftStickPress`….
 - Analog (read with `Value`, or `Down` past 0.5): `GamepadLeftTrigger`, `GamepadRightTrigger`, `GamepadLeftStickLeft/Right/Up/Down`, `GamepadRightStick…`.
@@ -102,7 +102,7 @@ On the **primary** window's input. Example: `examples/49-gamepads`.
 
 - `in.Touches() []input.Touch` (`ID`, `Source`, `At`, `Phase`). A `Trackpad` touch is 0–1 on the pad, never window points; a `Touchscreen` one is in points.
 - `Pinch() float32`, `Rotation() float32`, `Pan() geom.Vec2`, `Swipe() geom.Vec2` this frame.
-- Events: `input.TouchStarted`, `TouchMoved`, `TouchEnded` (each `{Touch}`). Examples: `examples/50-touch`, `examples/51-gestures`.
+- Events: `input.TouchStarted`, `TouchMoved`, `TouchEnded` (each `{Touch}`). Examples: `examples/51-touch`, `examples/52-gestures`.
 
 ## Simulated input in tests
 
@@ -193,12 +193,12 @@ The mixer is an **entity**: `ember.New().AddEntities(win, mixer)`. The device op
 - Options: `audio.Volume(v)` (keep ≤ 1), `audio.Pan(p)` (-1 left … 1 right), `audio.Pitch(p)` (1 normal), `audio.Loop()`, `audio.OnBus(name)`, `audio.FadeIn(d)`, `audio.FadeOut(d)`, `audio.Priority(n)`.
 - A Voice: `Stop(opts...)`, `Pause()`, `Resume()`, `Playing() bool`, `SetVolume/SetPan/SetPitch`. `m.Voices() int` counts what plays.
 - When a voice ends the World gets `audio.VoiceFinished{Voice, Stopped}`.
-- Example: `examples/52-play-a-sound` (random pitch, pan by click).
+- Example: `examples/53-play-a-sound` (random pitch, pan by click).
 
 ## Music
 
 - `(m *Mixer) PlayMusic(s Sound, opts ...Option) *Voice`: one music voice at a time, on bus "music" unless `OnBus` says otherwise (make it with `WithBus("music", v)` to set its volume). `audio.Crossfade(d)` from the current track; `m.Music() *Voice`; `m.StopMusic(opts...)`.
-- Buses: `m.Bus(name) *Bus` with `SetVolume`, `SetMuted`; `m.Master()`. Example: `examples/53-music-and-positional`.
+- Buses: `m.Bus(name) *Bus` with `SetVolume`, `SetMuted`; `m.Master()`. Example: `examples/54-music-and-positional`.
 
 ```go
 mixer := audio.NewMixer(audio.WithBus("music", 0.5), audio.WithBus("sfx", 1))
@@ -225,7 +225,7 @@ fire := twod.Build(&Campfire{Item: twod.Base(), Emitter: audio.NewEmitter(crackl
 
 - `audio.NewReverb(audio.RoomSize(v), audio.Damping(v), audio.Wet(v))`, `audio.NewLowPass(audio.Cutoff(hz), audio.Resonance(q))`, `audio.NewHighPass(...)`, `audio.NewEcho(audio.Delay(d), audio.Feedback(v), audio.Wet(v))`.
 - Chain with `audio.Effects(e...)` on a voice/emitter, or a bus: `audio.WithBus("sfx", 1, audio.Effects(room))`, `bus.SetEffects(...)`.
-- Setters (`SetCutoff`, `SetRoomSize`, `SetWet`…) glide over 10 ms: tween them freely. **One effect value belongs to one bus or voice.** Example: `examples/54-audio-effects`.
+- Setters (`SetCutoff`, `SetRoomSize`, `SetWet`…) glide over 10 ms: tween them freely. **One effect value belongs to one bus or voice.** Example: `examples/55-audio-effects`.
 
 ## Sound in tests
 

@@ -51,18 +51,19 @@ go run ./examples/39-directional-lights # a sun crossing the sky, shadows long a
 go run ./examples/40-shape-lights    # lit only by what glows: emissive lava, a neon line, a crystal with shadows, a rune; X shadows
 go run ./examples/41-probes          # slimes in the dark: a probe reads the light where each stands, eyes only below 25%
 go run ./examples/42-tiled-pictures  # fog of war lifting cell by cell as the hero walks, and an ambient map lighting a clearing
-go run ./examples/43-text           # text: the engine's faces, a font file, a wrapped paragraph, a clock
-go run ./examples/44-bitmap-font    # bitmap texts: the engine's font and an arcade font from a PNG
-go run ./examples/45-emoji          # a chat in monochrome and colour emoji: fallback faces, LoadEmoji, :shortcodes: with suggestions, whole emoji per backspace
-go run ./examples/46-keyboard      # keys as places, Down/Pressed/Released, Direction, typed text with Text(), paste from the clipboard
-go run ./examples/47-mouse         # the pointer through ScreenToWorld, dragging crates, wheel zoom, cursor shapes, back/forward
-go run ./examples/48-actions        # an action map walks the hero, a click plants a tree under the pointer, the wheel zooms
-go run ./examples/49-gamepads      # a pad visualiser (buttons, triggers, sticks, two pads) and a hero walking by stick; try a real PS4/Xbox pad
-go run ./examples/50-touch         # each trackpad finger drawn where it is on the pad, with its ID and phase
-go run ./examples/51-gestures      # a crate you pinch to zoom, turn and pan with two fingers; a swipe resets it
-go run ./examples/52-play-a-sound  # Space or a click plays a WAV, with pitch and pan
-go run ./examples/53-music-and-positional  # Ogg music crossfade (M), and 2D emitters heard from the hero
-go run ./examples/54-audio-effects  # sfx bus reverb grows from corridor to hall; a door's low-pass opens on E
+go run ./examples/43-recolours-and-masks  # a crate in three palettes (code, a swatch picture), a wall tile cut by a disc mask and by it inverted
+go run ./examples/44-text           # text: the engine's faces, a font file, a wrapped paragraph, a clock
+go run ./examples/45-bitmap-font    # bitmap texts: the engine's font and an arcade font from a PNG
+go run ./examples/46-emoji          # a chat in monochrome and colour emoji: fallback faces, LoadEmoji, :shortcodes: with suggestions, whole emoji per backspace
+go run ./examples/47-keyboard      # keys as places, Down/Pressed/Released, Direction, typed text with Text(), paste from the clipboard
+go run ./examples/48-mouse         # the pointer through ScreenToWorld, dragging crates, wheel zoom, cursor shapes, back/forward
+go run ./examples/49-actions        # an action map walks the hero, a click plants a tree under the pointer, the wheel zooms
+go run ./examples/50-gamepads      # a pad visualiser (buttons, triggers, sticks, two pads) and a hero walking by stick; try a real PS4/Xbox pad
+go run ./examples/51-touch         # each trackpad finger drawn where it is on the pad, with its ID and phase
+go run ./examples/52-gestures      # a crate you pinch to zoom, turn and pan with two fingers; a swipe resets it
+go run ./examples/53-play-a-sound  # Space or a click plays a WAV, with pitch and pan
+go run ./examples/54-music-and-positional  # Ogg music crossfade (M), and 2D emitters heard from the hero
+go run ./examples/55-audio-effects  # sfx bus reverb grows from corridor to hall; a door's low-pass opens on E
 go run ./games/tetris                # small whole games: a twod board entity and a ui HUD beside it (games/internal/look), rules in plain Go
 go run ./games/2048
 go run ./games/snake

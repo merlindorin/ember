@@ -4,7 +4,7 @@
 // Drums play behind a door, through a low-pass that muffles them until E
 // opens the door. GIFs carry no sound: run it to hear it.
 //
-//	go run ./examples/54-audio-effects
+//	go run ./examples/55-audio-effects
 //
 // The sounds are synthesised by sounds_gen.go and free to use (CC0).
 package main

@@ -2,7 +2,7 @@
 
 // Synthesises hit.wav, so the example's sound is ours and free to use (CC0):
 //
-//	go generate ./examples/52-play-a-sound
+//	go generate ./examples/53-play-a-sound
 package main
 
 import (

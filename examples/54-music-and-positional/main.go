@@ -4,7 +4,7 @@
 // from his side, so turning him with Q and E swaps them between his ears.
 // GIFs carry no sound: run it to hear it.
 //
-//	go run ./examples/53-music-and-positional
+//	go run ./examples/54-music-and-positional
 //
 // Every sound is a CC0 recording cut into a seamless loop (CREDITS.md).
 package main

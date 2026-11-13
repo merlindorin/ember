@@ -3,7 +3,7 @@
 // trackpad touch is a place on the pad, 0 to 1, not on the screen: the
 // cursor stays the mouse's.
 //
-//	go run ./examples/50-touch
+//	go run ./examples/51-touch
 package main
 
 import (

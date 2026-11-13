@@ -4,7 +4,7 @@
 // door, so they are ours and free to use (CC0), and encodes them to Ogg
 // Vorbis with ffmpeg:
 //
-//	go generate ./examples/54-audio-effects
+//	go generate ./examples/55-audio-effects
 package main
 
 import (

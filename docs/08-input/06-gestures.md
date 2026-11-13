@@ -10,7 +10,7 @@ ember turns two fingers on the trackpad into gestures: pinch, turn, pan and swip
 2. Run the example from the `ember` folder:
 
    ```sh
-   go run ./examples/51-gestures
+   go run ./examples/52-gestures
    ```
 
 3. Pinch to zoom the crate, turn two fingers to turn it, and slide two fingers to move it. Swipe, or press R, to put it back.
@@ -26,9 +26,9 @@ Each gesture is how much happened this frame, and 0 when nothing did:
 
 A two-finger slide also scrolls: it arrives as `Wheel()` too, so a page that scrolls with the wheel scrolls with the trackpad.
 
-[handle.go](../../examples/51-gestures/handle.go)
+[handle.go](../../examples/52-gestures/handle.go)
 
-[main.go](../../examples/51-gestures/main.go)
+[main.go](../../examples/52-gestures/main.go)
 
 ## Testing
 
@@ -40,4 +40,4 @@ A test makes gestures without a trackpad: `in.AddPinch(0.1)`, `in.AddRotation(0.
 
 ## Try it
 
-[51-gestures](../../examples/51-gestures)
+[52-gestures](../../examples/52-gestures)

@@ -2,7 +2,7 @@
 // ghost tree follows the pointer into the world, a click plants it there,
 // and the wheel zooms. The bindings print as JSON, ready to save.
 //
-//	go run ./examples/48-actions
+//	go run ./examples/49-actions
 package main
 
 import (

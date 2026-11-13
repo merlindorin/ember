@@ -30,7 +30,7 @@ func newControls() *input.Actions[Act] {
 	)
 }
 
-// newHero is the walker of 46-keyboard, in the middle of the field.
+// newHero is the walker of 47-keyboard, in the middle of the field.
 func newHero() (*twod.Sprite, error) {
 	sheet, err := twod.LoadTexture(files, "walker.png", twod.Pixelated())
 	if err != nil {

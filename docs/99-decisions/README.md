@@ -71,6 +71,7 @@ The choices that shape ember, one short file each: what was decided, what else w
 | 0065 | [2D entities replicate on the ground plane](0065-2d-entities-replicate-on-the-ground-plane.md) | net |
 | 0066 | [A Tiled map loads only the tilesets it uses](0066-a-tiled-map-loads-only-the-tilesets-it-uses.md) (superseded by 0067) | assets |
 | 0067 | [A Tiled map reads only the tilesets it uses](0067-a-tiled-map-reads-only-the-tilesets-it-uses.md) | assets |
+| 0068 | [A Tiled map hides nothing](0068-a-tiled-map-hides-nothing.md) | assets |
 
 ## Writing one
 

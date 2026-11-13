@@ -12,7 +12,7 @@
 
 ## Loading it
 
-`twod.LoadTiled` reads the map and its tileset. Each of `level.Layers()` is a tile map: the window shows it, and `space.AddSolid` makes its solid tiles stop the hero. The cells are 32 points while the tiles are 16 pixels, so object positions are already in screen points. A layer may draw from several tilesets, a floor grid and a collection of wall pieces, for instance: the map's tilesets are merged, and each cell keeps its global id over them.
+`twod.LoadTiled` reads the map and its tileset. Each of `level.TileLayers()` is a tile map: the window shows it, and `space.AddSolid` makes its solid tiles stop the hero. The cells are 32 points while the tiles are 16 pixels, so object positions are already in screen points. A layer may draw from several tilesets, a floor grid and a collection of wall pieces, for instance: the map's tilesets are merged, and each cell keeps its global id over them.
 
 Only the tilesets the map places a tile from are loaded, pictures and all ([0067](../99-decisions/0067-a-tiled-map-reads-only-the-tilesets-it-uses.md)), so a level can carry a whole library of tilesets to pick pieces from in Tiled at no cost. `level.UsedTilesets()` lists those; `level.Tilesets()` lists them all, in order: an unused tileset of its own file isn't even read (its .tsj may be left out of the game) and is empty but for its `Source()`; an unused one embedded in the map keeps its properties and shapes, without pictures. A used tileset whose .tsj is missing is an error naming that file. `ImageFile(id)` names a tile's picture file. To draw a tile from a tileset the map never places, load that tileset with `twod.LoadTiledTileset`.
 

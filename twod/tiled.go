@@ -7,22 +7,32 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
+	"math"
 	"path"
 
+	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
 )
 
-// Tiled is a map made in the Tiled editor: its tile layers as TileMaps,
-// its tilesets, and its object layers as data for the game to spawn from.
+// Tiled is a map made in the Tiled editor: what the file says of itself,
+// its layers in the file's order (tile layers as TileMaps, object layers as
+// data for the game to spawn from) and its tilesets.
 type Tiled struct {
-	layers     []*TileMap
-	tilesets   []*Tileset
-	objects    map[string][]TiledObject
-	properties TiledProperties
-	layerProps map[string]TiledProperties
+	class          string
+	columns, rows  int
+	tileW, tileH   int
+	scale          float32
+	isometric      bool
+	background     color.Color
+	parallaxOrigin geom.Vec2
+	layers         []*TiledLayer
+	byID           map[int]TiledObject
+	tilesets       []*Tileset
+	properties     TiledProperties
 	// merged is every tileset as one, numbered by global id, for layers
 	// whose tiles come from several, made the first time one asks.
 	merged *Tileset
@@ -36,14 +46,22 @@ type Tiled struct {
 // door, a picture placed off the grid. It is plain data; the game decides
 // what it becomes.
 type TiledObject struct {
+	// ID is Tiled's id of the object, unique in its map.
+	ID         int
 	Name, Type string
 	// Rect is the object's x, y, width and height as Tiled saves them, in
 	// the map's pixels: a rectangle's or an ellipse's box from its top-left;
 	// a tile object's picture with y at its bottom, where it stands; a
-	// point's or a polygon's first point, sized 0. Tiled's rotation is not
-	// read.
-	Rect  geom.Rect
-	Shape TiledShape
+	// point's or a polygon's first point, sized 0. It is the box before
+	// Rotation turns it.
+	Rect geom.Rect
+	// Rotation is how far Tiled turns the object, in radians, clockwise
+	// about its x, y.
+	Rotation float32
+	// Visible is false for an object hidden in Tiled; it is listed all the
+	// same.
+	Visible bool
+	Shape   TiledShape
 	// Points are a polygon's or a polyline's points, in the map's pixels.
 	Points []geom.Vec2
 	// Tile is a tile object's tile, nil for any other object.
@@ -116,8 +134,18 @@ type tiledProperty struct {
 }
 
 type tiledTileset struct {
-	FirstGID   int    `json:"firstgid"`
-	Source     string `json:"source"`
+	FirstGID         int             `json:"firstgid"`
+	Source           string          `json:"source"`
+	Class            string          `json:"class"`
+	Properties       []tiledProperty `json:"properties"`
+	ObjectAlignment  string          `json:"objectalignment"`
+	TransparentColor string          `json:"transparentcolor"`
+	TileRenderSize   string          `json:"tilerendersize"`
+	FillMode         string          `json:"fillmode"`
+	TileOffset       struct {
+		X int `json:"x"`
+		Y int `json:"y"`
+	} `json:"tileoffset"`
 	Image      string `json:"image"`
 	TileWidth  int    `json:"tilewidth"`
 	TileHeight int    `json:"tileheight"`
@@ -129,6 +157,8 @@ type tiledTileset struct {
 	} `json:"grid"`
 	Tiles []struct {
 		ID         int             `json:"id"`
+		Type       string          `json:"type"`
+		Class      string          `json:"class"`
 		Image      string          `json:"image"`
 		X          int             `json:"x"`
 		Y          int             `json:"y"`
@@ -150,13 +180,14 @@ type tiledTileset struct {
 type tiledCollision struct {
 	// Class (Type before Tiled 1.9) "shadow" makes the shape block light
 	// only, "body" bodies only.
-	Class   string  `json:"class"`
-	Type    string  `json:"type"`
-	X       float32 `json:"x"`
-	Y       float32 `json:"y"`
-	Width   float32 `json:"width"`
-	Height  float32 `json:"height"`
-	Polygon []struct {
+	Class    string  `json:"class"`
+	Type     string  `json:"type"`
+	Rotation float32 `json:"rotation"`
+	X        float32 `json:"x"`
+	Y        float32 `json:"y"`
+	Width    float32 `json:"width"`
+	Height   float32 `json:"height"`
+	Polygon  []struct {
 		X float32 `json:"x"`
 		Y float32 `json:"y"`
 	} `json:"polygon"`
@@ -176,8 +207,18 @@ func (s tiledCollision) rect() (geom.Rect, bool) {
 }
 
 type tiledLayer struct {
+	ID          int             `json:"id"`
 	Type        string          `json:"type"`
 	Name        string          `json:"name"`
+	Class       string          `json:"class"`
+	Visible     *bool           `json:"visible"`
+	Opacity     *float32        `json:"opacity"`
+	OffsetX     float32         `json:"offsetx"`
+	OffsetY     float32         `json:"offsety"`
+	TintColor   string          `json:"tintcolor"`
+	ParallaxX   *float32        `json:"parallaxx"`
+	ParallaxY   *float32        `json:"parallaxy"`
+	DrawOrder   string          `json:"draworder"`
 	Width       int             `json:"width"`
 	Height      int             `json:"height"`
 	Data        json.RawMessage `json:"data"`
@@ -193,6 +234,11 @@ type tiledPoint struct {
 }
 
 type tiledObject struct {
+	ID         int             `json:"id"`
+	Visible    *bool           `json:"visible"`
+	Rotation   float32         `json:"rotation"`
+	Template   string          `json:"template"`
+	Text       json.RawMessage `json:"text"`
 	Name       string          `json:"name"`
 	Type       string          `json:"type"`
 	Class      string          `json:"class"`
@@ -209,13 +255,19 @@ type tiledObject struct {
 }
 
 type tiledMap struct {
-	Orientation string          `json:"orientation"`
-	Infinite    bool            `json:"infinite"`
-	TileWidth   int             `json:"tilewidth"`
-	TileHeight  int             `json:"tileheight"`
-	Layers      []tiledLayer    `json:"layers"`
-	Tilesets    []tiledTileset  `json:"tilesets"`
-	Properties  []tiledProperty `json:"properties"`
+	Class           string          `json:"class"`
+	Width           int             `json:"width"`
+	Height          int             `json:"height"`
+	BackgroundColor string          `json:"backgroundcolor"`
+	ParallaxOriginX float32         `json:"parallaxoriginx"`
+	ParallaxOriginY float32         `json:"parallaxoriginy"`
+	Orientation     string          `json:"orientation"`
+	Infinite        bool            `json:"infinite"`
+	TileWidth       int             `json:"tilewidth"`
+	TileHeight      int             `json:"tileheight"`
+	Layers          []tiledLayer    `json:"layers"`
+	Tilesets        []tiledTileset  `json:"tilesets"`
+	Properties      []tiledProperty `json:"properties"`
 }
 
 // The high bits of a Tiled cell flip its tile across, upside down and
@@ -231,9 +283,14 @@ const (
 // embedded or in .tsj files and their images, all from fsys. opts apply to
 // every layer's TileMap, such as CellSize or TallIn. Cells keep their
 // flips (TileMap.Flip), drawn as Tiled draws them. Objects keep their
-// shape, their points and, for a tile object, its tile. Orthogonal and
-// isometric maps are read; staggered and hexagonal maps, infinite maps and
-// image layers are errors.
+// id, shape, points, rotation and visibility and, for a tile object, its
+// tile. Layers keep the file's order and their settings (TiledLayer).
+// Orthogonal and isometric maps are read; staggered and hexagonal maps,
+// infinite maps, group and image layers, objects made from a template,
+// text objects and properties of a custom class are errors, as are two
+// layers of one name. What only the editor uses (terrain and Wang sets,
+// export and editor settings, a layer's lock, a tile's probability) is not
+// read.
 //
 // Only the tilesets the map uses are loaded: those a tile layer or a tile
 // object takes a tile from (UsedTilesets), as the map's global ids tell.
@@ -246,26 +303,39 @@ func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 	if err := readJSON(fsys, name, &m); err != nil {
 		return nil, err
 	}
-	switch {
-	case m.Orientation != "orthogonal" && m.Orientation != "isometric":
-		return nil, fmt.Errorf("twod: %s: %s maps are not supported", name, m.Orientation)
-	case m.Infinite:
-		return nil, fmt.Errorf("twod: %s: infinite maps are not supported", name)
+	t, err := newTiled(m)
+	if err != nil {
+		return nil, fmt.Errorf("twod: %s: %w", name, err)
 	}
-	t := &Tiled{
-		objects:    map[string][]TiledObject{},
-		properties: properties(m.Properties),
-		layerProps: map[string]TiledProperties{},
-	}
-	dir := path.Dir(name)
-	load := loadOf(opts)
 	t.unit = Cell(m.TileWidth, m.TileHeight)
 	firsts := make([]int, len(m.Tilesets))
 	for i, ts := range m.Tilesets {
 		firsts[i] = ts.FirstGID
 	}
-	// Every layer's cells first, to know which tilesets the map uses
-	// before loading any picture.
+	gids, err := t.readCells(m, firsts)
+	if err != nil {
+		return nil, fmt.Errorf("twod: %s: %w", name, err)
+	}
+	if err = t.loadTilesets(fsys, name, m, loadOf(opts)); err != nil {
+		return nil, err
+	}
+	for i, l := range m.Layers {
+		layer, layerErr := t.layerOf(l, gids[i], firsts, m, opts)
+		if layerErr != nil {
+			return nil, fmt.Errorf("twod: %s: layer %s: %w", name, l.Name, layerErr)
+		}
+		if other, ok := layerNamed(t.layers, l.Name); ok {
+			return nil, fmt.Errorf("twod: %s: layers %d and %d are both called %q", name, other.ID, l.ID, l.Name)
+		}
+		t.layers = append(t.layers, layer)
+	}
+	t.scale = t.scaleOf(m, opts)
+	return t, nil
+}
+
+// readCells reads every tile layer's cells, first, so the map's used
+// tilesets are known before any picture is loaded.
+func (t *Tiled) readCells(m tiledMap, firsts []int) ([][]uint32, error) {
 	t.used = make([]bool, len(m.Tilesets))
 	use := func(g uint32) {
 		if g &^= tiledFlags; g != 0 && len(firsts) > 0 {
@@ -278,7 +348,7 @@ func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 		case "tilelayer":
 			cells, err := cellsOf(l)
 			if err != nil {
-				return nil, fmt.Errorf("twod: %s: layer %s: %w", name, l.Name, err)
+				return nil, fmt.Errorf("layer %s: %w", l.Name, err)
 			}
 			gids[i] = cells
 			for _, g := range cells {
@@ -288,64 +358,169 @@ func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 			for _, o := range l.Objects {
 				use(o.GID)
 			}
+		default:
+			return nil, fmt.Errorf("layer %s: %s layers are not supported", l.Name, l.Type)
 		}
 	}
+	return gids, nil
+}
+
+// loadTilesets loads map name's tilesets: the used ones whole, an unused
+// one of its own file not read at all, so the file needn't even be there.
+func (t *Tiled) loadTilesets(fsys fs.FS, name string, m tiledMap, load *tiledLoad) error {
+	dir := path.Dir(name)
 	for i, ts := range m.Tilesets {
 		base, source := dir, ""
 		if ts.Source != "" {
 			source = path.Join(dir, ts.Source)
 			if !t.used[i] {
-				// An unused tileset of its own file isn't read at all, so
-				// the file needn't even be there.
 				unread := NewTileset(nil, t.unit)
 				unread.source = source
 				t.tilesets = append(t.tilesets, unread)
 				continue
 			}
 			if err := readJSON(fsys, source, &ts); err != nil {
-				return nil, err
+				return err
 			}
 			base = path.Dir(source)
 		}
 		tileset, err := tiledTilesetOf(fsys, base, ts, m.TileWidth, m.TileHeight, load, t.used[i])
-		if err == nil {
-			tileset.source = source
-		}
 		if err != nil {
 			if src := m.Tilesets[i].Source; src != "" {
-				return nil, fmt.Errorf("twod: %s: %s: %w", name, src, err)
+				return fmt.Errorf("twod: %s: %s: %w", name, src, err)
 			}
-			return nil, fmt.Errorf("twod: %s: %w", name, err)
+			return fmt.Errorf("twod: %s: %w", name, err)
 		}
+		tileset.source = source
 		t.tilesets = append(t.tilesets, tileset)
 	}
-	for i, l := range m.Layers {
-		t.layerProps[l.Name] = properties(l.Properties)
-		switch l.Type {
-		case "tilelayer":
-			layer := t.tileLayer(l, gids[i], firsts, m, opts)
-			t.layers = append(t.layers, layer)
-		case "objectgroup":
-			for _, o := range l.Objects {
-				t.objects[l.Name] = append(t.objects[l.Name], t.objectOf(o, firsts))
-			}
-		default:
-			return nil, fmt.Errorf("twod: %s: %s layers are not supported", name, l.Type)
+	return nil
+}
+
+// scaleOf is how many points a map pixel takes: a tile layer's cell over
+// the map's, or what opts make of a cell when the map has no tile layer.
+func (t *Tiled) scaleOf(m tiledMap, opts []TileMapOption) float32 {
+	if m.TileWidth <= 0 {
+		return 1
+	}
+	if tiles := t.TileLayers(); len(tiles) > 0 {
+		return tiles[0].tileSize.X / float32(m.TileWidth)
+	}
+	cell := NewTileMap(nil, append([]TileMapOption{CellSize(float32(m.TileWidth), float32(m.TileHeight))}, opts...)...)
+	return cell.tileSize.X / float32(m.TileWidth)
+}
+
+// newTiled is what map m says of itself, its layers and tilesets yet to
+// read; an error for what it can't read.
+func newTiled(m tiledMap) (*Tiled, error) {
+	switch {
+	case m.Orientation != orthogonal && m.Orientation != isometric:
+		return nil, fmt.Errorf("%s maps are not supported", m.Orientation)
+	case m.Infinite:
+		return nil, errors.New("infinite maps are not supported")
+	}
+	if err := checkProperties(m.Properties); err != nil {
+		return nil, err
+	}
+	t := &Tiled{
+		class:          m.Class,
+		columns:        m.Width,
+		rows:           m.Height,
+		tileW:          m.TileWidth,
+		tileH:          m.TileHeight,
+		isometric:      m.Orientation == isometric,
+		parallaxOrigin: geom.V2(m.ParallaxOriginX, m.ParallaxOriginY),
+		byID:           map[int]TiledObject{},
+		properties:     properties(m.Properties),
+	}
+	if m.BackgroundColor != "" {
+		c, err := tiledColor(m.BackgroundColor)
+		if err != nil {
+			return nil, fmt.Errorf("background: %w", err)
 		}
+		t.background = c
 	}
 	return t, nil
 }
 
+// The orientations of the maps the loader reads.
+const (
+	orthogonal = "orthogonal"
+	isometric  = "isometric"
+)
+
+// layerOf is l as a TiledLayer, its tile layer's TileMap made and its
+// objects read.
+func (t *Tiled) layerOf(
+	l tiledLayer, gids []uint32, firsts []int, m tiledMap, opts []TileMapOption,
+) (*TiledLayer, error) {
+	if err := checkProperties(l.Properties); err != nil {
+		return nil, err
+	}
+	layer := &TiledLayer{
+		ID: l.ID, Name: l.Name, Class: l.Class, Properties: properties(l.Properties),
+		Visible: l.Visible == nil || *l.Visible, Opacity: 1, Offset: geom.V2(l.OffsetX, l.OffsetY),
+		Tint: color.White, Parallax: geom.V2(1, 1),
+	}
+	if l.Opacity != nil {
+		layer.Opacity = *l.Opacity
+	}
+	if l.ParallaxX != nil {
+		layer.Parallax.X = *l.ParallaxX
+	}
+	if l.ParallaxY != nil {
+		layer.Parallax.Y = *l.ParallaxY
+	}
+	if l.TintColor != "" {
+		c, err := tiledColor(l.TintColor)
+		if err != nil {
+			return nil, err
+		}
+		layer.Tint = c
+	}
+	switch l.Type {
+	case "tilelayer":
+		layer.Kind = TiledTiles
+		layer.tileMap = t.tileLayer(l, gids, firsts, m, opts)
+	default:
+		layer.Kind = TiledObjects
+		if l.DrawOrder == "index" {
+			layer.DrawOrder = TiledIndex
+		}
+		for _, o := range l.Objects {
+			obj, err := t.objectOf(o, firsts)
+			if err != nil {
+				return nil, err
+			}
+			layer.objects = append(layer.objects, obj)
+			t.byID[obj.ID] = obj
+		}
+	}
+	return layer, nil
+}
+
 // objectOf is o as a TiledObject, its tile found among the map's tilesets.
-func (t *Tiled) objectOf(o tiledObject, firsts []int) TiledObject {
+func (t *Tiled) objectOf(o tiledObject, firsts []int) (TiledObject, error) {
+	switch {
+	case o.Template != "":
+		return TiledObject{}, fmt.Errorf("object %d (%s): objects made from a template are not supported", o.ID, o.Name)
+	case len(o.Text) > 0:
+		return TiledObject{}, fmt.Errorf("object %d (%s): text objects are not supported", o.ID, o.Name)
+	}
+	if err := checkProperties(o.Properties); err != nil {
+		return TiledObject{}, fmt.Errorf("object %d (%s): %w", o.ID, o.Name, err)
+	}
 	kind := o.Type
 	if kind == "" {
 		kind = o.Class
 	}
 	obj := TiledObject{
+		ID:         o.ID,
 		Name:       o.Name,
 		Type:       kind,
 		Rect:       geom.Rect{X: o.X, Y: o.Y, W: o.Width, H: o.Height},
+		Rotation:   o.Rotation * math.Pi / 180,
+		Visible:    o.Visible == nil || *o.Visible,
 		Properties: properties(o.Properties),
 	}
 	points := func(list []tiledPoint) []geom.Vec2 {
@@ -369,7 +544,7 @@ func (t *Tiled) objectOf(o tiledObject, firsts []int) TiledObject {
 		s := tilesetOf(firsts, g)
 		obj.Tile = &TiledTile{GID: o.GID, Tileset: t.tilesets[s], ID: int(g) - firsts[s] + 1, Flip: flipOf(o.GID)}
 	}
-	return obj
+	return obj, nil
 }
 
 // tilesetOf is the index of the tileset global id g is from: the last whose
@@ -410,6 +585,19 @@ func readJSON(fsys fs.FS, name string, v any) error {
 	return nil
 }
 
+// checkProperties refuses what the loader can't read yet: a property of a
+// custom class.
+func checkProperties(list []tiledProperty) error {
+	for _, p := range list {
+		if p.Type == "class" {
+			return fmt.Errorf("property %s: properties of a custom class are not supported", p.Name)
+		}
+	}
+	return nil
+}
+
+// properties are list's values by name, each by its Tiled type; a property
+// pointing to an object is the object's id.
 func properties(list []tiledProperty) TiledProperties {
 	if len(list) == 0 {
 		return nil
@@ -418,7 +606,7 @@ func properties(list []tiledProperty) TiledProperties {
 	for _, p := range list {
 		v := p.Value
 		switch p.Type {
-		case typeInt:
+		case typeInt, "object":
 			if f, ok := v.(float64); ok {
 				v = int(f)
 			}
@@ -486,6 +674,9 @@ func tiledTilesetOf(
 		images[name] = tex
 		return tex, err
 	}
+	if err := refusedTileset(ts); err != nil {
+		return nil, err
+	}
 	var tileset *Tileset
 	if ts.Image != "" {
 		tex, err := load(ts.Image)
@@ -507,22 +698,12 @@ func tiledTilesetOf(
 	for _, tile := range ts.Tiles {
 		id := tile.ID + 1
 		if tile.Image != "" {
-			if tileset.files == nil {
-				tileset.files = map[int]string{}
-			}
-			tileset.files[id] = path.Join(dir, tile.Image)
 			tex, err := load(tile.Image)
 			if err != nil {
 				return nil, err
 			}
-			if tex != nil {
-				r := geom.Rect{X: float32(tile.X), Y: float32(tile.Y), W: float32(tile.Width), H: float32(tile.Height)}
-				if r.W == 0 || r.H == 0 {
-					size := tex.Size()
-					r = geom.Rect{W: size.X, H: size.Y}
-				}
-				tileset.tiles[id] = tileImage{tex, r}
-			}
+			region := geom.Rect{X: float32(tile.X), Y: float32(tile.Y), W: float32(tile.Width), H: float32(tile.Height)}
+			tileset.setTileImage(id, path.Join(dir, tile.Image), tex, region)
 		}
 		for _, p := range tile.Properties {
 			if err := tileset.setTiledProperty(id, p, props); err != nil {
@@ -541,7 +722,57 @@ func tiledTilesetOf(
 		}
 	}
 	tileset.load = props
+	tileset.objectAlign = ts.ObjectAlignment
 	return tileset, nil
+}
+
+// setTileImage gives tile id its own picture, file in the fsys: tex, or
+// region of it when that has a size, tex nil when pictures aren't loaded.
+func (t *Tileset) setTileImage(id int, file string, tex *Texture, region geom.Rect) {
+	if t.files == nil {
+		t.files = map[int]string{}
+	}
+	t.files[id] = file
+	if tex == nil {
+		return
+	}
+	if region.W == 0 || region.H == 0 {
+		size := tex.Size()
+		region = geom.Rect{W: size.X, H: size.Y}
+	}
+	t.tiles[id] = tileImage{tex, region}
+}
+
+// refusedTileset is an error for what of ts the loader can't read yet: a
+// drawing offset, a render size or fill mode other than Tiled's default, a
+// transparent colour, a class or properties on the tileset or a tile, and
+// a collision shape turned.
+func refusedTileset(ts tiledTileset) error {
+	switch {
+	case ts.TileOffset.X != 0 || ts.TileOffset.Y != 0:
+		return errors.New("a tileset's drawing offset is not supported")
+	case ts.TileRenderSize != "" && ts.TileRenderSize != "tile":
+		return fmt.Errorf("render size %s is not supported", ts.TileRenderSize)
+	case ts.FillMode != "" && ts.FillMode != "stretch":
+		return fmt.Errorf("fill mode %s is not supported", ts.FillMode)
+	case ts.TransparentColor != "":
+		return errors.New("a transparent colour is not supported")
+	case ts.Class != "":
+		return errors.New("a tileset's class is not supported")
+	case len(ts.Properties) > 0:
+		return errors.New("a tileset's own properties are not supported")
+	}
+	for _, tile := range ts.Tiles {
+		if tile.Type != "" || tile.Class != "" {
+			return fmt.Errorf("tile %d: a tile's class is not supported", tile.ID)
+		}
+		for _, shape := range tile.ObjectGroup.Objects {
+			if shape.Rotation != 0 {
+				return fmt.Errorf("tile %d: a turned collision shape is not supported", tile.ID)
+			}
+		}
+	}
+	return nil
 }
 
 // setTiledProperty sets tile id's property p, checked against the
@@ -642,7 +873,7 @@ func (t *Tiled) tileLayer(l tiledLayer, gids []uint32, firsts []int, m tiledMap,
 		grid[y] = cells[y*l.Width : (y+1)*l.Width]
 	}
 	all := []TileMapOption{Cells(grid), CellSize(float32(m.TileWidth), float32(m.TileHeight))}
-	if m.Orientation == "isometric" {
+	if m.Orientation == isometric {
 		all = append(all, Isometric())
 	}
 	layer := NewTileMap(tileset, append(all, opts...)...)
@@ -698,17 +929,66 @@ func cellsOf(l tiledLayer) ([]uint32, error) {
 	return cells, nil
 }
 
-// Layers are the map's tile layers, in order, each named after its layer.
-func (t *Tiled) Layers() []*TileMap { return t.layers }
+// Class is the map's class, as Tiled names it.
+func (t *Tiled) Class() string { return t.class }
 
-// Layer is the tile layer called name.
-func (t *Tiled) Layer(name string) (*TileMap, bool) {
-	for _, l := range t.layers {
-		if l.Name() == name {
-			return l, true
+// Columns is how many cells wide the map is.
+func (t *Tiled) Columns() int { return t.columns }
+
+// Rows is how many cells tall the map is.
+func (t *Tiled) Rows() int { return t.rows }
+
+// TilePixels is a cell's width and height in the map's pixels.
+func (t *Tiled) TilePixels() (int, int) { return t.tileW, t.tileH }
+
+// Scale is how many points a map pixel takes, from the map's CellSize:
+// objects are in map pixels.
+func (t *Tiled) Scale() float32 { return t.scale }
+
+// Background is the map's background colour, for a game's clear colour;
+// clear when the map sets none.
+func (t *Tiled) Background() color.Color { return t.background }
+
+// ParallaxOrigin is where the map's layers' parallax is measured from, in
+// map pixels.
+func (t *Tiled) ParallaxOrigin() geom.Vec2 { return t.parallaxOrigin }
+
+// Layers are the map's layers, bottom first, as the file orders them.
+func (t *Tiled) Layers() []*TiledLayer { return t.layers }
+
+// Layer is the map's layer called name.
+func (t *Tiled) Layer(name string) (*TiledLayer, bool) { return layerNamed(t.layers, name) }
+
+// Walk visits every layer of the map in draw order, a group before what it
+// holds, until visit returns false.
+func (t *Tiled) Walk(visit func(*TiledLayer) bool) { walkLayers(t.layers, visit) }
+
+// TileLayers are every tile layer's map, in draw order, each named after
+// its layer.
+func (t *Tiled) TileLayers() []*TileMap {
+	var out []*TileMap
+	t.Walk(func(l *TiledLayer) bool {
+		if l.tileMap != nil {
+			out = append(out, l.tileMap)
 		}
+		return true
+	})
+	return out
+}
+
+// TileLayer is the map of the tile layer called name.
+func (t *Tiled) TileLayer(name string) (*TileMap, bool) {
+	l, ok := t.Layer(name)
+	if !ok || l.tileMap == nil {
+		return nil, false
 	}
-	return nil, false
+	return l.tileMap, true
+}
+
+// Object is the object Tiled numbers id, in any object layer.
+func (t *Tiled) Object(id int) (TiledObject, bool) {
+	o, ok := t.byID[id]
+	return o, ok
 }
 
 // Tilesets are the map's tilesets, in order, so their global ids hold;
@@ -734,7 +1014,17 @@ func (t *Tiled) Properties() TiledProperties { return t.properties }
 
 // LayerProperties are the custom properties of the layer called name, a
 // tile layer or an object layer.
-func (t *Tiled) LayerProperties(name string) TiledProperties { return t.layerProps[name] }
+func (t *Tiled) LayerProperties(name string) TiledProperties {
+	if l, ok := t.Layer(name); ok {
+		return l.Properties
+	}
+	return nil
+}
 
 // Objects are the objects of the object layer called layer.
-func (t *Tiled) Objects(layer string) []TiledObject { return t.objects[layer] }
+func (t *Tiled) Objects(layer string) []TiledObject {
+	if l, ok := t.Layer(layer); ok {
+		return l.objects
+	}
+	return nil
+}

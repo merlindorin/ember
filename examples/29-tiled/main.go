@@ -31,7 +31,7 @@ func main() {
 		log.Fatal(err)
 	}
 	space := collide.NewSpace()
-	for _, layer := range level.Layers() {
+	for _, layer := range level.TileLayers() {
 		win.Add(layer)
 		space.AddSolid(layer)
 	}

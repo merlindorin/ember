@@ -65,6 +65,9 @@ type Tileset struct {
 	file   string
 	files  map[int]string
 	source string
+	// objectAlign is Tiled's object alignment: where a tile object of the
+	// tileset is anchored.
+	objectAlign string
 	// bounds caches each tile's opaque bounds, found the first time asked;
 	// names each tile's name property, made the first time asked.
 	bounds map[int]geom.Rect
@@ -823,4 +826,35 @@ func (t *Tileset) UnmarshalJSON(b []byte) error {
 		t.occluderGroup[id] = g
 	}
 	return nil
+}
+
+// anchor is where a tile object of the tileset is anchored, as a share of
+// its picture: Tiled's object alignment, by default the bottom-left corner
+// of an orthogonal map's object and the bottom middle of an isometric
+// map's.
+func (t *Tileset) anchor(isometric bool) (float32, float32) {
+	switch t.objectAlign {
+	case "topleft":
+		return 0, 0
+	case "top":
+		return 0.5, 0
+	case "topright":
+		return 1, 0
+	case "left":
+		return 0, 0.5
+	case "center":
+		return 0.5, 0.5
+	case "right":
+		return 1, 0.5
+	case "bottom":
+		return 0.5, 1
+	case "bottomright":
+		return 1, 1
+	case "bottomleft":
+		return 0, 1
+	}
+	if isometric {
+		return 0.5, 1
+	}
+	return 0, 1
 }

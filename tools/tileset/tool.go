@@ -609,7 +609,7 @@ func (t *Tool) loadRoom() error {
 	if err != nil {
 		return err
 	}
-	for _, m := range room.Layers() {
+	for _, m := range room.TileLayers() {
 		t.shown.maps = append(t.shown.maps, m)
 		t.stage.Add(m)
 	}

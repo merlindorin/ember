@@ -57,11 +57,11 @@ func TestLoadTiledReadsLayersTilesetsAndObjects(t *testing.T) {
 	}
 	m, err := LoadTiled(fsys, "levels/one.tmj")
 	require.NoError(t, err)
-	require.Len(t, m.Layers(), 2)
-	ground, ok := m.Layer("ground")
+	require.Len(t, m.TileLayers(), 2)
+	ground, ok := m.TileLayer("ground")
 	require.True(t, ok)
 	assert.Equal(t, []int{3, 0, 3, 4}, ground.cells, "global ids from the tileset's first, flip bits kept apart")
-	wall, _ := m.Layer("walls")
+	wall, _ := m.TileLayer("walls")
 	assert.Equal(t, []int{1, 1, 0, 2}, wall.cells, "base64 and zlib")
 	assert.Equal(t, geom.V2(16, 16), wall.tileSize)
 	tiles := m.Tilesets()[0]
@@ -78,6 +78,7 @@ func TestLoadTiledReadsLayersTilesetsAndObjects(t *testing.T) {
 				Name:       "hero",
 				Type:       "spawn",
 				Rect:       geom.Rect{X: 4, Y: 6, W: 8, H: 8},
+				Visible:    true,
 				Properties: TiledProperties{"facing": "left"},
 			},
 		},
@@ -96,7 +97,7 @@ func TestLoadTiledReadsIsometricMapsAndRefusesTheRest(t *testing.T) {
 	)
 	m, err := LoadTiled(fsys, "iso.tmj")
 	require.NoError(t, err)
-	assert.True(t, m.Layers()[0].isometric)
+	assert.True(t, m.TileLayers()[0].isometric)
 
 	for name, body := range map[string]string{
 		"hex.tmj":      `{"orientation": "hexagonal", "layers": []}`,
@@ -141,7 +142,7 @@ func TestLoadTiledReadsTypedPropertiesAndDrawsFlippedCellsFlipped(t *testing.T) 
 	hp, _ := m.Objects("spawns")[0].Properties.Int("hp")
 	assert.Equal(t, 40, hp, "and an object's, typed too")
 
-	floor, _ := m.Layer("floor")
+	floor, _ := m.TileLayer("floor")
 	assert.Equal(t, []int{1, 1, 1, 1}, floor.cells, "the same tile, its flip bits apart")
 	assert.Equal(
 		t,
@@ -206,7 +207,7 @@ func TestLoadTiledReadsCollectionsAndLayersOfSeveralTilesets(t *testing.T) {
 
 	m, err := LoadTiled(fsys, "map.tmj")
 	require.NoError(t, err)
-	things, _ := m.Layer("things")
+	things, _ := m.TileLayer("things")
 	assert.Equal(t, []int{2, 5, 9}, things.cells, "tiles of several tilesets keep their global ids")
 	merged := things.Tileset()
 	assert.Equal(t, geom.Rect{X: 16, W: 16, H: 16}, frame(merged, 2, 0), "the floor's second cell")
@@ -360,7 +361,8 @@ func TestLoadTiledKeepsATileObjectsTileAndItsPictureFile(t *testing.T) {
 	 "layers": [
 	  {"type": "tilelayer", "name": "floor", "width": 1, "height": 1, "data": [1]},
 	  {"type": "objectgroup", "name": "props", "objects": [
-	   {"name": "boulder", "type": "prop", "gid": ` + fmt.Sprint(flipX|12) + `, "x": 40, "y": 64, "width": 32, "height": 24},
+	   {"name": "boulder", "type": "prop", "gid": ` + fmt.Sprint(flipX|12) + `, "x": 40, "y": 64, "width": 32,
+	    "height": 24},
 	   {"name": "spot", "x": 4, "y": 6, "width": 8, "height": 8}]}
 	 ]}`
 	fsys := fstest.MapFS{

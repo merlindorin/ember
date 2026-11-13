@@ -15,8 +15,8 @@ func TestTheTiledLevelSpawnsItsThingsAndItsWallsBlock(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	walls, ok := level.Layer("walls")
-	if !ok || len(level.Layers()) != 2 {
+	walls, ok := level.TileLayer("walls")
+	if !ok || len(level.TileLayers()) != 2 {
 		t.Fatal("two tile layers, ground and walls")
 	}
 	if x, y, _ := walls.Cell(walls.Center(0, 0)); walls.At(x, y) != 2 || !level.Tilesets()[0].Solid(2) {
@@ -32,7 +32,7 @@ func TestTheTiledLevelSpawnsItsThingsAndItsWallsBlock(t *testing.T) {
 	}
 	space := collide.NewSpace()
 	win := platform.NewWindow(platform.Size(640, 384))
-	for _, l := range level.Layers() {
+	for _, l := range level.TileLayers() {
 		win.AppendChild(l)
 		space.AddSolid(l)
 	}

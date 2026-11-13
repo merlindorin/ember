@@ -92,7 +92,7 @@ func TestAGamesPropertiesComeFromItsPropsFile(t *testing.T) {
 	if _, err = readProperties(file); err == nil || !strings.Contains(err.Error(), "vector") {
 		t.Fatalf("an unknown kind is an error naming it: %v", err)
 	}
-	if got := string(twod.TiledProject(defs...)); !strings.Contains(got, `"name": "loot"`) {
+	if got := string(twod.TiledProject(twod.TileProperties(defs...))); !strings.Contains(got, `"name": "loot"`) {
 		t.Fatal("the Tiled project carries the game's properties")
 	}
 }

@@ -194,6 +194,18 @@ func TestAnObjectMadeFromATemplateIsTheTemplateWithItsOwnValuesOver(t *testing.T
 	assert.Equal(t, geom.V2(16, 32), m.Sprite(lamp).Size(), "its picture drawn")
 }
 
+func TestATileObjectsOpacityMakesItsSpriteSeeThrough(t *testing.T) {
+	m, err := LoadTiled(templateFS(t, `{"id": 9, "gid": 1, "x": 0, "y": 16, "width": 16, "height": 16,
+	 "opacity": 0.5}, {"id": 10, "gid": 1, "x": 0, "y": 16, "width": 16, "height": 16}`), "maps/one.tmj")
+	require.NoError(t, err)
+	faded, _ := m.Object(9)
+	plain, _ := m.Object(10)
+	assert.InDelta(t, 0.5, faded.Opacity, 1e-6)
+	assert.InDelta(t, 1, plain.Opacity, 1e-6, "opaque unless Tiled says otherwise")
+	assert.Equal(t, color.RGBA(1, 1, 1, 0.5), m.Sprite(faded).Tint())
+	assert.Equal(t, color.White, m.Sprite(plain).Tint())
+}
+
 func TestATemplateTheLoaderCantReadIsAnError(t *testing.T) {
 	for _, c := range []struct{ objects, want string }{
 		{`{"id": 1, "template": "sign.tj", "x": 0, "y": 0}`, "property art: a file property in a template"},

@@ -27,12 +27,12 @@ A tile can carry a class of its own too, set on the tile in Tiled (its type befo
 
 ## A game's own properties
 
-Every other property is the game's, kept as it was set: a door's pair, a room's name. `twod.TileProperties(defs…)`, given to the loader, declares them, each a `twod.TileProperty{Name, Kind, Default, Values, Min, Max, Doc}`: its kind `twod.KindBool`, `KindInt`, `KindFloat`, `KindString`, `KindEnum`, whose `Values` are the words it can take, or `KindColor`; a number's range when `Min` is under `Max`; and `Doc`, what it does.
+Every other property is the game's, kept as it was set: a door's pair, a room's name. `twod.TileProperties(defs…)`, given to the loader, declares them, each a `twod.Property{Name, Kind, Default, Values, Min, Max, Doc}`: its kind `twod.KindBool`, `KindInt`, `KindFloat`, `KindString`, `KindEnum`, whose `Values` are the words it can take, or `KindColor`; a number's range when `Min` is under `Max`; and `Doc`, what it does.
 
 `ts.Value(id, name)` reads a property, as set or else its declared default, as a `twod.Value`: `String()`, `Int()`, `Float()`, `Bool()`, `Color()`, from Tiled's `#aarrggbb`, and `Any()`. Its second result is false for a property neither set nor declared. `ts.Property(id, name)` gives the text alone.
 
 ```go
-door := twod.TileProperty{Name: "door", Kind: twod.KindEnum, Default: "closed", Values: []string{"open", "closed", "locked"}, Doc: "how the door starts"}
+door := twod.Property{Name: "door", Kind: twod.KindEnum, Default: "closed", Values: []string{"open", "closed", "locked"}, Doc: "how the door starts"}
 walls, err := twod.LoadTiledTileset(files, "walls.tsj", twod.TileProperties(door))
 if err != nil {
 	log.Fatal(err)
@@ -54,7 +54,7 @@ An unknown property is kept as it is; `twod.NearMiss(name, defs…)` returns the
 
 ## In Tiled
 
-`twod.TiledProject(defs…)` writes a Tiled project file declaring the engine's properties and the game's as a class, `ember.Tile`, with an enum for each enum property. Open it as the project in Tiled and give the tiles the class `ember.Tile`: Tiled then shows their properties as typed fields with their defaults, `shadow` a list of its two values. The engine's alone are in [ember.tiled-project](../../twod/tiled/ember.tiled-project); `go run ./tools/tileset -tiled-project -props game.json` prints one with a game's too.
+`twod.TiledProject(twod.TileProperties(defs…))` writes a Tiled project file declaring the engine's properties and the game's as a class, `ember.Tile`, with an enum for each enum property. Open it as the project in Tiled and give the tiles the class `ember.Tile`: Tiled then shows their properties as typed fields with their defaults, `shadow` a list of its two values. The engine's alone are in [ember.tiled-project](../../twod/tiled/ember.tiled-project); `go run ./tools/tileset -tiled-project -props game.json` prints one with a game's too.
 
 ## In the tileset tool
 

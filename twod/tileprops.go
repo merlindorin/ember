@@ -9,8 +9,8 @@ import (
 	"github.com/merlindorin/ember/color"
 )
 
-// PropertyKind is the type of a tile property: what Tiled shows and the
-// loader accepts.
+// PropertyKind is the type of a property: what Tiled shows and the loader
+// accepts.
 type PropertyKind int
 
 const (
@@ -18,9 +18,16 @@ const (
 	KindInt
 	KindFloat
 	KindString
-	// KindEnum is a string out of a TileProperty's Values.
+	// KindEnum is a string out of a Property's Values.
 	KindEnum
 	KindColor
+	// KindClass is the members of the declared class a Property's Class
+	// names, as TiledProperties.
+	KindClass
+	// KindFile is a file's path from the file system's root.
+	KindFile
+	// KindObject is an object's id.
+	KindObject
 )
 
 // The names Tiled spells its property types with, and the engine's tile
@@ -30,6 +37,9 @@ const (
 	typeInt    = "int"
 	typeFloat  = "float"
 	typeString = "string"
+	typeClass  = "class"
+	typeFile   = "file"
+	typeObject = "object"
 	propShadow = "shadow"
 	propHeight = "height"
 )
@@ -42,24 +52,31 @@ var kindNames = [...]string{
 	KindString: typeString,
 	KindEnum:   typeString,
 	KindColor:  "color",
+	KindClass:  typeClass,
+	KindFile:   typeFile,
+	KindObject: typeObject,
 }
 
-// TileProperty defines a tile property: its name, kind, default and, for
-// an enum, its values, for a number its range when Min < Max; Doc says
-// what it does. The engine's are EngineTileProperties; a game adds its own
-// with TileProperties.
-type TileProperty struct {
+// Property defines a property of a tile or of a Class: its name, kind,
+// default and, for an enum, its values, for a number its range when
+// Min < Max, for KindClass the declared class its members are of; Doc says
+// what it does. Required refuses it left out or empty in a class's
+// element. The engine's tile properties are EngineTileProperties; a game
+// adds its own with TileProperties, and its classes' with Classes.
+type Property struct {
 	Name     string
 	Kind     PropertyKind
 	Default  any
 	Values   []string
 	Min, Max float64
+	Required bool
+	Class    string
 	Doc      string
 }
 
 // EngineTileProperties are the tile properties the engine reads.
-func EngineTileProperties() []TileProperty {
-	return []TileProperty{
+func EngineTileProperties() []Property {
+	return []Property{
 		{
 			Name:    "solid",
 			Kind:    KindBool,
@@ -107,8 +124,11 @@ type TiledOption interface {
 }
 
 // tiledLoad is what loading a Tiled file is told: the game's tile
-// properties.
-type tiledLoad struct{ defs []TileProperty }
+// properties and classes.
+type tiledLoad struct {
+	defs    []Property
+	classes []Class
+}
 
 type tiledOption func(*tiledLoad)
 
@@ -118,7 +138,7 @@ func (tiledOption) tileMap(*TileMap)     {}
 // TileProperties declares a game's own tile properties: the loader checks
 // their kinds and values, Value reads them with their defaults, and
 // TiledProject writes them for Tiled.
-func TileProperties(defs ...TileProperty) TiledOption {
+func TileProperties(defs ...Property) TiledOption {
 	return tiledOption(func(l *tiledLoad) { l.defs = append(l.defs, defs...) })
 }
 
@@ -133,7 +153,7 @@ func loadOf(opts []TileMapOption) *tiledLoad {
 }
 
 // def is the definition of property name, the engine's or the game's.
-func (l *tiledLoad) def(name string) (TileProperty, bool) {
+func (l *tiledLoad) def(name string) (Property, bool) {
 	for _, d := range EngineTileProperties() {
 		if d.Name == name {
 			return d, true
@@ -144,12 +164,12 @@ func (l *tiledLoad) def(name string) (TileProperty, bool) {
 			return d, true
 		}
 	}
-	return TileProperty{}, false
+	return Property{}, false
 }
 
 // check is value v, saved by Tiled as kind tiledType, read as d says, or
 // what is wrong with it.
-func (d TileProperty) check(tiledType string, v any) (any, error) {
+func (d Property) check(tiledType string, v any) (any, error) {
 	if tiledType == "" {
 		tiledType = typeString
 	}
@@ -187,6 +207,7 @@ func (d TileProperty) check(tiledType string, v any) (any, error) {
 			return nil, fmt.Errorf("%q is not one of %s", s, strings.Join(d.Values, ", "))
 		}
 		return s, nil
+	case KindClass, KindFile, KindObject:
 	}
 	return nil, fmt.Errorf("no property kind %d", d.Kind)
 }
@@ -253,10 +274,14 @@ func (v Value) Color() color.Color {
 	return color.Hex(s)
 }
 
-// Value is property name of tile id: as set in Tiled, else its declared
-// default; ok is false for a property neither set nor declared.
+// Value is property name of tile id: as set in Tiled, else its class's
+// default, else its declared default as a tile property; ok is false for a
+// property neither set nor declared.
 func (t *Tileset) Value(id int, name string) (Value, bool) {
 	if v, ok := t.props[id][name]; ok {
+		return Value{v}, true
+	}
+	if v, ok := t.load.tileValue(t.classes[id], name); ok {
 		return Value{v}, true
 	}
 	if d, ok := t.declared(name); ok {
@@ -265,7 +290,7 @@ func (t *Tileset) Value(id int, name string) (Value, bool) {
 	return Value{}, false
 }
 
-func (t *Tileset) declared(name string) (TileProperty, bool) {
+func (t *Tileset) declared(name string) (Property, bool) {
 	if t.load == nil {
 		t.load = &tiledLoad{}
 	}
@@ -294,7 +319,7 @@ func (t *Tileset) Emissive(id int) float32 { return t.emissive[id] }
 
 // NearMiss is the declared property name is within two edits of, when it
 // isn't one itself: a likely misspelling.
-func NearMiss(name string, defs ...TileProperty) (string, bool) {
+func NearMiss(name string, defs ...Property) (string, bool) {
 	all := append(EngineTileProperties(), defs...)
 	for _, d := range all {
 		if d.Name == name {
@@ -330,73 +355,106 @@ func edits(a, b string) int {
 	return prev[len(b)]
 }
 
-// TiledProject is a Tiled project file declaring the engine's tile
-// properties and defs as an ember.Tile class, with an enum per enum
-// property: opened in Tiled, tiles show them as typed fields.
-func TiledProject(defs ...TileProperty) []byte {
-	type member struct {
-		Name         string `json:"name"`
-		PropertyType string `json:"propertyType,omitempty"`
-		Type         string `json:"type"`
-		Value        any    `json:"value"`
+// TiledProject is a Tiled project file declaring what opts declare, by
+// TileProperties and Classes: the engine's tile properties and the game's
+// as an ember.Tile class, every class with its uses and its members at
+// their defaults, a tile class with ember.Tile's members first, and an enum
+// per enum property. Opened as the project in Tiled, maps, layers,
+// objects and tiles show their properties as typed fields.
+func TiledProject(opts ...TiledOption) []byte {
+	load := &tiledLoad{}
+	for _, o := range opts {
+		o.tiled(load)
 	}
-	type propertyType struct {
-		Color         string   `json:"color,omitempty"`
-		DrawFill      *bool    `json:"drawFill,omitempty"`
-		ID            int      `json:"id"`
-		Members       []member `json:"members,omitempty"`
-		Name          string   `json:"name"`
-		StorageType   string   `json:"storageType,omitempty"`
-		Type          string   `json:"type"`
-		UseAs         []string `json:"useAs,omitempty"`
-		Values        []string `json:"values,omitempty"`
-		ValuesAsFlags *bool    `json:"valuesAsFlags,omitempty"`
+	p := &tiledProject{}
+	var tile []projectMember
+	for _, d := range append(EngineTileProperties(), load.defs...) {
+		tile = append(tile, p.member(d, d.Name))
 	}
-	no, yes := false, true
-	var types []propertyType
-	var members []member
-	for _, d := range append(EngineTileProperties(), defs...) {
-		m := member{Name: d.Name, Type: kindNames[d.Kind], Value: d.Default}
-		if d.Kind == KindEnum {
-			types = append(
-				types,
-				propertyType{
-					ID:            len(types) + 1,
-					Name:          d.Name,
-					StorageType:   typeString,
-					Type:          "enum",
-					Values:        d.Values,
-					ValuesAsFlags: &no,
-				},
-			)
-			m.PropertyType = d.Name
+	p.add(projectType{Name: "ember.Tile", Type: typeClass, UseAs: []string{useTile}, Members: tile})
+	for _, c := range load.classes {
+		var members []projectMember
+		if c.On&OnTile != 0 {
+			members = append(members, tile...)
 		}
-		if d.Kind == KindFloat {
-			if f, ok := d.Default.(float64); ok && f == float64(int(f)) {
-				m.Value = json.Number(fmt.Sprintf("%d", int(f)))
+		for _, d := range c.Properties {
+			members = append(members, p.member(d, c.Name+"."+d.Name))
+		}
+		uses := []string{"property"}
+		for _, u := range classUses {
+			if c.On&u.use != 0 {
+				uses = append(uses, u.name)
 			}
 		}
-		members = append(members, m)
+		p.add(projectType{Name: c.Name, Type: typeClass, UseAs: uses, Members: members})
 	}
-	types = append(
-		types,
-		propertyType{
-			Color:    "#ffa0a0a4",
-			DrawFill: &yes,
-			ID:       len(types) + 1,
-			Members:  members,
-			Name:     "ember.Tile",
-			Type:     "class",
-			UseAs:    []string{"tile"},
-		},
-	)
 	b, _ := json.MarshalIndent(map[string]any{
 		"automappingRulesFile": "",
 		"commands":             []any{},
 		"compatibilityVersion": 1100,
 		"extensionsPath":       "extensions",
 		"folders":              []string{"."},
-		"propertyTypes":        types,
+		"propertyTypes":        p.types,
 	}, "", "    ")
 	return append(b, '\n')
+}
+
+// tiledProject are a project file's property types, as Tiled writes them.
+type tiledProject struct{ types []projectType }
+
+type projectMember struct {
+	Name         string `json:"name"`
+	PropertyType string `json:"propertyType,omitempty"`
+	Type         string `json:"type"`
+	Value        any    `json:"value"`
+}
+
+type projectType struct {
+	Color         string          `json:"color,omitempty"`
+	DrawFill      *bool           `json:"drawFill,omitempty"`
+	ID            int             `json:"id"`
+	Members       []projectMember `json:"members,omitempty"`
+	Name          string          `json:"name"`
+	StorageType   string          `json:"storageType,omitempty"`
+	Type          string          `json:"type"`
+	UseAs         []string        `json:"useAs,omitempty"`
+	Values        []string        `json:"values,omitempty"`
+	ValuesAsFlags *bool           `json:"valuesAsFlags,omitempty"`
+}
+
+// add numbers t and adds it, a class drawn as Tiled draws its own.
+func (p *tiledProject) add(t projectType) {
+	t.ID = len(p.types) + 1
+	if t.Type == typeClass {
+		yes := true
+		t.Color, t.DrawFill = "#ffa0a0a4", &yes
+	}
+	p.types = append(p.types, t)
+}
+
+// member is d as a class member, an enum's type named enum and added.
+func (p *tiledProject) member(d Property, enum string) projectMember {
+	m := projectMember{Name: d.Name, Type: kindNames[d.Kind], Value: d.Default}
+	switch d.Kind {
+	case KindEnum:
+		no := false
+		p.add(projectType{Name: enum, StorageType: typeString, Type: "enum", Values: d.Values, ValuesAsFlags: &no})
+		m.PropertyType = enum
+	case KindClass:
+		m.PropertyType, m.Value = d.Class, map[string]any{}
+	case KindFloat:
+		if f, ok := d.Default.(float64); ok && f == float64(int(f)) {
+			m.Value = json.Number(fmt.Sprintf("%d", int(f)))
+		}
+	case KindFile:
+		if d.Default == nil {
+			m.Value = ""
+		}
+	case KindObject:
+		if d.Default == nil {
+			m.Value = 0
+		}
+	case KindBool, KindInt, KindString, KindColor:
+	}
+	return m
 }

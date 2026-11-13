@@ -724,6 +724,11 @@ func (t *Tileset) merge(src *Tileset, off int) {
 				t.load.defs = append(t.load.defs, d)
 			}
 		}
+		for _, c := range src.load.classes {
+			if _, ok := t.load.class(c.Name); !ok {
+				t.load.classes = append(t.load.classes, c)
+			}
+		}
 	}
 	t.props = shifted(t.props, src.props, off, maps.Clone)
 	for id, a := range src.anims {

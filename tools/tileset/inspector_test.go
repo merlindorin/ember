@@ -341,7 +341,7 @@ func TestGamePropertiesStayByteForByteThroughAnEdit(t *testing.T) {
 				); ok &&
 					slices.ContainsFunc(
 						engineProperties(),
-						func(d twod.TileProperty) bool { return d.Name == p.get("name").str() },
+						func(d twod.Property) bool { return d.Name == p.get("name").str() },
 					) {
 					continue
 				}

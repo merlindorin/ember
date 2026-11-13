@@ -1,0 +1,228 @@
+{
+    "automappingRulesFile": "",
+    "commands": [],
+    "compatibilityVersion": 1100,
+    "extensionsPath": "extensions",
+    "folders": [
+        "."
+    ],
+    "propertyTypes": [
+        {
+            "id": 1,
+            "name": "shadow",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "cast",
+                "none"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 2,
+            "members": [
+                {
+                    "name": "solid",
+                    "type": "bool",
+                    "value": false
+                },
+                {
+                    "name": "tall",
+                    "type": "bool",
+                    "value": false
+                },
+                {
+                    "name": "shadow",
+                    "propertyType": "shadow",
+                    "type": "string",
+                    "value": "cast"
+                },
+                {
+                    "name": "occluder_group",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "height",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "emissive",
+                    "type": "float",
+                    "value": 0
+                }
+            ],
+            "name": "ember.Tile",
+            "type": "class",
+            "useAs": [
+                "tile"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 3,
+            "members": [
+                {
+                    "name": "title",
+                    "type": "string",
+                    "value": "crypt"
+                },
+                {
+                    "name": "depth",
+                    "type": "int",
+                    "value": 1
+                }
+            ],
+            "name": "level",
+            "type": "class",
+            "useAs": [
+                "property",
+                "map"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 4,
+            "members": [
+                {
+                    "name": "lit",
+                    "type": "bool",
+                    "value": true
+                }
+            ],
+            "name": "zone",
+            "type": "class",
+            "useAs": [
+                "property",
+                "layer"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 5,
+            "members": [
+                {
+                    "name": "to",
+                    "type": "string",
+                    "value": ""
+                },
+                {
+                    "name": "look",
+                    "propertyType": "look",
+                    "type": "class",
+                    "value": {}
+                },
+                {
+                    "name": "sign",
+                    "type": "object",
+                    "value": 0
+                }
+            ],
+            "name": "exit",
+            "type": "class",
+            "useAs": [
+                "property",
+                "object"
+            ]
+        },
+        {
+            "id": 6,
+            "name": "look.state",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "open",
+                "shut"
+            ],
+            "valuesAsFlags": false
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 7,
+            "members": [
+                {
+                    "name": "glow",
+                    "type": "float",
+                    "value": 0.5
+                },
+                {
+                    "name": "tint",
+                    "type": "color",
+                    "value": "#ffffffff"
+                },
+                {
+                    "name": "state",
+                    "propertyType": "look.state",
+                    "type": "string",
+                    "value": "shut"
+                }
+            ],
+            "name": "look",
+            "type": "class",
+            "useAs": [
+                "property"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 8,
+            "members": [
+                {
+                    "name": "solid",
+                    "type": "bool",
+                    "value": false
+                },
+                {
+                    "name": "tall",
+                    "type": "bool",
+                    "value": false
+                },
+                {
+                    "name": "shadow",
+                    "propertyType": "shadow",
+                    "type": "string",
+                    "value": "cast"
+                },
+                {
+                    "name": "occluder_group",
+                    "type": "int",
+                    "value": 0
+                },
+                {
+                    "name": "height",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "emissive",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "durability",
+                    "type": "int",
+                    "value": 100
+                },
+                {
+                    "name": "art",
+                    "type": "file",
+                    "value": ""
+                }
+            ],
+            "name": "wall",
+            "type": "class",
+            "useAs": [
+                "property",
+                "tile"
+            ]
+        }
+    ]
+}

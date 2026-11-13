@@ -13,7 +13,7 @@ import (
 )
 
 // another is a value of d other than now, which the tile shows.
-func another(d twod.TileProperty, now string) string {
+func another(d twod.Property, now string) string {
 	switch d.Kind {
 	case twod.KindBool:
 		if now == "true" {
@@ -37,14 +37,14 @@ func another(d twod.TileProperty, now string) string {
 		return strconv.Itoa(n)
 	case twod.KindFloat:
 		return "2.5"
-	case twod.KindString, twod.KindColor:
+	case twod.KindString, twod.KindColor, twod.KindClass, twod.KindFile, twod.KindObject:
 	}
 	return "x"
 }
 
 // set changes property d of the picked tile to v through its own control
 // in the panel.
-func set(t *testing.T, w *world.World, _ *Tool, auto *automation.Automation, d twod.TileProperty, v string) {
+func set(t *testing.T, w *world.World, _ *Tool, auto *automation.Automation, d twod.Property, v string) {
 	t.Helper()
 	in := inspect(t, w, auto)
 	e := in.prop(d.Name)
@@ -61,7 +61,7 @@ func set(t *testing.T, w *world.World, _ *Tool, auto *automation.Automation, d t
 // shown is property d of Tiled tile 27, which has no shapes so that solid
 // shows, or for shadow of tile 0, which has some to cast with, as the
 // preview's tileset reads it, its default when it isn't set.
-func shown(tool *Tool, d twod.TileProperty) string {
+func shown(tool *Tool, d twod.Property) string {
 	id := 28
 	if d.Name == "shadow" {
 		id = 1

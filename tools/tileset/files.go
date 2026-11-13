@@ -233,7 +233,7 @@ func (c *conflict) answered(e ui.Closed, t *Tool) bool {
 // [{"name": "loot", "kind": "enum", "values": ["none", "gold"],
 // "default": "none", "doc": "…"}], kind one of bool, int, float, string,
 // enum, color, with "min" and "max" for a number's range.
-func readProperties(path string) ([]twod.TileProperty, error) {
+func readProperties(path string) ([]twod.Property, error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -258,7 +258,7 @@ func readProperties(path string) ([]twod.TileProperty, error) {
 		"enum":   twod.KindEnum,
 		"color":  twod.KindColor,
 	}
-	var out []twod.TileProperty
+	var out []twod.Property
 	for _, p := range list {
 		k, ok := kinds[p.Kind]
 		if !ok || p.Name == "" {
@@ -269,7 +269,7 @@ func readProperties(path string) ([]twod.TileProperty, error) {
 				p.Kind,
 			)
 		}
-		d := twod.TileProperty{
+		d := twod.Property{
 			Name:    p.Name,
 			Kind:    k,
 			Default: p.Default,
@@ -288,12 +288,13 @@ func readProperties(path string) ([]twod.TileProperty, error) {
 		case twod.KindBool:
 			b, _ := p.Default.(bool)
 			d.Default = b
-		case twod.KindString, twod.KindEnum, twod.KindColor:
+		case twod.KindString, twod.KindEnum, twod.KindColor, twod.KindFile:
 			s, _ := p.Default.(string)
 			if k == twod.KindEnum && s == "" && len(p.Values) > 0 {
 				s = p.Values[0]
 			}
 			d.Default = s
+		case twod.KindClass, twod.KindObject:
 		}
 		out = append(out, d)
 	}

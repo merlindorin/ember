@@ -53,7 +53,7 @@ func main() {
 		declared = append(twod.EngineTileProperties(), defs...)
 	}
 	if *project {
-		os.Stdout.Write(twod.TiledProject(declared[len(twod.EngineTileProperties()):]...))
+		os.Stdout.Write(twod.TiledProject(twod.TileProperties(declared[len(twod.EngineTileProperties()):]...)))
 		return
 	}
 	if flag.NArg() > 1 {

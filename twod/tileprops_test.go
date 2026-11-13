@@ -58,7 +58,7 @@ func TestTheLoaderNamesTheTilesetTileAndPropertyThatAreWrong(t *testing.T) {
 		_, err := LoadTiledTileset(
 			propsTileset(t, props),
 			"set.tsj",
-			TileProperties(TileProperty{Name: "reach_down", Kind: KindInt}),
+			TileProperties(Property{Name: "reach_down", Kind: KindInt}),
 		)
 		require.Error(t, err, props)
 		assert.Contains(t, err.Error(), want)
@@ -67,8 +67,8 @@ func TestTheLoaderNamesTheTilesetTileAndPropertyThatAreWrong(t *testing.T) {
 
 func TestAGamesPropertiesReadTypedWithTheirDefaults(t *testing.T) {
 	defs := TileProperties(
-		TileProperty{Name: "reach_down", Kind: KindInt, Default: 0},
-		TileProperty{Name: "tint", Kind: KindColor, Default: "#ff8000"},
+		Property{Name: "reach_down", Kind: KindInt, Default: 0},
+		Property{Name: "tint", Kind: KindColor, Default: "#ff8000"},
 	)
 	ts, err := LoadTiledTileset(
 		propsTileset(
@@ -96,7 +96,7 @@ func TestAMisspelledPropertyIsANearMiss(t *testing.T) {
 	assert.False(t, ok, "a known name is no miss")
 	_, ok = NearMiss("reach_down")
 	assert.False(t, ok, "far from every engine name")
-	got, _ = NearMiss("reach_dwn", TileProperty{Name: "reach_down", Kind: KindInt})
+	got, _ = NearMiss("reach_dwn", Property{Name: "reach_down", Kind: KindInt})
 	assert.Equal(t, "reach_down", got, "a game's own too")
 }
 

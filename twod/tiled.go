@@ -24,8 +24,10 @@ import (
 // its layers in the file's order (tile layers as TileMaps, object layers as
 // data for the game to spawn from) and its tilesets.
 type Tiled struct {
-	// dir is the map's folder in its file system.
+	// dir is the map's folder in its file system, and load what the game
+	// declares.
 	dir            string
+	load           *tiledLoad
 	class          string
 	columns, rows  int
 	tileW, tileH   int
@@ -65,6 +67,8 @@ type TiledObject struct {
 	// Visible is false for an object hidden in Tiled; it is listed all the
 	// same.
 	Visible bool
+	// Opacity is 0 to 1, as Tiled 1.12 sets it on an object.
+	Opacity float32
 	Shape   TiledShape
 	// Points are a polygon's or a polyline's points, in the map's pixels.
 	Points []geom.Vec2
@@ -174,6 +178,8 @@ type tiledProperty struct {
 	Name  string `json:"name"`
 	Type  string `json:"type"`
 	Value any    `json:"value"`
+	// PropertyType is the class or enum of a property of one.
+	PropertyType string `json:"propertytype"`
 }
 
 type tiledTileset struct {
@@ -308,6 +314,7 @@ type tiledObject struct {
 	raw        []byte
 	ID         int             `json:"id"`
 	Visible    *bool           `json:"visible"`
+	Opacity    *float32        `json:"opacity"`
 	Rotation   float32         `json:"rotation"`
 	Template   string          `json:"template"`
 	Text       *tiledText      `json:"text"`
@@ -439,8 +446,14 @@ func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 	if err != nil {
 		return nil, fmt.Errorf("twod: %s: %w", name, err)
 	}
-	t.dir = path.Dir(name)
-	t.properties = properties(m.Properties, t.dir)
+	t.dir, t.load = path.Dir(name), loadOf(opts)
+	class, err := t.load.classOf(m.Class, OnMap)
+	if err == nil {
+		t.properties, err = t.load.propertiesOf(class, m.Properties, t.dir)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("twod: %s: %w", name, err)
+	}
 	t.unit = Cell(m.TileWidth, m.TileHeight)
 	if err = t.applyTemplates(fsys, &m); err != nil {
 		return nil, fmt.Errorf("twod: %s: %w", name, err)
@@ -452,7 +465,7 @@ func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 	if err = t.readCells(&m, firsts); err != nil {
 		return nil, fmt.Errorf("twod: %s: %w", name, err)
 	}
-	if err = t.loadTilesets(fsys, name, m, loadOf(opts)); err != nil {
+	if err = t.loadTilesets(fsys, name, m, t.load); err != nil {
 		return nil, err
 	}
 	t.scale = scaleOf(m, opts)
@@ -632,8 +645,16 @@ const (
 func (t *Tiled) layerOf(
 	fsys fs.FS, l tiledLayer, parent *TiledLayer, firsts []int, m tiledMap, opts []TileMapOption,
 ) (*TiledLayer, error) {
+	class, err := t.load.classOf(l.Class, OnLayer)
+	if err != nil {
+		return nil, err
+	}
+	props, err := t.load.propertiesOf(class, l.Properties, t.dir)
+	if err != nil {
+		return nil, err
+	}
 	layer := &TiledLayer{
-		ID: l.ID, Name: l.Name, Class: l.Class, Properties: properties(l.Properties, t.dir),
+		ID: l.ID, Name: l.Name, Class: l.Class, Properties: props,
 		Visible: l.Visible == nil || *l.Visible, Opacity: 1, Offset: geom.V2(l.OffsetX, l.OffsetY),
 		Tint: color.White, Parallax: geom.V2(1, 1), parent: parent,
 	}
@@ -647,13 +668,10 @@ func (t *Tiled) layerOf(
 		layer.Parallax.Y = *l.ParallaxY
 	}
 	if l.TintColor != "" {
-		c, err := tiledColor(l.TintColor)
-		if err != nil {
+		if layer.Tint, err = tiledColor(l.TintColor); err != nil {
 			return nil, err
 		}
-		layer.Tint = c
 	}
-	var err error
 	switch l.Type {
 	case tileLayerType:
 		layer.Kind = TiledTiles
@@ -718,6 +736,14 @@ func (t *Tiled) objectOf(o tiledObject, firsts []int, dir string) (TiledObject, 
 	if kind == "" {
 		kind = o.Class
 	}
+	class, err := t.load.classOf(kind, OnObject)
+	if err != nil {
+		return TiledObject{}, fmt.Errorf("object %d (%s): %w", o.ID, o.Name, err)
+	}
+	props, err := t.load.propertiesOf(class, o.Properties, dir)
+	if err != nil {
+		return TiledObject{}, fmt.Errorf("object %d (%s): %w", o.ID, o.Name, err)
+	}
 	obj := TiledObject{
 		ID:         o.ID,
 		Name:       o.Name,
@@ -725,7 +751,11 @@ func (t *Tiled) objectOf(o tiledObject, firsts []int, dir string) (TiledObject, 
 		Rect:       geom.Rect{X: o.X, Y: o.Y, W: o.Width, H: o.Height},
 		Rotation:   o.Rotation * math.Pi / 180,
 		Visible:    o.Visible == nil || *o.Visible,
-		Properties: properties(o.Properties, dir),
+		Opacity:    1,
+		Properties: props,
+	}
+	if o.Opacity != nil {
+		obj.Opacity = *o.Opacity
 	}
 	points := func(list []tiledPoint) []geom.Vec2 {
 		out := make([]geom.Vec2, len(list))
@@ -744,11 +774,14 @@ func (t *Tiled) objectOf(o tiledObject, firsts []int, dir string) (TiledObject, 
 	case len(o.Polyline) > 0:
 		obj.Shape, obj.Points = TiledPolyline, points(o.Polyline)
 	case o.Text != nil:
-		style, err := o.Text.style()
-		if err != nil {
-			return TiledObject{}, fmt.Errorf("object %d (%s): %w", o.ID, o.Name, err)
+		style, styleErr := o.Text.style()
+		if styleErr != nil {
+			return TiledObject{}, fmt.Errorf("object %d (%s): %w", o.ID, o.Name, styleErr)
 		}
 		obj.Shape, obj.Text, obj.TextStyle = TiledText, o.Text.Text, style
+	}
+	if err = checkShape(class, obj.Shape); err != nil {
+		return TiledObject{}, fmt.Errorf("object %d (%s): %w", o.ID, o.Name, err)
 	}
 	if g := o.GID &^ tiledFlags; g != 0 && len(firsts) > 0 {
 		s := tilesetOf(firsts, g)
@@ -927,10 +960,24 @@ func tiledTilesetOf(
 			region := geom.Rect{X: float32(tile.X), Y: float32(tile.Y), W: float32(tile.Width), H: float32(tile.Height)}
 			tileset.setTileImage(id, path.Join(dir, tile.Image), tex, region)
 		}
+		name := cmp.Or(tile.Class, tile.Type)
+		class, err := props.classOf(name, OnTile)
+		if err != nil {
+			return nil, fmt.Errorf("tile %d: %w", tile.ID, err)
+		}
+		if name != "" {
+			if tileset.classes == nil {
+				tileset.classes = map[int]string{}
+			}
+			tileset.classes[id] = name
+		}
 		for _, p := range tile.Properties {
-			if err := tileset.setTiledProperty(id, p, props, dir); err != nil {
+			if err = tileset.setTiledProperty(id, p, props, class, dir); err != nil {
 				return nil, fmt.Errorf("tile %d: property %s: %w", tile.ID, p.Name, err)
 			}
+		}
+		if err = tileset.required(id, class); err != nil {
+			return nil, fmt.Errorf("tile %d: %w", tile.ID, err)
 		}
 		for _, shape := range tile.ObjectGroup.Objects {
 			tileset.addTiledShape(id, shape)
@@ -942,12 +989,6 @@ func tiledTilesetOf(
 				a.durations = append(a.durations, float32(f.Duration)/1000)
 			}
 			tileset.anims[id] = a
-		}
-		if class := cmp.Or(tile.Class, tile.Type); class != "" {
-			if tileset.classes == nil {
-				tileset.classes = map[int]string{}
-			}
-			tileset.classes[id] = class
 		}
 	}
 	tileset.load = props
@@ -1000,18 +1041,35 @@ func refusedTileset(ts tiledTileset) error {
 	return nil
 }
 
-// setTiledProperty sets tile id's property p, checked against the
-// declarations in props; undeclared ones are kept as they are, a file's
-// path from dir, the tileset's folder.
-func (t *Tileset) setTiledProperty(id int, p tiledProperty, props *tiledLoad, dir string) error {
+// setTiledProperty sets tile id's property p, checked against its class,
+// else the tile properties declared in props; undeclared ones are kept as
+// they are, unless the tile has a class, a file's path from dir, the
+// tileset's folder.
+func (t *Tileset) setTiledProperty(id int, p tiledProperty, props *tiledLoad, class *Class, dir string) error {
+	if d, ok := class.property(p.Name); ok {
+		v, err := props.value(d, p.Type, p.PropertyType, p.Value, dir)
+		if err != nil {
+			return err
+		}
+		t.setProperty(id, p.Name, v)
+		return nil
+	}
 	d, known := props.def(p.Name)
 	if !known {
-		for name, v := range properties([]tiledProperty{p}, dir) {
+		if class != nil {
+			names := propertyNames(append(EngineTileProperties(), append(props.defs, class.Properties...)...))
+			return fmt.Errorf("class %s has no such property%s", class.Name, nearOf(p.Name, names))
+		}
+		loose, err := props.loose([]tiledProperty{p}, dir)
+		if err != nil {
+			return err
+		}
+		for name, v := range loose {
 			t.setProperty(id, name, v)
 		}
 		return nil
 	}
-	v, err := d.check(p.Type, p.Value)
+	v, err := props.value(d, p.Type, p.PropertyType, p.Value, dir)
 	if err != nil {
 		return err
 	}
@@ -1038,6 +1096,20 @@ func (t *Tileset) setTiledProperty(id int, p tiledProperty, props *tiledLoad, di
 		t.emissive[id] = float32(e)
 	default:
 		t.setProperty(id, p.Name, v)
+	}
+	return nil
+}
+
+// required refuses tile id lacking, or holding empty, a property its
+// class requires.
+func (t *Tileset) required(id int, class *Class) error {
+	if class == nil {
+		return nil
+	}
+	for _, d := range class.Properties {
+		if v, has := t.props[id][d.Name]; d.Required && (!has || v == "") {
+			return fmt.Errorf("property %s: class %s requires it", d.Name, class.Name)
+		}
 	}
 	return nil
 }

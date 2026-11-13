@@ -57,7 +57,7 @@ var tiledKeys = map[string]map[string]tiledKey{
 		"id": keyExposed, "name": keyExposed, "type": keyExposed, "class": keyExposed, "x": keyExposed,
 		"y": keyExposed, "width": keyExposed, "height": keyExposed, "rotation": keyExposed, "visible": keyExposed,
 		"properties": keyExposed,
-		"template":   keyApplied, "text": keyExposed,
+		"template":   keyApplied, "text": keyExposed, "opacity": keyApplied,
 	},
 	"tileset": {
 		"firstgid": keyApplied, "source": keyApplied, "image": keyApplied, "tilewidth": keyApplied,

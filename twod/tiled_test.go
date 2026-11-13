@@ -79,6 +79,7 @@ func TestLoadTiledReadsLayersTilesetsAndObjects(t *testing.T) {
 				Type:       "spawn",
 				Rect:       geom.Rect{X: 4, Y: 6, W: 8, H: 8},
 				Visible:    true,
+				Opacity:    1,
 				Properties: TiledProperties{"facing": "left"},
 			},
 		},

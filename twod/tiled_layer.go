@@ -167,7 +167,8 @@ func tiledColor(s string) (color.Color, error) {
 // anchor. The anchor is the tileset's
 // object alignment: the bottom-left corner of an orthogonal map's object
 // unless the tileset says otherwise, the bottom middle of an isometric
-// map's. It is hidden when the object is. opts come after, so they can
+// map's. It is hidden when the object is, see-through as its opacity.
+// opts come after, so they can
 // change any of it. o must be a tile object of this map.
 func (t *Tiled) Sprite(o TiledObject, opts ...SpriteOption) *Sprite {
 	tile := o.Tile
@@ -186,6 +187,9 @@ func (t *Tiled) Sprite(o TiledObject, opts ...SpriteOption) *Sprite {
 	}
 	if !o.Visible {
 		all = append(all, Hidden())
+	}
+	if o.Opacity != 1 {
+		all = append(all, Tint(color.RGBA(1, 1, 1, o.Opacity)))
 	}
 	return NewSprite(tex, append(all, opts...)...)
 }

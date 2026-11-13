@@ -468,7 +468,7 @@ func (t *Tool) autoHeight() string {
 }
 
 // placeholder is what an empty field of d says: its default.
-func placeholder(d twod.TileProperty) string {
+func placeholder(d twod.Property) string {
 	switch {
 	case d.Name == propHeight:
 		return "auto"
@@ -1143,7 +1143,8 @@ func (t *Tool) property(name, text string) {
 			return
 		}
 		v = f
-	case twod.KindBool, twod.KindString, twod.KindEnum, twod.KindColor:
+	case twod.KindBool, twod.KindString, twod.KindEnum, twod.KindColor, twod.KindClass, twod.KindFile,
+		twod.KindObject:
 	}
 	if f, isFloat := v.(float64); isFloat && d.Min < d.Max && (f < d.Min || f > d.Max) {
 		t.status.SetText(fmt.Sprintf("%s: between %v and %v", name, d.Min, d.Max))
@@ -1300,7 +1301,7 @@ func recorder() *automation.Automation { return automation.New() }
 
 // shownValue is engine property d of tile as its pop-up shows it, and
 // whether the tile sets it; its default when not.
-func shownValue(tile Tile, d twod.TileProperty) (string, bool) {
+func shownValue(tile Tile, d twod.Property) (string, bool) {
 	switch d.Name {
 	case propShadow:
 		if tile.NoShadow {

@@ -125,25 +125,25 @@ var core = map[string]bool{propSolid: true, propTall: true, propShadow: true, pr
 var declared = twod.EngineTileProperties()
 
 // definition is property name's definition, when declared.
-func definition(name string) (twod.TileProperty, bool) {
+func definition(name string) (twod.Property, bool) {
 	for _, d := range declared {
 		if d.Name == name {
 			return d, true
 		}
 	}
-	return twod.TileProperty{}, false
+	return twod.Property{}, false
 }
 
 // typed is v read as d's kind.
-func typed(d twod.TileProperty, v *node) any {
+func typed(d twod.Property, v *node) any {
 	switch d.Kind {
 	case twod.KindBool:
 		return v.raw == jsonTrue
-	case twod.KindInt:
+	case twod.KindInt, twod.KindObject:
 		return int(v.num())
 	case twod.KindFloat:
 		return v.num()
-	case twod.KindString, twod.KindEnum, twod.KindColor:
+	case twod.KindString, twod.KindEnum, twod.KindColor, twod.KindFile, twod.KindClass:
 	}
 	return v.str()
 }
@@ -172,6 +172,12 @@ func tiledType(k twod.PropertyKind) string {
 		return "float"
 	case twod.KindColor:
 		return "color"
+	case twod.KindFile:
+		return "file"
+	case twod.KindObject:
+		return "object"
+	case twod.KindClass:
+		return "class"
 	case twod.KindString, twod.KindEnum:
 	}
 	return "string"

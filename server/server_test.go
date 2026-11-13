@@ -34,11 +34,16 @@ func TestServerStaysPureGo(t *testing.T) {
 	}
 }
 
-type counter struct{ steps int }
+// counter quits at its third fixed step and remembers the frame it quit in.
+type counter struct {
+	steps  int
+	quitIn uint64
+}
 
 func (c *counter) Update(f world.Frame) {
 	c.steps++
 	if c.steps == 3 {
+		c.quitIn = f.Time.Frame
 		f.Quit()
 	}
 }
@@ -47,6 +52,9 @@ func (*counter) Phase() world.Phase      { return world.FixedUpdate }
 func (*counter) Priority() int           { return 0 }
 func (*counter) Name() string            { return "test.counter" }
 
+// The headless runner ticks in wall time, so a late tick runs more than one
+// fixed step in a frame: Quit stops the runner after the frame it is called
+// in, whatever steps that frame has left.
 func TestRunTicksUntilQuit(t *testing.T) {
 	c := &counter{}
 	w := server.New().AddSystems(c)
@@ -54,8 +62,11 @@ func TestRunTicksUntilQuit(t *testing.T) {
 	if err := w.Run(); err != nil {
 		t.Fatal(err)
 	}
-	if c.steps != 3 {
-		t.Fatalf("fixed steps = %d, want 3", c.steps)
+	if c.steps < 3 {
+		t.Fatalf("fixed steps = %d, want at least 3", c.steps)
+	}
+	if got := w.Time().Frame; got != c.quitIn {
+		t.Fatalf("the runner stopped at frame %d, want %d, the frame that quit", got, c.quitIn)
 	}
 }
 

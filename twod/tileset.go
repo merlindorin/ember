@@ -56,6 +56,8 @@ type Tileset struct {
 	roomMu           sync.Mutex
 	props            map[int]TiledProperties
 	anims            map[int]tileAnimation
+	// classes are the tiles' classes, as Tiled names them.
+	classes map[int]string
 	// tiles are the tiles with a picture of their own rather than a cell of
 	// the grid.
 	tiles map[int]tileImage
@@ -86,9 +88,47 @@ type tileImage struct {
 	rect    geom.Rect
 }
 
+// tileAnimation plays frames at fps, or each for its own of durations, in
+// seconds, when it has them: a Tiled tileset's.
 type tileAnimation struct {
-	fps    float32
-	frames []int
+	fps       float32
+	frames    []int
+	durations []float32
+}
+
+// frame is the animation's frame at time seconds.
+func (a tileAnimation) frame(time float32) int {
+	if len(a.durations) == 0 {
+		return a.frames[int(time*a.fps)%len(a.frames)]
+	}
+	var total float32
+	for _, d := range a.durations {
+		total += d
+	}
+	at := time - total*geom.Floor(time/total)
+	for i, d := range a.durations {
+		if at < d {
+			return a.frames[i]
+		}
+		at -= d
+	}
+	return a.frames[len(a.frames)-1]
+}
+
+// playable is whether the animation has frames to show and time to show
+// them in.
+func (a tileAnimation) playable() bool {
+	if len(a.frames) == 0 {
+		return false
+	}
+	if a.durations == nil {
+		return a.fps > 0
+	}
+	var total float32
+	for _, d := range a.durations {
+		total += d
+	}
+	return total > 0
 }
 
 // TilesetOption sets up a Tileset.
@@ -515,6 +555,10 @@ func (t *Tileset) place(out []geom.Rect, shapes []geom.Rect, id int, origin, cel
 }
 func (t *Tileset) Tall(id int) bool { return t.tall[id] }
 
+// Class is tile id's class, as Tiled names it (its type before Tiled 1.9),
+// empty when it has none.
+func (t *Tileset) Class(id int) string { return t.classes[id] }
+
 // Property is a property of tile id, such as one set in Tiled, as text.
 func (t *Tileset) Property(id int, name string) (string, bool) {
 	v, ok := t.props[id][name]
@@ -593,8 +637,8 @@ func (t *Tileset) Count() int {
 // image is tile id's texture and rectangle in it, in pixels, at time
 // seconds: its own picture, or its cell of the atlas.
 func (t *Tileset) image(id int, time float32) (*Texture, geom.Rect) {
-	if a, ok := t.anims[id]; ok && len(a.frames) > 0 && a.fps > 0 {
-		id = a.frames[int(time*a.fps)%len(a.frames)]
+	if a, ok := t.anims[id]; ok && a.playable() {
+		id = a.frame(time)
 	}
 	if own, ok := t.tiles[id]; ok {
 		return own.texture, own.rect
@@ -670,6 +714,7 @@ func (t *Tileset) merge(src *Tileset, off int) {
 	t.occluderGroup = shifted(t.occluderGroup, src.occluderGroup, off, same)
 	t.height = shifted(t.height, src.height, off, same)
 	t.emissive = shifted(t.emissive, src.emissive, off, same)
+	t.classes = shifted(t.classes, src.classes, off, same)
 	if src.load != nil {
 		if t.load == nil {
 			t.load = &tiledLoad{}
@@ -686,7 +731,7 @@ func (t *Tileset) merge(src *Tileset, off int) {
 		for i, f := range a.frames {
 			frames[i] = off + f
 		}
-		t.anims[off+id] = tileAnimation{fps: a.fps, frames: frames}
+		t.anims[off+id] = tileAnimation{fps: a.fps, frames: frames, durations: a.durations}
 	}
 }
 
@@ -722,10 +767,14 @@ type tilesetJSON struct {
 	Bodies        map[int][]geom.Rect     `json:"body_shapes,omitempty"`
 	NoShadow      []int                   `json:"no_shadow,omitempty"`
 	OccluderGroup map[int]int             `json:"occluder_group,omitempty"`
-	Anims         map[int]struct {
-		FPS    float32 `json:"fps"`
-		Frames []int   `json:"frames"`
-	} `json:"animations"`
+	Anims         map[int]animationJSON   `json:"animations"`
+	Classes       map[int]string          `json:"classes,omitempty"`
+}
+
+type animationJSON struct {
+	FPS       float32   `json:"fps"`
+	Frames    []int     `json:"frames"`
+	Durations []float32 `json:"durations,omitempty"`
 }
 
 type tileImageJSON struct {
@@ -776,16 +825,13 @@ func (t *Tileset) MarshalJSON() ([]byte, error) {
 		}
 	}
 	if len(t.anims) > 0 {
-		d.Anims = map[int]struct {
-			FPS    float32 `json:"fps"`
-			Frames []int   `json:"frames"`
-		}{}
+		d.Anims = map[int]animationJSON{}
 		for id, a := range t.anims {
-			d.Anims[id] = struct {
-				FPS    float32 `json:"fps"`
-				Frames []int   `json:"frames"`
-			}{a.fps, a.frames}
+			d.Anims[id] = animationJSON{a.fps, a.frames, a.durations}
 		}
+	}
+	if len(t.classes) > 0 {
+		d.Classes = t.classes
 	}
 	return json.Marshal(d)
 }
@@ -809,7 +855,10 @@ func (t *Tileset) UnmarshalJSON(b []byte) error {
 		}
 	}
 	for id, a := range d.Anims {
-		t.anims[id] = tileAnimation{fps: a.FPS, frames: a.Frames}
+		t.anims[id] = tileAnimation{fps: a.FPS, frames: a.Frames, durations: a.Durations}
+	}
+	if len(d.Classes) > 0 {
+		t.classes = d.Classes
 	}
 	for id, own := range d.Tiles {
 		t.tiles[id] = tileImage{own.Texture, own.Rect}

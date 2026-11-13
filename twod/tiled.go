@@ -2,6 +2,7 @@ package twod
 
 import (
 	"bytes"
+	"cmp"
 	"compress/gzip"
 	"compress/zlib"
 	"encoding/base64"
@@ -13,6 +14,7 @@ import (
 	"io/fs"
 	"math"
 	"path"
+	"slices"
 
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
@@ -404,9 +406,10 @@ const (
 
 // LoadTiled reads a Tiled map saved as JSON (.tmj), with its tilesets
 // embedded or in .tsj files and their images, all from fsys. opts apply to
-// every layer's TileMap, such as CellSize or TallIn. Cells keep their
-// flips (TileMap.Flip), drawn as Tiled draws them, moved by their
-// tileset's drawing offset. Objects keep their id, shape, points, rotation
+// every layer's TileMap, such as CellSize, PixelScale or TallIn. Cells keep
+// their flips (TileMap.Flip), drawn as Tiled draws them, moved by their
+// tileset's drawing offset; animated tiles play each frame for its own
+// duration, and a tile's class is its Tileset's Class. Objects keep their id, shape, points, rotation
 // and visibility and, for a tile object, its tile, and a text object its
 // text and style; an object made from a template (.tj) is the template's
 // object with its own values over it. Properties keep their Tiled type: a
@@ -431,6 +434,7 @@ func LoadTiled(fsys fs.FS, name string, opts ...TileMapOption) (*Tiled, error) {
 	if err := readJSON(fsys, name, &m); err != nil {
 		return nil, err
 	}
+	opts = cellsOfScale(opts, m)
 	t, err := newTiled(m)
 	if err != nil {
 		return nil, fmt.Errorf("twod: %s: %w", name, err)
@@ -549,6 +553,27 @@ func (t *Tiled) loadTilesets(fsys fs.FS, name string, m tiledMap, load *tiledLoa
 		t.tilesets = append(t.tilesets, tileset)
 	}
 	return nil
+}
+
+// PixelScale makes each of a Tiled map's pixels take n points: its cells
+// are the map's tile size times n, whatever it is, as CellSize would set
+// them, the later of the two winning. Tiled.Scale is n.
+func PixelScale(n float32) TiledOption { return pixelScale(n) }
+
+type pixelScale float32
+
+func (pixelScale) tiled(*tiledLoad) {}
+func (pixelScale) tileMap(*TileMap) {}
+
+// cellsOfScale is opts with each PixelScale a CellSize of map m's tiles.
+func cellsOfScale(opts []TileMapOption, m tiledMap) []TileMapOption {
+	out := slices.Clone(opts)
+	for i, o := range out {
+		if n, ok := o.(pixelScale); ok {
+			out[i] = CellSize(float32(m.TileWidth)*float32(n), float32(m.TileHeight)*float32(n))
+		}
+	}
+	return out
 }
 
 // scaleOf is how many points a map pixel takes: the cell opts give, by
@@ -910,12 +935,19 @@ func tiledTilesetOf(
 		for _, shape := range tile.ObjectGroup.Objects {
 			tileset.addTiledShape(id, shape)
 		}
-		if len(tile.Animation) > 0 && tile.Animation[0].Duration > 0 {
-			var frames []int
+		if len(tile.Animation) > 0 {
+			a := tileAnimation{}
 			for _, f := range tile.Animation {
-				frames = append(frames, f.TileID+1)
+				a.frames = append(a.frames, f.TileID+1)
+				a.durations = append(a.durations, float32(f.Duration)/1000)
 			}
-			tileset.anims[id] = tileAnimation{fps: 1000 / float32(tile.Animation[0].Duration), frames: frames}
+			tileset.anims[id] = a
+		}
+		if class := cmp.Or(tile.Class, tile.Type); class != "" {
+			if tileset.classes == nil {
+				tileset.classes = map[int]string{}
+			}
+			tileset.classes[id] = class
 		}
 	}
 	tileset.load = props
@@ -943,8 +975,8 @@ func (t *Tileset) setTileImage(id int, file string, tex *Texture, region geom.Re
 
 // refusedTileset is an error for what of ts the loader can't read yet: a
 // render size or fill mode other than Tiled's default, a
-// transparent colour, a class or properties on the tileset or a tile, and
-// a collision shape turned.
+// transparent colour, a class or properties on the tileset, and a
+// collision shape turned.
 func refusedTileset(ts tiledTileset) error {
 	switch {
 	case ts.TileRenderSize != "" && ts.TileRenderSize != "tile":
@@ -959,9 +991,6 @@ func refusedTileset(ts tiledTileset) error {
 		return errors.New("a tileset's own properties are not supported")
 	}
 	for _, tile := range ts.Tiles {
-		if tile.Type != "" || tile.Class != "" {
-			return fmt.Errorf("tile %d: a tile's class is not supported", tile.ID)
-		}
 		for _, shape := range tile.ObjectGroup.Objects {
 			if shape.Rotation != 0 {
 				return fmt.Errorf("tile %d: a turned collision shape is not supported", tile.ID)

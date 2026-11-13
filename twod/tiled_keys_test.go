@@ -72,7 +72,7 @@ var tiledKeys = map[string]map[string]tiledKey{
 	"tile": {
 		"id": keyApplied, "image": keyApplied, "x": keyApplied, "y": keyApplied, "width": keyApplied,
 		"height": keyApplied, "properties": keyApplied, "animation": keyApplied, "objectgroup": keyApplied,
-		"type": keyRefused, "class": keyRefused,
+		"type": keyExposed, "class": keyExposed,
 		"imagewidth": keyNotRead, "imageheight": keyNotRead, "probability": keyNotRead, "terrain": keyNotRead,
 	},
 	"collision": {

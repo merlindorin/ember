@@ -12,7 +12,9 @@ import (
 // fills the first time anything reads them, the least recently used ones
 // forgotten past KeepChunks. It draws only the cells in view, its solid
 // tiles stop collide bodies (it is a collide.Solid), and its tall tiles
-// stand as sprites at their feet, as TileMap's do.
+// stand as sprites at their feet, as TileMap's do. Unlike TileMap's, tall
+// tiles standing in a TallIn layer stay where they were made when the map
+// is moved afterwards: only chunks made later stand at its new place.
 type InfiniteMap struct {
 	Item
 	tileset  *Tileset

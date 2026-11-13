@@ -192,7 +192,6 @@ func TestTiledRefusesWhatItCantReadNamingIt(t *testing.T) {
 		{"a tileset class", tileset(`, "class": "walls"`), tiles, "tileset's class"},
 		{"tileset properties", tileset(`, "properties": [{"name": "x", "type": "int", "value": 1}]`), tiles,
 			"tileset's own properties"},
-		{"a tile class", tileset(`, "tiles": [{"id": 0, "type": "wall"}]`), tiles, "tile 0: a tile's class"},
 		{"a turned shape", tileset(`, "tiles": [{"id": 0, "objectgroup": {"objects": [{"x": 0, "y": 0, "width": 4,
 			"height": 4, "rotation": 45}]}}]`), tiles, "tile 0: a turned collision shape"},
 	} {

@@ -24,6 +24,8 @@ type Texture struct {
 	render.Texture
 	// width and height are a render texture's size, which has no image.
 	width, height int
+	// recoloured is the palette the image went through, nil for none.
+	recoloured *Palette
 }
 
 // TextureOption sets up a Texture.
@@ -69,11 +71,27 @@ func (t *Texture) Encoded() bool { return t.Texture.Encoded }
 
 // NewTexture wraps img.
 func NewTexture(img image.Image, opts ...TextureOption) *Texture {
+	t, err := newTexture(img, opts)
+	if err != nil {
+		panic(err)
+	}
+	return t
+}
+
+// newTexture wraps img, recoloured when an option asks for it.
+func newTexture(img image.Image, opts []TextureOption) (*Texture, error) {
 	t := &Texture{Texture: render.Texture{Image: img}}
 	for _, opt := range opts {
 		opt.texture(t)
 	}
-	return t
+	if t.recoloured != nil && img != nil {
+		recoloured, err := t.recoloured.recolour(img)
+		if err != nil {
+			return nil, err
+		}
+		t.Image = recoloured
+	}
+	return t, nil
 }
 
 // NewRenderTexture returns a texture of w×h pixels with no image of its
@@ -98,7 +116,11 @@ func LoadTexture(fsys fs.FS, name string, opts ...TextureOption) (*Texture, erro
 	if err != nil {
 		return nil, fmt.Errorf("twod: %s: %w", name, err)
 	}
-	return NewTexture(img, opts...), nil
+	t, err := newTexture(img, opts)
+	if err != nil {
+		return nil, fmt.Errorf("twod: %s: %w", name, err)
+	}
+	return t, nil
 }
 
 func (*Texture) ResourceType() string { return "twod.Texture" }

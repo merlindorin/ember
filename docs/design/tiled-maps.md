@@ -1,7 +1,7 @@
 # Tiled maps: the whole map, and nothing ignored silently
 
-Status: **approved by the user (2026-11-13), with the answers under "Decided"; §6 was added after and is for the
-user's review.** Built: step A (493b522e7, decision 0068), B (f59d7ebd7), C (628bbbda6, 4a7a75a79). Decision number reserved: 0068.
+Status: **approved by the user (2026-11-13), §6 included, with the answers under "Decided".** Built: step A
+(493b522e7, decision 0068), B (f59d7ebd7), C (628bbbda6, 4a7a75a79), D (dcbb39739), E (b453bf1dc). Decision number reserved: 0068.
 engine-render, who owns `ember/twod`, has read it against the code; its remarks are folded in.
 
 ## Why
@@ -386,8 +386,5 @@ change), D about half a day, G 3 to 4 days, I 8 to 9 days.
    the source.
 8. Two references are kept current: the engine's classes and properties in the guide, on the page after Tiled maps (step F), the
    game's in Lantervale's docs (step H).
-
-## Open
-
-- §6 (each system reads its own tile properties, with its caches and its gate): the user's review. The user asked
-  for the move, `solid` included, and for the speed to be checked and kept by caching (2026-11-13).
+9. §6 is built after step G: each system reads its own tile properties, `solid` included, with its caches and its
+   speed gate.

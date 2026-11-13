@@ -1,6 +1,7 @@
 # Tints, recolours and masks: variants of a picture without a new picture
 
-Status: **proposal, for the user's review (2026-11-13).** Nothing here is built. Decision number reserved: 0069.
+Status: **approved by the user (2026-11-13), with the answers under "Decided".** Nothing here is built. Decision
+number reserved: 0069.
 
 ## Why
 
@@ -141,21 +142,20 @@ game names the palette in its data, beside the sheet.
 
 | Step | What | Owner | Tests |
 |---|---|---|---|
-| R1 | `Palette`, `Recolour`, `Recoloured`, `LoadPalette`, the cache | `ember/twod` | exact swap, alpha kept, a palette that matches nothing refused, one texture for two equal asks, a recolour of the water sheet timed |
-| R2 | `Masked`, `Inverted`, the mask tileset by name | `ember/twod` | opaque keeps, clear cuts, half fades; a mask of another size refused; collision unchanged |
-| R3 | the Tiled properties, `Palettes`, `Masks`, the mask layer; a tile's `tint` | engine-render, after Tiled maps step G | each property on a tile, an object and a layer; unknown names refused with the nearest; a mask layer cutting the named layer |
+| R1 | `Palette`, `Recolour`, `Recoloured`, `LoadPalette`, the cache | engine-core, in `ember/twod` | exact swap, alpha kept, a palette that matches nothing refused, one texture for two equal asks, a recolour of the water sheet timed |
+| R2 | `Masked`, `Inverted`, the mask tileset by name | engine-core, in `ember/twod` | opaque keeps, clear cuts, half fades; a mask of another size refused; collision unchanged |
+| R3 | the Tiled properties, `Palettes`, `Masks`, the mask layer; a tile's `tint` | engine-render, after Tiled maps steps G and I | each property on a tile, an object and a layer; unknown names refused with the nearest; a mask layer cutting the named layer |
 | R4 | Lantervale: dark water and slimes on palettes; the generators and baked pictures deleted | lantervale-dev, game-designer for `palettes.yaml` | the levels and slimes draw as before, checked against captures; shown to the user before landing |
 | R5 | the guide: a page for the three operations, with pictures | doc-writer | the guide test |
 
 R1 and R2 are new files in `ember/twod` and touch nothing of the Tiled work, so they can be built while
 engine-render is on Tiled maps.
 
-## Questions for the review
+## Decided (user, 2026-11-13)
 
-1. Palettes for Lantervale as YAML pairs of colours (`data/palettes.yaml`), with the swatch picture also read by the
-   engine for whoever prefers a pixel editor. Proposed: YAML for the game.
-2. Tiled shows recoloured tiles in their original colours and masked tiles whole. Acceptable, or is seeing the
-   final picture in Tiled worth keeping baked tilesets for some cases?
-3. Who builds R1 and R2: engine-core now, in `ember/twod` with engine-render's agreement, or engine-render after
-   Tiled maps (about a week later). Proposed: engine-core now.
-4. The first masks: which shapes do you want (broken edge, bitten corner, ragged hole…), and who draws them?
+1. Lantervale's palettes are pairs of colours in YAML (`lantervale/data/palettes.yaml`, made in R4). The engine
+   reads swatch pictures too.
+2. Tiled not showing a recolour or a cut is accepted: no baked tilesets, the game is where the result is seen.
+3. engine-core builds R1 and R2 now, in `ember/twod`, with engine-render's agreement on the files.
+4. The first masks are a broken edge, a bitten corner and a ragged hole. level-designer proposes them as mockups;
+   the user approves each before use.

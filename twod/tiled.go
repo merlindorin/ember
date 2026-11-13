@@ -1073,30 +1073,13 @@ func (t *Tileset) setTiledProperty(id int, p tiledProperty, props *tiledLoad, cl
 	if err != nil {
 		return err
 	}
-	switch p.Name {
-	case "solid":
-		if v == true {
-			t.solid[id] = true
-		}
-	case "tall":
+	if p.Name == propTall {
 		if v == true {
 			t.tall[id] = true
 		}
-	case propShadow:
-		if v == "none" {
-			t.noShadow[id] = true
-		}
-	case "occluder_group":
-		t.occluderGroup[id], _ = v.(int) // typed by the property's declaration
-	case propHeight:
-		h, _ := v.(float64) // typed by the property's declaration
-		t.height[id] = float32(h)
-	case "emissive":
-		e, _ := v.(float64) // typed by the property's declaration
-		t.emissive[id] = float32(e)
-	default:
-		t.setProperty(id, p.Name, v)
+		return nil
 	}
+	t.setProperty(id, p.Name, v)
 	return nil
 }
 
@@ -1117,15 +1100,8 @@ func (t *Tileset) required(id int, class *Class) error {
 // addTiledShape adds a collision shape drawn on tile id: light-only, body-only
 // or both, by its class.
 func (t *Tileset) addTiledShape(id int, shape tiledCollision) {
-	r, ok := shape.rect()
-	switch {
-	case !ok:
-	case shape.Class == propShadow || shape.Type == propShadow:
-		t.shadows[id] = append(t.shadows[id], r)
-	case shape.Class == "body" || shape.Type == "body":
-		t.bodies[id] = append(t.bodies[id], r)
-	default:
-		t.shapes[id] = append(t.shapes[id], r)
+	if r, ok := shape.rect(); ok {
+		t.addShape(id, TileShape{r, cmp.Or(shape.Class, shape.Type)})
 	}
 }
 

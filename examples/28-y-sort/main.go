@@ -13,6 +13,7 @@ import (
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 )
@@ -46,7 +47,7 @@ func main() {
 	)
 
 	space := collide.NewSpace()
-	space.AddSolid(trees)
+	space.AddSolid(tiles.Of(trees))
 	win.Add(grassland, garden, trees)
 
 	ember.New().
@@ -70,6 +71,6 @@ func loadTilesets() (*twod.Tileset, *twod.Tileset, error) {
 		return nil, nil, err
 	}
 	return twod.NewTileset(sheet, twod.Cell(16, 16)),
-		twod.NewTileset(tall, twod.Cell(16, 32), twod.Tall(tree, pillar), twod.Solid(tree, pillar)),
+		twod.NewTileset(tall, twod.Cell(16, 32), twod.Tall(tree, pillar), tiles.Solid(tree, pillar)),
 		nil
 }

@@ -1,20 +1,16 @@
 package collide //nolint:testpackage // white-box: shares the unexported thing, setup and walls helpers
 
 import (
-	"image"
 	"testing"
 
 	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
 )
 
-// barMap is three rows of a tile whose shape is a bar 2 pixels wide on its
-// cell's left edge, between open tiles: in 16-point cells, the bar is
-// x 16 to 20, all the way down.
-func barMap() *twod.TileMap {
-	tiles := twod.NewTileset(twod.NewTexture(image.NewRGBA(image.Rect(0, 0, 16, 8))), twod.Cell(8, 8),
-		twod.Collision(2, geom.Rect{W: 2, H: 8}))
-	return twod.NewTileMap(tiles, twod.Cells([][]int{{1, 2, 1}, {1, 2, 1}, {1, 2, 1}}), twod.CellSize(16, 16))
+// barMap is a bar 4 points wide, x 16 to 20, all the way down three rows
+// of 16-point cells, one rect a row, as a tile map's thin bar tiles stop
+// bodies.
+func barMap() walls {
+	return walls{{X: 16, W: 4, H: 16}, {X: 16, Y: 16, W: 4, H: 16}, {X: 16, Y: 32, W: 4, H: 16}}
 }
 
 func TestABodyStopsAtABarNotItsCell(t *testing.T) {

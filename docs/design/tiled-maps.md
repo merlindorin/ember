@@ -326,6 +326,21 @@ system that reads it:
 The per-map table is keyed on the map's `Version` and its cell offset, and the tileset's version counter also
 covers tilesets merged from several.
 
+**As built** ([decision 0071](../99-decisions/0071-each-system-reads-its-own-tile-properties.md)):
+
+- A changed map is placed again whole, not one cell, and lazily, at the next query: a frame of a hundred `Set`s pays
+  once. A `Set` then one light's reach on the gate's 40×109 map costs 81 µs with no allocation, 22.5 µs of it the
+  `Set` itself (twod standing its tall tiles again).
+- `collide.SolidAppender` is a `collide.Solid` that also has `AppendSolidIn(dst, area)`; a `collide.Space` asks such
+  a solid to append into a slice it keeps, so a move among tile maps allocates nothing. `tiles.Layer` is one;
+  `SolidIn` stays for callers that keep the slice, and allocates it.
+- Asked for an area alone, twod's `SolidIn` and `ShadowsIn` missed the rects of flipped tiles whose shapes spill past
+  their cell: the cells they visited widened by the tileset's spill computed unflipped. `collide/tiles` and light
+  widen by the reach of the rects they place, flips included (collide/tiles `TestAMapsSolidsAreTwodsOwn`, light
+  `TestAFlippedTilesShadowSpillingPastItsCellIsFoundFromEitherSide`).
+- Light reads the World's maps, not the collide space: a map in a space but in no window no longer casts. Shadows
+  and solids outside the area asked are no longer returned.
+
 Merging runs of whole cells into one rectangle (a wall of twenty cells as one caster) is left out of this step. It
 changes where casters join, so soft shadow edges can move by a pixel at the seams and the lit goldens could not stay
 identical. It comes back, with a stated tolerance, only if the benches show light still needs it.

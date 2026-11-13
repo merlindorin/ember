@@ -17,17 +17,15 @@ import (
 // is moved afterwards: only chunks made later stand at its new place.
 type InfiniteMap struct {
 	Item
-	tileset  *Tileset
-	tileSize geom.Vec2
-	// roomScratch holds the shapes round a cell Room looks at.
-	roomScratch []geom.Rect
-	tallIn      Entity
-	chunkSize   int
-	keep        int
-	generate    func(cx, cy int, cells [][]int)
-	tint        func(x, y int) color.Color
-	chunks      map[chunkKey]*chunk
-	clock       uint64
+	tileset   *Tileset
+	tileSize  geom.Vec2
+	tallIn    Entity
+	chunkSize int
+	keep      int
+	generate  func(cx, cy int, cells [][]int)
+	tint      func(x, y int) color.Color
+	chunks    map[chunkKey]*chunk
+	clock     uint64
 	// keepFrom protects the chunks used since this frame's views were
 	// prepared from being forgotten; none before the first frame.
 	keepFrom uint64
@@ -224,7 +222,7 @@ func (m *InfiniteMap) standTalls(k chunkKey, c *chunk) {
 				o = o.Add(m.position)
 			}
 			s := m.tileset.sprite(id, o, m.tileSize, 0)
-			litAtBase(s, m.light.Mode, m.tileset.scale(m.tileSize), m.tileset.shadowsOf(nil, id, o, m.tileSize, 0))
+			litAtBase(s, m.light.Mode, m.tileset.scale(m.tileSize), m.tileset.blocksOf(nil, id, o, m.tileSize, 0))
 			c.talls = append(c.talls, s)
 			add(parent, []world.BasicFace{s})
 		}
@@ -287,13 +285,6 @@ func (m *InfiniteMap) Picture(x, y int) (geom.Rect, bool) {
 	return m.tileset.picture(id, m.position.Add(m.origin(x, y)), m.tileSize)
 }
 
-// Solid reports whether cell x, y holds a solid tile, which blocks it for
-// paths whatever its Collision shapes.
-func (m *InfiniteMap) Solid(x, y int) bool {
-	id := m.At(x, y)
-	return id != 0 && m.tileset != nil && m.tileset.Solid(id)
-}
-
 func (m *InfiniteMap) origin(x, y int) geom.Vec2 {
 	return geom.V2(float32(x)*m.tileSize.X, float32(y)*m.tileSize.Y)
 }
@@ -315,45 +306,6 @@ func (m *InfiniteMap) span(area geom.Rect) (int, int, int, int) {
 	x0, y0 = int(geom.Floor(area.X/m.tileSize.X)), int(geom.Floor(area.Y/m.tileSize.Y))
 	x1, y1 = int(geom.Floor((area.X+area.W)/m.tileSize.X)), int(geom.Floor((area.Y+area.H)/m.tileSize.Y))
 	return x0, y0, x1, y1
-}
-
-// SolidIn lists the rectangles its tiles stop bodies with, whole cells or
-// their Collision shapes, that area, in the map's parent's space, touches,
-// generating the chunks it covers: the map is a collide.Solid.
-func (m *InfiniteMap) SolidIn(area geom.Rect) []geom.Rect {
-	if m.tileset == nil {
-		return nil
-	}
-	local := geom.Rect{X: area.X - m.position.X, Y: area.Y - m.position.Y, W: area.W, H: area.H}
-	x0, y0, x1, y1 := m.span(m.tileset.overhang(local, m.tileSize))
-	var out []geom.Rect
-	for y := y0; y <= y1; y++ {
-		for x := x0; x <= x1; x++ {
-			if id := m.At(x, y); id != 0 {
-				out = m.tileset.solids(out, id, m.position.Add(m.origin(x, y)), m.tileSize, 0)
-			}
-		}
-	}
-	return touching(out, area)
-}
-
-// ShadowsIn are the rectangles the map's tiles block light with within
-// area, as TileMap.ShadowsIn's.
-func (m *InfiniteMap) ShadowsIn(area geom.Rect) []ShadowRect {
-	if m.tileset == nil {
-		return nil
-	}
-	local := geom.Rect{X: area.X - m.position.X, Y: area.Y - m.position.Y, W: area.W, H: area.H}
-	x0, y0, x1, y1 := m.span(m.tileset.overhang(local, m.tileSize))
-	var out []ShadowRect
-	for y := y0; y <= y1; y++ {
-		for x := x0; x <= x1; x++ {
-			if id := m.At(x, y); id != 0 {
-				out = m.tileset.shadowsOf(out, id, m.position.Add(m.origin(x, y)), m.tileSize, 0)
-			}
-		}
-	}
-	return out
 }
 
 // TallSprites are the sprites standing for the tall tiles of the chunks
@@ -412,77 +364,3 @@ func (m *InfiniteMap) Draw(c *Canvas) {
 		}
 	}
 }
-
-// Area is a window of the map's cells, columns by rows from cell x, y: a
-// finite grid, for nav.
-func (m *InfiniteMap) Area(x, y, columns, rows int) *TileArea {
-	return &TileArea{m: m, x: x, y: y, columns: columns, rows: rows}
-}
-
-// AreaAround is the Area of columns by rows cells centred on the cell
-// under at: what a nav.FlowField follows the hero with, through
-// nav.Around(m.AreaAround, columns, rows).
-func (m *InfiniteMap) AreaAround(at geom.Vec2, columns, rows int) *TileArea {
-	x, y := m.Cell(at)
-	return m.Area(x-columns/2, y-rows/2, columns, rows)
-}
-
-// TileArea is a window of an InfiniteMap's cells, numbered from its own
-// top-left: a finite grid nav finds paths over.
-type TileArea struct {
-	m                   *InfiniteMap
-	x, y, columns, rows int
-	// ids are the area's tiles and a border round it, as of idsVersion.
-	ids        []int
-	idsVersion uint64
-	idsFilled  bool
-}
-
-func (a *TileArea) Columns() int    { return a.columns }
-func (a *TileArea) Rows() int       { return a.rows }
-func (a *TileArea) Version() uint64 { return a.m.Version() }
-
-// Origin is the map cell of the area's cell 0, 0.
-func (a *TileArea) Origin() (int, int) { return a.x, a.y }
-
-// Solid reports whether the area's cell x, y is solid; outside the area
-// counts as solid.
-func (a *TileArea) Solid(x, y int) bool {
-	if x < 0 || y < 0 || x >= a.columns || y >= a.rows {
-		return true
-	}
-	return a.m.Solid(a.x+x, a.y+y)
-}
-
-// FillSolid sets dst, columns by rows row by row, to which of the area's
-// cells are solid, reading each chunk once.
-func (a *TileArea) FillSolid(dst []bool) {
-	m := a.m
-	if m.tileset == nil {
-		clear(dst)
-		return
-	}
-	for y := range a.rows {
-		row := dst[y*a.columns : (y+1)*a.columns]
-		for x := 0; x < a.columns; {
-			k, lx, ly := m.split(a.x+x, a.y+y)
-			cells := m.chunk(k).cells[ly]
-			for ; lx < m.chunkSize && x < a.columns; lx, x = lx+1, x+1 {
-				id := cells[lx]
-				row[x] = id != 0 && m.tileset.Solid(id)
-			}
-		}
-	}
-}
-
-// Cell is the area's cell under p.
-func (a *TileArea) Cell(p geom.Vec2) (int, int, bool) {
-	var x int
-	var y int
-	mx, my := a.m.Cell(p)
-	x, y = mx-a.x, my-a.y
-	return x, y, x >= 0 && y >= 0 && x < a.columns && y < a.rows
-}
-
-// Center is the middle of the area's cell x, y.
-func (a *TileArea) Center(x, y int) geom.Vec2 { return a.m.Center(a.x+x, a.y+y) }

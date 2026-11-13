@@ -17,9 +17,11 @@ import (
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/automation"
 	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/input"
+	"github.com/merlindorin/ember/internal/lit"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/twod/light"
@@ -120,27 +122,71 @@ type Tool struct {
 }
 
 // shownMap is the solid the preview's space holds: whichever maps show
-// the picked tile, or the room, now, as each edit makes new ones. Its
-// version changes with them, so a static light bakes them again.
+// the picked tile, or the room, now, as each edit makes new ones, read
+// through collide/tiles. Light finds the maps itself, so it skips this
+// solid; its version changes with them.
 type shownMap struct {
 	maps    []*twod.TileMap
 	version uint64
+	// layers are the maps' collide/tiles layers, as of of.
+	layers []*tiles.Layer
+	of     []*twod.TileMap
 }
 
 func (s *shownMap) Version() uint64 { return s.version }
 
-func (s *shownMap) SolidIn(area geom.Rect) []geom.Rect {
-	var out []geom.Rect
-	for _, m := range s.maps {
-		out = append(out, m.SolidIn(area)...)
+// ReadsTileMap marks the solid as reading tile maps, which light skips.
+func (s *shownMap) ReadsTileMap() lit.FromMap { return lit.FromMap{} }
+
+// layersOf are the maps' layers, made again when the maps change.
+func (s *shownMap) layersOf() []*tiles.Layer {
+	if !slices.Equal(s.of, s.maps) {
+		s.of, s.layers = slices.Clone(s.maps), s.layers[:0]
+		for _, m := range s.maps {
+			s.layers = append(s.layers, tiles.Of(m))
+		}
 	}
-	return out
+	return s.layers
 }
 
-func (s *shownMap) ShadowsIn(area geom.Rect) []twod.ShadowRect {
-	var out []twod.ShadowRect
+func (s *shownMap) SolidIn(area geom.Rect) []geom.Rect { return s.AppendSolidIn(nil, area) }
+
+func (s *shownMap) AppendSolidIn(dst []geom.Rect, area geom.Rect) []geom.Rect {
+	for _, l := range s.layersOf() {
+		dst = l.AppendSolidIn(dst, area)
+	}
+	return dst
+}
+
+// LightOnly are the shapes of the maps' tiles that block light only, those
+// of class shadow on tiles that cast, placed in area: the outlines drawn
+// blue.
+func (s *shownMap) LightOnly(area geom.Rect) []geom.Rect {
+	var out []geom.Rect
 	for _, m := range s.maps {
-		out = append(out, m.ShadowsIn(area)...)
+		ts := m.Tileset()
+		if ts == nil {
+			continue
+		}
+		for y := range m.Rows() {
+			for x := range m.Columns() {
+				id := m.At(x, y)
+				if v, _ := ts.Value(id, "shadow"); id == 0 || v.String() == "none" {
+					continue
+				}
+				var shadows []geom.Rect
+				for _, sh := range ts.Shapes(id) {
+					if sh.Class == "shadow" {
+						shadows = append(shadows, sh.Rect)
+					}
+				}
+				for _, r := range ts.Place(nil, id, shadows, m.CellOrigin(x, y), m.CellSize(), m.Flip(x, y)) {
+					if r.Overlaps(area) {
+						out = append(out, r)
+					}
+				}
+			}
+		}
 	}
 	return out
 }
@@ -526,7 +572,8 @@ func (t *Tool) load() {
 		return
 	}
 	fsys, name := t.ed.fs()
-	ts, err := twod.LoadTiledTileset(fsys, name, twod.TileProperties(declared[len(twod.EngineTileProperties()):]...))
+	ts, err := twod.LoadTiledTileset(fsys, name, tiles.Properties(), light.TileProperties(),
+		twod.TileProperties(declared[len(engineTileProperties()):]...))
 	t.err = err
 	if err != nil {
 		return
@@ -604,7 +651,9 @@ func (t *Tool) loadRoom() error {
 		name,
 		twod.CellSize(cell.X, cell.Y),
 		twod.At(-size.Width*cell.X/2, -size.Height*cell.Y/2),
-		twod.TileProperties(declared[len(twod.EngineTileProperties()):]...),
+		tiles.Properties(),
+		light.TileProperties(),
+		twod.TileProperties(declared[len(engineTileProperties()):]...),
 	)
 	if err != nil {
 		return err
@@ -1285,9 +1334,9 @@ func (o *outlines) Draw(c *twod.Canvas) {
 		solids[r] = true
 		c.Border(r, 0, 1, collisionColor)
 	}
-	for _, s := range m.ShadowsIn(everything) {
-		if !solids[s.Rect] {
-			c.Border(s.Rect, 0, 1, shadowColor)
+	for _, r := range m.LightOnly(everything) {
+		if !solids[r] {
+			c.Border(r, 0, 1, shadowColor)
 		}
 	}
 	b := o.tool.body.Bounds()

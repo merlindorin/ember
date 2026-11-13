@@ -65,7 +65,7 @@ func TestLoadTiledReadsLayersTilesetsAndObjects(t *testing.T) {
 	assert.Equal(t, []int{1, 1, 0, 2}, wall.cells, "base64 and zlib")
 	assert.Equal(t, geom.V2(16, 16), wall.tileSize)
 	tiles := m.Tilesets()[0]
-	assert.True(t, tiles.Solid(1))
+	assert.True(t, solidOf(tiles, 1))
 	assert.True(t, tiles.Tall(2))
 	sound, _ := tiles.Property(2, "sound")
 	assert.Equal(t, "leaves", sound)
@@ -192,18 +192,17 @@ func TestLoadTiledReadsCollectionsAndLayersOfSeveralTilesets(t *testing.T) {
 	pillar, ok := high.ID("pillar")
 	require.True(t, ok)
 	assert.Equal(t, geom.Rect{X: 16, W: 32, H: 48}, frame(high, pillar, 0), "a rectangle of a shared picture")
-	assert.True(t, high.Solid(pillar))
+	assert.True(t, solidOf(high, pillar))
 	assert.Equal(t, geom.Rect{W: 16, H: 32}, frame(high, 5, 0), "a picture of its own, whole")
 	cells, _ := high.Properties(5).Int("cells")
 	assert.Equal(t, 2, cells)
 	assert.Equal(
 		t,
-		[]geom.Rect{{Y: 16, W: 5, H: 16}, {X: 8, Y: 20, W: 4, H: 6}},
-		high.Collision(5),
+		[]TileShape{{geom.Rect{Y: 16, W: 5, H: 16}, ""}, {geom.Rect{X: 8, Y: 20, W: 4, H: 6}, ""}},
+		high.Shapes(5),
 		"rectangles, a polygon by its bounds, no points",
 	)
-	assert.True(t, high.Solid(5))
-	assert.False(t, high.Solid(pillar+1))
+	assert.False(t, solidOf(high, pillar+1))
 	assert.Equal(t, 5, high.Count())
 
 	m, err := LoadTiled(fsys, "map.tmj")
@@ -213,7 +212,7 @@ func TestLoadTiledReadsCollectionsAndLayersOfSeveralTilesets(t *testing.T) {
 	merged := things.Tileset()
 	assert.Equal(t, geom.Rect{X: 16, W: 16, H: 16}, frame(merged, 2, 0), "the floor's second cell")
 	assert.Equal(t, geom.Rect{X: 16, W: 32, H: 48}, frame(merged, 5, 0), "the pillar")
-	assert.True(t, merged.Solid(5))
+	assert.True(t, solidOf(merged, 5))
 	assert.Equal(t, geom.Rect{W: 16, H: 32}, frame(merged, 9, 0), "the lamp")
 	id, _ := merged.ID("pillar")
 	assert.Equal(t, 5, id)
@@ -226,32 +225,41 @@ func TestLoadTiledReadsCollectionsAndLayersOfSeveralTilesets(t *testing.T) {
 }
 
 func TestMergeTilesetsNumbersEachSetOnFromTheLast(t *testing.T) {
-	a := NewTileset(NewTexture(image.NewRGBA(image.Rect(0, 0, 16, 8))), Cell(8, 8), Solid(2), TileAnimation(1, 4, 1, 2))
+	a := NewTileset(NewTexture(image.NewRGBA(image.Rect(0, 0, 16, 8))), Cell(8, 8), TileValue(2, "solid", true),
+		TileAnimation(1, 4, 1, 2))
 	b := NewTileset(NewTexture(image.NewRGBA(image.Rect(0, 0, 8, 8))), Cell(8, 8), Tall(1))
 	m := MergeTilesets(a, b)
 	assert.Equal(t, 3, m.Count())
-	assert.True(t, m.Solid(2))
+	assert.True(t, solidOf(m, 2))
 	assert.True(t, m.Tall(3), "b's first tile is the merged third")
 	assert.Equal(t, frame(m, 2, 0), frame(m, 1, 0.25), "animations follow their frames")
 	assert.Equal(t, geom.Rect{X: 8, W: 8, H: 8}, frame(m, 2, 0))
 }
 
-func TestMergeTilesetsKeepsShadowShapesNoShadowAndGroups(t *testing.T) {
-	a := NewTileset(NewTexture(image.NewRGBA(image.Rect(0, 0, 16, 8))), Cell(8, 8), Solid(1, 2), CastShadow(false, 2))
+func TestMergeTilesetsKeepsEveryTilesShapesAndValues(t *testing.T) {
+	a := NewTileset(NewTexture(image.NewRGBA(image.Rect(0, 0, 16, 8))), Cell(8, 8), TileValue(2, "shadow", "none"))
 	b := NewTileset(
 		NewTexture(image.NewRGBA(image.Rect(0, 0, 16, 8))),
 		Cell(8, 8),
-		Solid(2),
-		ShadowShapes(1, geom.Rect{W: 8, H: 4}),
-		OccluderGroup(1, 2),
+		TileShapes(1, "shadow", geom.Rect{W: 8, H: 4}),
+		TileValue(2, "occluder_group", 1),
 	)
 	m := MergeTilesets(a, b)
-	assert.False(t, m.CastShadow(2), "a's No shadow tile stays No shadow")
-	assert.Equal(t, []geom.Rect{{W: 8, H: 4}}, m.ShadowShapes(3), "b's first tile keeps its shadow shape")
-	assert.Equal(t, 1, m.OccluderGroup(4), "and b's second its group")
+	shadow, _ := m.Value(2, "shadow")
+	group, _ := m.Value(4, "occluder_group")
+	assert.Equal(t, "none", shadow.String(), "a's values")
+	assert.Equal(t, []TileShape{{geom.Rect{W: 8, H: 4}, "shadow"}}, m.Shapes(3), "b's first tile keeps its shape")
+	assert.Equal(t, 1, group.Int(), "and b's second its value")
 }
 
-func TestTiledShadowShapesAndPropertiesTellLightFromCollision(t *testing.T) {
+// solidOf is whether tile id of ts says it is solid, as collide/tiles
+// reads it.
+func solidOf(ts *Tileset, id int) bool {
+	v, ok := ts.Value(id, "solid")
+	return ok && v.Bool()
+}
+
+func TestATiledTilesetsShapesKeepTheirClassAndItsPropertiesTheirValues(t *testing.T) {
 	tsj := `{"image": "tiles.png", "tilewidth": 16, "tileheight": 16, "columns": 4, "tilecount": 4,
 	 "tiles": [
 	  {"id": 0, "objectgroup": {"objects": [{"x": 4, "y": 8, "width": 8, "height": 8}, {"class": "shadow",
@@ -265,33 +273,17 @@ func TestTiledShadowShapesAndPropertiesTellLightFromCollision(t *testing.T) {
 	fsys := fstest.MapFS{"walls.tsj": {Data: []byte(tsj)}, "tiles.png": {Data: pngOf(t, 64, 16)}}
 	ts, err := LoadTiledTileset(fsys, "walls.tsj")
 	require.NoError(t, err)
-	assert.Equal(t, []geom.Rect{{X: 4, Y: 8, W: 8, H: 8}}, ts.Collision(1), "an unclassed shape collides")
-	assert.Equal(t, []geom.Rect{{W: 16, H: 8}}, ts.ShadowShapes(1), "a shadow shape only shadows")
-	assert.True(t, ts.Solid(1) && ts.CastShadow(1))
-	assert.False(t, ts.Solid(2), "only shadow shapes: it blocks light, not bodies")
-	assert.True(t, ts.CastShadow(2))
-	assert.True(t, ts.Solid(3), "shadow none still blocks bodies")
-	assert.False(t, ts.CastShadow(3), "but no light")
-	assert.Equal(t, 2, ts.OccluderGroup(4))
-
-	m := NewTileMap(ts, Cells([][]int{{1, 2, 3, 4}}), CellSize(16, 16))
-	everything := geom.Rect{X: -100, Y: -100, W: 400, H: 400}
-	assert.ElementsMatch(
-		t,
-		[]geom.Rect{{X: 4, Y: 8, W: 8, H: 8}, {X: 48, Y: 0, W: 16, H: 16}, {X: 32, W: 16, H: 16}},
-		m.SolidIn(everything),
-		"bodies meet tile 1's shape and the solid cells of 3 and 4, not tile 2",
-	)
-	shadows := m.ShadowsIn(everything)
-	assert.ElementsMatch(t, []ShadowRect{
-		{Rect: geom.Rect{X: 4, Y: 8, W: 8, H: 8}, Height: 16}, {Rect: geom.Rect{W: 16, H: 8}, Height: 16},
-		{Rect: geom.Rect{X: 18, Y: 2, W: 12, H: 12}},
-		{Rect: geom.Rect{X: 48, W: 16, H: 16}, Group: 2, Height: 16},
-	}, shadows, "light meets tile 1's both shapes, tile 2's shadow, tile 4 in group 2, not tile 3; "+
-		"solid tiles stand their cell high, tile 2's shadow shape (not solid) all the way")
+	assert.Equal(t, []TileShape{{geom.Rect{X: 4, Y: 8, W: 8, H: 8}, ""}, {geom.Rect{W: 16, H: 8}, "shadow"}},
+		ts.Shapes(1), "each shape with its class, for collide/tiles and light to read")
+	assert.Equal(t, []TileShape{{geom.Rect{X: 2, Y: 2, W: 12, H: 12}, "shadow"}}, ts.Shapes(2), "a type, as before 1.9")
+	shadow, _ := ts.Value(3, "shadow")
+	group, _ := ts.Value(4, "occluder_group")
+	assert.True(t, solidOf(ts, 3))
+	assert.Equal(t, "none", shadow.String())
+	assert.Equal(t, 2, group.Int())
 }
 
-func TestABodyShapeStopsBodiesAndCastsNoShadow(t *testing.T) {
+func TestABodyShapeKeepsItsClass(t *testing.T) {
 	tsj := `{"image": "tiles.png", "tilewidth": 16, "tileheight": 16, "columns": 4, "tilecount": 4,
 	 "tiles": [
 	  {"id": 0, "objectgroup": {"objects": [{"x": 0, "y": 0, "width": 16, "height": 12}, {"class": "body",
@@ -304,51 +296,17 @@ func TestABodyShapeStopsBodiesAndCastsNoShadow(t *testing.T) {
 	fsys := fstest.MapFS{"bars.tsj": {Data: []byte(tsj)}, "tiles.png": {Data: pngOf(t, 64, 16)}}
 	ts, err := LoadTiledTileset(fsys, "bars.tsj")
 	require.NoError(t, err)
-	assert.Equal(t, []geom.Rect{{Y: 12, W: 16, H: 4}}, ts.BodyShapes(1), "class body")
-	assert.Equal(t, []geom.Rect{{W: 16, H: 12}}, ts.Collision(1))
-	assert.True(
-		t,
-		ts.Solid(2) && !ts.CastShadow(2),
-		"a solid tile whose only shape is a body shape casts nothing, not its whole cell",
-	)
-	assert.False(t, ts.CastShadow(3), "shadow none silences the whole tile, shadow shapes included")
-
-	m := NewTileMap(ts, Cells([][]int{{1, 2, 3}}), CellSize(16, 16))
-	everything := geom.Rect{X: -100, Y: -100, W: 400, H: 400}
-	assert.ElementsMatch(
-		t,
-		[]geom.Rect{{W: 16, H: 12}, {Y: 12, W: 16, H: 4}, {X: 16, Y: 8, W: 16, H: 8}},
-		m.SolidIn(everything),
-		"bodies meet the collision and body shapes",
-	)
-	var shadows []geom.Rect
-	for _, s := range m.ShadowsIn(everything) {
-		shadows = append(shadows, s.Rect)
-	}
-	assert.Equal(t, []geom.Rect{{W: 16, H: 12}}, shadows, "light meets the collision shape only")
+	assert.Equal(t, []TileShape{{geom.Rect{W: 16, H: 12}, ""}, {geom.Rect{Y: 12, W: 16, H: 4}, "body"}}, ts.Shapes(1))
+	assert.Equal(t, []TileShape{{geom.Rect{Y: 8, W: 16, H: 8}, "body"}}, ts.Shapes(2))
+	shadow, _ := ts.Value(3, "shadow")
+	assert.Equal(t, "none", shadow.String())
 
 	again := NewTileset(
 		NewTexture(image.NewRGBA(image.Rect(0, 0, 16, 16))),
 		Cell(16, 16),
-		BodyShapes(1, geom.Rect{W: 16, H: 4}),
+		TileShapes(1, "body", geom.Rect{W: 16, H: 4}),
 	)
-	assert.Equal(t, []geom.Rect{{W: 16, H: 4}}, again.BodyShapes(1))
-}
-
-func TestABodyShapeReachingPastItsCellIsFoundFromTheNextCell(t *testing.T) {
-	ts := NewTileset(
-		NewTexture(image.NewRGBA(image.Rect(0, 0, 16, 16))),
-		Cell(16, 16),
-		BodyShapes(1, geom.Rect{W: 16, H: 20}),
-	)
-	m := NewTileMap(ts, Cells([][]int{{1}, {0}}), CellSize(16, 16))
-	below := geom.Rect{X: 2, Y: 17, W: 4, H: 4}
-	assert.Equal(
-		t,
-		[]geom.Rect{{W: 16, H: 20}},
-		m.SolidIn(below),
-		"its 4 points below its cell, asked from the cell under it",
-	)
+	assert.Equal(t, []TileShape{{geom.Rect{W: 16, H: 4}, "body"}}, again.Shapes(1))
 }
 
 func TestLoadTiledKeepsATileObjectsTileAndItsPictureFile(t *testing.T) {
@@ -466,7 +424,7 @@ func TestLoadTiledLoadsOnlyTheTilesetsItUses(t *testing.T) {
 	assert.Zero(t, library.Count(), "and holds no tiles")
 	assert.Equal(t, "levels/tilesets/rocks.tsj", sets[3].Source())
 	assert.Empty(t, sets[2].Source(), "an embedded tileset has no file of its own")
-	assert.True(t, sets[2].Solid(1), "an unused embedded tileset keeps its tiles' properties")
+	assert.True(t, solidOf(sets[2], 1), "an unused embedded tileset keeps its tiles' properties")
 	assert.Nil(t, sets[2].texture, "but loads no picture")
 
 	_, err = LoadTiled(files(strings.Replace(tmj, `"data": [1, 0]`, `"data": [1, 10]`, 1)), "levels/one.tmj")

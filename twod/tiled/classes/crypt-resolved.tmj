@@ -155,29 +155,6 @@
                         },
                     
                         {
-                         "name":"emissive",
-                         "type":"float",
-                         "value":0
-                        }, 
-                        {
-                         "name":"height",
-                         "type":"float",
-                         "value":0
-                        },
-                    
-                        {
-                         "name":"occluder_group",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"shadow",
-                         "propertytype":"shadow",
-                         "type":"string",
-                         "value":"cast"
-                        },
-                    
-                        {
                          "name":"solid",
                          "type":"bool",
                          "value":false
@@ -201,29 +178,6 @@
                          "name":"durability",
                          "type":"int",
                          "value":100
-                        },
-                    
-                        {
-                         "name":"emissive",
-                         "type":"float",
-                         "value":0
-                        }, 
-                        {
-                         "name":"height",
-                         "type":"float",
-                         "value":0
-                        },
-                    
-                        {
-                         "name":"occluder_group",
-                         "type":"int",
-                         "value":0
-                        }, 
-                        {
-                         "name":"shadow",
-                         "propertytype":"shadow",
-                         "type":"string",
-                         "value":"cast"
                         },
                     
                         {

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/twod"
 )
@@ -28,12 +29,12 @@ func BenchmarkCPUMirror(b *testing.B) {
 		}
 	}
 	m := twod.NewTileMap(
-		twod.NewTileset(picture(16, 16), twod.Cell(16, 16), twod.Solid(1)),
+		twod.NewTileset(picture(16, 16), twod.Cell(16, 16), tiles.Solid(1)),
 		twod.Cells(cells),
 		twod.CellSize(16, 16),
 	)
 	space := collide.NewSpace()
-	space.AddSolid(m)
+	space.AddSolid(tiles.Of(m))
 	lights := make([]geom.Vec2, 64)
 	for i := range lights {
 		lights[i] = geom.V2(1200+r.Float32()*800, 1200+r.Float32()*450)

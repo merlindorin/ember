@@ -95,7 +95,7 @@ const baseFront = 3
 // tile's scale, from its pixels to points. When the tile blocks light with
 // blocks, in s's parent's space, it takes the brightest light just past
 // their box's sides, so a light behind it lights it as one in front does.
-func litAtBase(s *Sprite, mapLight lt.Mode, k float32, blocks []ShadowRect) {
+func litAtBase(s *Sprite, mapLight lt.Mode, k float32, blocks []geom.Rect) {
 	st := &s.GetDrawLook().light
 	if mapLight == lt.PerPixel || mapLight == lt.Off {
 		st.Mode = mapLight
@@ -106,9 +106,8 @@ func litAtBase(s *Sprite, mapLight lt.Mode, k float32, blocks []ShadowRect) {
 	if len(blocks) == 0 {
 		return
 	}
-	lo, hi := geom.V2(blocks[0].Rect.X, blocks[0].Rect.Y), geom.V2(blocks[0].Rect.X, blocks[0].Rect.Y)
-	for _, b := range blocks {
-		r := b.Rect
+	lo, hi := geom.V2(blocks[0].X, blocks[0].Y), geom.V2(blocks[0].X, blocks[0].Y)
+	for _, r := range blocks {
 		lo, hi = geom.V2(min(lo.X, r.X), min(lo.Y, r.Y)), geom.V2(max(hi.X, r.X+r.W), max(hi.Y, r.Y+r.H))
 	}
 	box := boxOf(lo, hi)
@@ -147,9 +146,22 @@ type faceKey struct {
 	flip TileFlip
 }
 
+// blocksOf appends the rects tile id blocks light with, standing on the
+// cell at origin, of size cell, flipped by f, as the light package reads
+// them; none without it, when nothing is lit.
+func (t *Tileset) blocksOf(dst []geom.Rect, id int, origin, cell geom.Vec2, f TileFlip) []geom.Rect {
+	if lt.TileBlocks == nil {
+		return dst
+	}
+	return lt.TileBlocks(t, id, origin, cell, uint8(f), dst)
+}
+
 // face is the box round what tile id blocks light with, grown by
 // baseFront, from the corner of its cell, and whether it blocks any.
 func (t *Tileset) face(id int, cell geom.Vec2, f TileFlip) (geom.Rect, bool) {
+	if t.faceVersion != t.version {
+		t.faceVersion, t.faces, t.faceList = t.version, nil, t.faceList[:0]
+	}
 	if f == 0 && cell == t.faceCell && id >= 0 && id < len(t.faceList) && t.faceList[id].known {
 		e := t.faceList[id]
 		return e.box, e.box.W > 0
@@ -182,15 +194,12 @@ func (t *Tileset) faceOf(id int, cell geom.Vec2, f TileFlip) (geom.Rect, bool) {
 		return b, b.W > 0
 	}
 	var box geom.Rect
-	for i, r := range t.shadowsOf(nil, id, geom.Vec2{}, cell, f) {
+	for i, r := range t.blocksOf(nil, id, geom.Vec2{}, cell, f) {
 		if i == 0 {
-			box = r.Rect
+			box = r
 			continue
 		}
-		box = boxOf(
-			geom.V2(min(box.X, r.Rect.X), min(box.Y, r.Rect.Y)),
-			geom.V2(max(box.X+box.W, r.Rect.X+r.Rect.W), max(box.Y+box.H, r.Rect.Y+r.Rect.H)),
-		)
+		box = boxOf(geom.V2(min(box.X, r.X), min(box.Y, r.Y)), geom.V2(max(box.X+box.W, r.X+r.W), max(box.Y+box.H, r.Y+r.H)))
 	}
 	if box.W > 0 {
 		box = geom.Rect{X: box.X - baseFront, Y: box.Y - baseFront, W: box.W + 2*baseFront, H: box.H + 2*baseFront}

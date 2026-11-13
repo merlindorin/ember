@@ -14,7 +14,7 @@ import (
 // object with a look and a sign, the look a class only properties take,
 // and a wall tile.
 func crypt() TiledOption {
-	return Classes(
+	return classesAndSolid(Classes(
 		Class{Name: "level", On: OnMap, Properties: []Property{
 			{Name: "title", Kind: KindString, Default: "crypt"},
 			{Name: "depth", Kind: KindInt, Default: 1, Min: 1, Max: 9},
@@ -34,7 +34,16 @@ func crypt() TiledOption {
 			{Name: "durability", Kind: KindInt, Default: 100, Min: 1, Max: 1000},
 			{Name: "art", Kind: KindFile, Default: ""},
 		}},
-	)
+	))
+}
+
+// classesAndSolid is classes with solid declared for every tile, as
+// collide/tiles' Properties declares it.
+func classesAndSolid(classes TiledOption) TiledOption {
+	return tiledOption(func(l *tiledLoad) {
+		classes.tiled(l)
+		TileProperties(Property{Name: "solid", Kind: KindBool, Default: false}).tiled(l)
+	})
 }
 
 func TestTheClassesProjectFileIsWhatTheDeclarationsWrite(t *testing.T) {
@@ -204,7 +213,7 @@ func TestAClassedTilesMembersAreCheckedLikeEveryTilesProperties(t *testing.T) {
 	 "value": true}, {"name": "durability", "type": "int", "value": 7}]`), "one.tmj", crypt())
 	require.NoError(t, err)
 	walls := m.Tilesets()[0]
-	assert.True(t, walls.Solid(1), "an engine property on a classed tile still applies")
+	assert.True(t, solidOf(walls, 1), "every tile's declared property on a classed tile still applies")
 	d, _ := walls.Value(1, "durability")
 	assert.Equal(t, 7, d.Int())
 	_, err = LoadTiled(classMap("", `, "type": "wall", "properties": [{"name": "solid", "type": "int",

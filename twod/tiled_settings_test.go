@@ -46,8 +46,7 @@ func TestAHiddenTintedMovedLayerTakesItsTallTilesAlong(t *testing.T) {
 	assert.True(t, talls[0].Hidden(), "its tall tile, standing in another layer, hidden too")
 	assert.Equal(t, want, talls[0].Tint(), "and tinted")
 	assert.Equal(t, before[0].Position().Add(geom.V2(8, -6)), talls[0].Position(), "and moved")
-	assert.True(t, walls.Solid(0, 0), "a hidden layer still blocks bodies")
-	assert.NotEmpty(t, walls.ShadowsIn(geom.Rect{X: -100, Y: -100, W: 300, H: 300}), "and still casts")
+	assert.NotZero(t, walls.At(0, 0), "a hidden layer keeps its cells for collision and light to read")
 
 	walls.SetHidden(false)
 	walls.SetTint(color.White)
@@ -71,9 +70,7 @@ func TestALayersOffsetSurvivesTheGamePlacingItsMap(t *testing.T) {
 	assert.Equal(t, [2]int{0, 0}, [2]int{x, y}, "and found there")
 	want := plain.TallSprites()[0].Position().Add(offset)
 	assert.Equal(t, want, moved.TallSprites()[0].Position(), "its tall tile too, standing in another layer")
-	assert.Equal(t, []geom.Rect{{X: 108, Y: 194, W: 32, H: 32}}, moved.SolidIn(geom.Rect{X: 0, Y: 0, W: 400, H: 400}),
-		"and its solid")
-	assert.NotEmpty(t, moved.ShadowsIn(geom.Rect{X: 108, Y: 194, W: 1, H: 1}), "and its shadow")
+	assert.Equal(t, geom.V2(108, 194), moved.CellOrigin(0, 0), "and its cell, where collision and light place it")
 
 	moved.Translate(geom.V2(-10, 5))
 	assert.Equal(t, want.Add(geom.V2(-10, 5)), moved.TallSprites()[0].Position(), "the tall tile following a move")
@@ -88,7 +85,7 @@ func TestATilesetsDrawingOffsetMovesItsPictures(t *testing.T) {
 	b, _ := moved.TileLayer("walls")
 	assert.Equal(t, a.TallSprites()[0].Position().Add(geom.V2(6, -4)), b.TallSprites()[0].Position(),
 		"3, -2 pixels at 2 points a pixel")
-	assert.True(t, b.Solid(0, 0), "the cell it stands on doesn't move")
+	assert.Equal(t, a.CellOrigin(0, 0), b.CellOrigin(0, 0), "the cell it stands on doesn't move")
 }
 
 func TestAnObjectLayersOffsetMovesItsObjects(t *testing.T) {

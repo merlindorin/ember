@@ -5,6 +5,7 @@ import (
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
@@ -33,7 +34,7 @@ func TestTheHeroSortsWithTheTreesAndStopsAtTheirTrunks(t *testing.T) {
 	}
 
 	space := collide.NewSpace()
-	space.AddSolid(trees)
+	space.AddSolid(tiles.Of(trees))
 	win := platform.NewWindow(platform.Size(640, 384))
 	win.AppendChild(grassland)
 	win.AppendChild(garden)

@@ -9,6 +9,7 @@ import (
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/automation"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/twod"
@@ -93,10 +94,8 @@ func TestAutomationAddsAShadowShapeAndSavesOnlyThatTile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := ts.ShadowShapes(
-		id + 1,
-	); len(got) != 1 || got[0].W != 8 || got[0].H != 8 || got[0].X < 0 || got[0].X+8 > 16 || got[0].Y < 0 ||
-		got[0].Y+8 > 16 {
+	if got := shadowShapes(ts, id+1); len(got) != 1 || got[0].W != 8 || got[0].H != 8 ||
+		got[0].X < 0 || got[0].X+8 > 16 || got[0].Y < 0 || got[0].Y+8 > 16 {
 		t.Fatalf("the engine reads tile %d's shadow shapes as %v", id, got)
 	}
 	if tool.ed.Changed() {
@@ -115,7 +114,7 @@ func strip(t Tile) Tile {
 func TestTheWalkerStopsAtTheTilesCollisionShape(t *testing.T) {
 	w, tool, _, _ := driven(t, copyOfWalls(t))
 	tool.previewPanel.SetCollapsed(false)
-	solids := tool.tmap.SolidIn(geom.Rect{X: -500, Y: -500, W: 1000, H: 1000})
+	solids := tiles.Of(tool.tmap).SolidIn(geom.Rect{X: -500, Y: -500, W: 1000, H: 1000})
 	if len(solids) == 0 {
 		t.Fatal("tile 0 has no collision shape")
 	}

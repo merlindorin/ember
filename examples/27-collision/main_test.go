@@ -5,6 +5,7 @@ import (
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
@@ -16,7 +17,7 @@ func TestWallsStopTheHeroUntilThePlateOpensTheDoor(t *testing.T) {
 		t.Fatal(err)
 	}
 	walls := twod.NewTileMap(
-		twod.NewTileset(sheet, twod.Cell(16, 16), twod.Solid(wall)),
+		twod.NewTileset(sheet, twod.Cell(16, 16), tiles.Solid(wall)),
 		twod.ASCII(room, legend()),
 		twod.CellSize(32, 32),
 	)
@@ -27,7 +28,7 @@ func TestWallsStopTheHeroUntilThePlateOpensTheDoor(t *testing.T) {
 	plate := twod.NewSprite(nil, twod.At(walls.Center(plateX, plateY).X, walls.Center(plateX, plateY).Y))
 	plate.AppendChild(collide.NewBody(collide.Box(32, 32), collide.Trigger()))
 	space := collide.NewSpace()
-	space.AddSolid(walls)
+	space.AddSolid(tiles.Of(walls))
 	win := platform.NewWindow(platform.Size(640, 384))
 	win.AppendChild(walls)
 	win.AppendChild(plate)

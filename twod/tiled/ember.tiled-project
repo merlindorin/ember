@@ -24,12 +24,12 @@
             "id": 2,
             "members": [
                 {
-                    "name": "solid",
+                    "name": "tall",
                     "type": "bool",
                     "value": false
                 },
                 {
-                    "name": "tall",
+                    "name": "solid",
                     "type": "bool",
                     "value": false
                 },
@@ -46,11 +46,6 @@
                 },
                 {
                     "name": "height",
-                    "type": "float",
-                    "value": 0
-                },
-                {
-                    "name": "emissive",
                     "type": "float",
                     "value": 0
                 }

@@ -3,6 +3,7 @@ package light
 import (
 	"fmt"
 	"log"
+	"maps"
 	"math"
 	"slices"
 	"strings"
@@ -87,6 +88,10 @@ type system struct {
 	// light picture past draw.MaxPictures.
 	fallen map[*platform.Window]string
 	probes world.Group[*Probe]
+	// maps are the World's tile maps, and caches what each blocks light
+	// with, placed.
+	maps   world.Group[tileSource]
+	caches map[tileSource]*mapCache
 	// glows are the glow textures made so far, by what they glow.
 	glows map[glowKey]*render.Texture
 	byWin map[*platform.Window]*draw.Lighting
@@ -94,6 +99,8 @@ type system struct {
 	bakes map[any]*bake
 	// used are the windows lit this frame.
 	used map[*platform.Window]bool
+	// scratch holds a map's shadows while they're drawn.
+	scratch []shadow
 }
 
 // Priority runs it after twod, whose cameras and drawn places it reads.
@@ -273,6 +280,8 @@ func (s *system) lightWindow(w *world.World, win *platform.Window, statics map[*
 	for _, space := range spaces {
 		s.spaceOccluders(lighting, space, win, view, area, r)
 	}
+	maps := s.mapsIn(w, win)
+	s.mapOccluders(lighting, maps, win, view, area, r)
 	b := s.bakes[cam]
 	if b == nil && len(statics) == 0 {
 		return cam, false
@@ -285,7 +294,7 @@ func (s *system) lightWindow(w *world.World, win *platform.Window, statics map[*
 	for l, dl := range statics {
 		placed[l] = worldLight(dl, view)
 	}
-	b.update(placed, spaces)
+	b.update(placed, spaces, maps, s.cacheOf)
 	lighting.Static = b.static(cam, area, view)
 	return cam, true
 }
@@ -300,11 +309,7 @@ func (s *system) spaceOccluders(
 	area, r geom.Rect,
 ) {
 	for _, src := range space.SolidSources() {
-		if caster, casts := src.(twod.ShadowCaster); casts {
-			scale := view.X.Len()
-			for _, sh := range caster.ShadowsIn(area) {
-				quad(lighting.Occluders, s.blockedOf(win, r), view, sh.Rect, r, 1<<sh.Group, sh.Height*scale)
-			}
+		if fromMap(src) {
 			continue
 		}
 		for _, solid := range src.SolidIn(area) {
@@ -314,6 +319,55 @@ func (s *system) spaceOccluders(
 	for _, b := range space.Bodies(area) {
 		if !b.Trigger() && b.Soft() == 0 {
 			quad(lighting.Occluders, s.blockedOf(win, r), view, b.Bounds(), r, 1, 0)
+		}
+	}
+}
+
+// mapsIn are the tile maps in win, hidden or not.
+func (s *system) mapsIn(w *world.World, win *platform.Window) []tileSource {
+	var out []tileSource
+	for m := range s.maps.All() {
+		if state(m).NoShadows {
+			continue
+		}
+		if _, in, ok := lit.Screen(w, m); ok && in == win {
+			out = append(out, m)
+		}
+	}
+	return out
+}
+
+// cacheOf is what m blocks light with, placed, kept while m is in the
+// World.
+func (s *system) cacheOf(m tileSource) *mapCache {
+	c := s.caches[m]
+	if c == nil {
+		if s.caches == nil {
+			s.caches = map[tileSource]*mapCache{}
+		}
+		if len(s.caches) > s.maps.Len() {
+			live := map[tileSource]bool{}
+			for m := range s.maps.All() {
+				live[m] = true
+			}
+			maps.DeleteFunc(s.caches, func(m tileSource, _ *mapCache) bool { return !live[m] })
+		}
+		c = &mapCache{}
+		s.caches[m] = c
+	}
+	return c
+}
+
+// mapOccluders adds what maps' tiles block light with within area to
+// lighting's occluders.
+func (s *system) mapOccluders(
+	lighting *draw.Lighting, maps []tileSource, win *platform.Window, view geom.Transform2D, area, r geom.Rect,
+) {
+	scale := view.X.Len()
+	for _, m := range maps {
+		s.scratch = s.cacheOf(m).shadowsIn(s.scratch[:0], m, area)
+		for _, sh := range s.scratch {
+			quad(lighting.Occluders, s.blockedOf(win, r), view, sh.rect, r, 1<<sh.group, sh.height*scale)
 		}
 	}
 }

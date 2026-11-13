@@ -56,6 +56,8 @@ type State struct {
 	// Emissive is how far, in points, a sprite's own picture glows round
 	// it, 0 for not at all.
 	Emissive float32
+	// NoShadows makes a tile map's tiles cast nothing, whatever they say.
+	NoShadows bool
 	// AmbientMap is a camera's *twod.TiledPicture of ambient light, nil
 	// for none.
 	AmbientMap any
@@ -93,6 +95,22 @@ var View func(w *world.World, win *platform.Window) (camera any, toScreen geom.T
 //
 //nolint:gochecknoglobals // a hook another package fills at init, keeping the imports acyclic
 var Tiles func(picture any, list any, view geom.Rect, t geom.Transform2D)
+
+// TileBlocks appends to dst the rects tile id of tileset, a
+// *twod.Tileset, blocks light with, standing on the cell at origin, of
+// size cell, flipped by flip, a twod.TileFlip: what a lit tile takes its
+// light round. The light package sets it; nil without it, when nothing is
+// lit.
+//
+//nolint:gochecknoglobals // a hook another package fills at init, keeping the imports acyclic
+var TileBlocks func(tileset any, id int, origin, cell geom.Vec2, flip uint8, dst []geom.Rect) []geom.Rect
+
+// FromMap marks a collide solid that reads a tile map's cells, such as
+// collide/tiles' Layer, by a method `ReadsTileMap() lit.FromMap`: light
+// casts tile maps from its own reading of them and skips such a solid.
+// Only engine packages can name it, so no game's solid is skipped by
+// accident.
+type FromMap struct{}
 
 // Size is e's drawn size in its own space, centred on its pivot, for a
 // sprite occluding light; twod sets it.

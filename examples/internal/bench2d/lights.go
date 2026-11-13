@@ -6,6 +6,7 @@ import (
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/examples/internal/crypt"
 	"github.com/merlindorin/ember/geom"
@@ -131,7 +132,7 @@ func lights(win *platform.Window, width, height int, o *lightFlags) *world.World
 	}
 
 	space := collide.NewSpace()
-	space.AddSolid(columns)
+	space.AddSolid(tiles.Of(columns))
 	camOpts := []twod.CameraOption{twod.At(areaW/2, areaH/2), twod.Zoom(zoom)}
 	if on {
 		camOpts = append(camOpts, light.Ambient(color.RGB(0.06, 0.06, 0.08)), light.OccludersFrom(space))

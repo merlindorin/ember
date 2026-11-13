@@ -40,8 +40,7 @@ const (
 	typeClass  = "class"
 	typeFile   = "file"
 	typeObject = "object"
-	propShadow = "shadow"
-	propHeight = "height"
+	propTall   = "tall"
 )
 
 //nolint:gochecknoglobals // a lookup table
@@ -74,47 +73,16 @@ type Property struct {
 	Doc      string
 }
 
-// EngineTileProperties are the tile properties the engine reads.
+// EngineTileProperties are the tile properties twod reads: tall. The
+// systems declare their own: collide/tiles' Properties (solid),
+// twod/light's TileProperties (shadow, occluder_group, height).
 func EngineTileProperties() []Property {
-	return []Property{
-		{
-			Name:    "solid",
-			Kind:    KindBool,
-			Default: false,
-			Doc:     "blocks bodies, as its collision shapes or its whole cell; true when it has shapes",
-		},
-		{
-			Name:    "tall",
-			Kind:    KindBool,
-			Default: false,
-			Doc:     "drawn from its foot, sorted by y with characters, lit at its base",
-		},
-		{
-			Name:    propShadow,
-			Kind:    KindEnum,
-			Default: "cast",
-			Values:  []string{"cast", "none"},
-			Doc:     "none: blocks bodies, not light",
-		},
-		{Name: "occluder_group", Kind: KindInt, Default: 0, Min: 0, Max: 2, Doc: "occluder group, for BlockedBy"},
-		{
-			Name:    propHeight,
-			Kind:    KindFloat,
-			Default: 0.0,
-			Min:     0,
-			Max:     4096,
-			Doc: "how tall it stands, in its pixels, for shadow length; " +
-				"0: its picture's height when tall, its cell's when solid",
-		},
-		{
-			Name:    "emissive",
-			Kind:    KindFloat,
-			Default: 0.0,
-			Min:     0,
-			Max:     4096,
-			Doc:     "glows over this reach, in its pixels",
-		},
-	}
+	return []Property{{
+		Name:    propTall,
+		Kind:    KindBool,
+		Default: false,
+		Doc:     "drawn from its foot, sorted by y with characters, lit at its base",
+	}}
 }
 
 // TiledOption sets up the loading of a Tiled tileset or map.
@@ -140,6 +108,17 @@ func (tiledOption) tileMap(*TileMap)     {}
 // TiledProject writes them for Tiled.
 func TileProperties(defs ...Property) TiledOption {
 	return tiledOption(func(l *tiledLoad) { l.defs = append(l.defs, defs...) })
+}
+
+// Declared are the tile properties opts declare, in order: what
+// TileProperties, and a system's own such as tiles.Properties or
+// light.TileProperties, give the loader.
+func Declared(opts ...TiledOption) []Property {
+	l := &tiledLoad{}
+	for _, o := range opts {
+		o.tiled(l)
+	}
+	return l.defs
 }
 
 func loadOf(opts []TileMapOption) *tiledLoad {
@@ -281,6 +260,9 @@ func (t *Tileset) Value(id int, name string) (Value, bool) {
 	if v, ok := t.props[id][name]; ok {
 		return Value{v}, true
 	}
+	if v, ok := t.typedValue(id, name); ok {
+		return Value{v}, true
+	}
 	if v, ok := t.load.tileValue(t.classes[id], name); ok {
 		return Value{v}, true
 	}
@@ -290,32 +272,22 @@ func (t *Tileset) Value(id int, name string) (Value, bool) {
 	return Value{}, false
 }
 
+// typedValue is property name of tile id when the tileset keeps it in a
+// field of its own rather than with the other properties: tall, set in
+// Tiled or by Tall.
+func (t *Tileset) typedValue(id int, name string) (any, bool) {
+	if name == propTall {
+		return true, t.tall[id]
+	}
+	return nil, false
+}
+
 func (t *Tileset) declared(name string) (Property, bool) {
 	if t.load == nil {
 		t.load = &tiledLoad{}
 	}
 	return t.load.def(name)
 }
-
-// Height is how tall tile id stands, in its pixels, for shadow length:
-// its height property, else its picture's height when tall, its cell's
-// when solid, else 0.
-func (t *Tileset) Height(id int) float32 {
-	if h, ok := t.height[id]; ok && h > 0 {
-		return h
-	}
-	switch {
-	case t.tall[id]:
-		_, r := t.image(id, 0)
-		return r.H
-	case t.Solid(id):
-		return float32(t.tileH)
-	}
-	return 0
-}
-
-// Emissive is how far tile id glows, in its pixels, 0 for not at all.
-func (t *Tileset) Emissive(id int) float32 { return t.emissive[id] }
 
 // NearMiss is the declared property name is within two edits of, when it
 // isn't one itself: a likely misspelling.

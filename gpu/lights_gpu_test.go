@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/internal/draw"
@@ -554,15 +555,15 @@ func wallTile(t *testing.T, opts ...twod.TilesetOption) (*image.RGBA, float32) {
 	if err := r.init(d); err != nil {
 		t.Fatal(err)
 	}
-	tiles := twod.NewTileset(filled(10, 10, stdcolor.RGBA{}), twod.Cell(10, 10), opts...)
+	set := twod.NewTileset(filled(10, 10, stdcolor.RGBA{}), twod.Cell(10, 10), opts...)
 	m := twod.NewTileMap(
-		tiles,
+		set,
 		twod.Cells([][]int{{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}}),
 		twod.CellSize(10, 10),
 		twod.At(0, -50),
 	)
 	space := collide.NewSpace()
-	space.AddSolid(m)
+	space.AddSolid(tiles.Of(m))
 	w := world.New().AddPlugins(wm.Plugin{}, twod.Plugin{}, light.Plugin{})
 	w.AddSystems(collide.NewTracker(space))
 	win := platform.NewWindow(platform.Size(200, 100))
@@ -588,14 +589,14 @@ func wallTile(t *testing.T, opts ...twod.TilesetOption) (*image.RGBA, float32) {
 }
 
 func TestATilesShadowShapesBlockLightAndItsNoShadowLetsItThrough(t *testing.T) {
-	img, walked := wallTile(t, twod.ShadowShapes(1, geom.Rect{W: 10, H: 10}))
+	img, walked := wallTile(t, light.TileShadowShapes(1, geom.Rect{W: 10, H: 10}))
 	if v := at(img, 40, 0); v > 5 {
 		t.Fatalf("a shadow-only tile casts a shadow: %d", v)
 	}
 	if walked < 29 {
 		t.Fatalf("and lets the body walk through it: it reached %v", walked)
 	}
-	img, walked = wallTile(t, twod.Solid(1), twod.CastShadow(false, 1))
+	img, walked = wallTile(t, tiles.Solid(1), light.TileShadow(false, 1))
 	if v := at(img, 40, 0); v < 250 {
 		t.Fatalf("a NoShadow tile lets the light through: %d", v)
 	}
@@ -616,10 +617,10 @@ func tallColumn(t *testing.T, from geom.Vec2, behind int) *image.RGBA {
 	if err := r.init(d); err != nil {
 		t.Fatal(err)
 	}
-	tiles := twod.NewTileset(
+	set := twod.NewTileset(
 		filled(20, 30, stdcolor.RGBA{255, 255, 255, 255}),
 		twod.Cell(10, 30),
-		twod.Solid(1, 2),
+		tiles.Solid(1, 2),
 		twod.Tall(1),
 	)
 	cells := make([][]int, 10)
@@ -633,9 +634,9 @@ func tallColumn(t *testing.T, from geom.Vec2, behind int) *image.RGBA {
 		cells[5][0] = 1
 	}
 	cells[5][2] = 1
-	m := twod.NewTileMap(tiles, twod.Cells(cells), twod.CellSize(10, 10), twod.At(-20, -50))
+	m := twod.NewTileMap(set, twod.Cells(cells), twod.CellSize(10, 10), twod.At(-20, -50))
 	space := collide.NewSpace()
-	space.AddSolid(m)
+	space.AddSolid(tiles.Of(m))
 	w := world.New().AddPlugins(wm.Plugin{}, twod.Plugin{}, light.Plugin{})
 	win := platform.NewWindow(platform.Size(200, 100))
 	win.Add(twod.NewCamera(light.Ambient(color.Black), light.OccludersFrom(space)))
@@ -690,10 +691,10 @@ func wallRow(t *testing.T, from geom.Vec2) *image.RGBA {
 	if err := r.init(d); err != nil {
 		t.Fatal(err)
 	}
-	tiles := twod.NewTileset(filled(10, 10, stdcolor.RGBA{255, 255, 255, 255}), twod.Cell(10, 10), twod.Solid(1))
-	m := twod.NewTileMap(tiles, twod.Cells([][]int{{1, 1, 1}}), twod.CellSize(10, 10), twod.At(-15, 0))
+	set := twod.NewTileset(filled(10, 10, stdcolor.RGBA{255, 255, 255, 255}), twod.Cell(10, 10), tiles.Solid(1))
+	m := twod.NewTileMap(set, twod.Cells([][]int{{1, 1, 1}}), twod.CellSize(10, 10), twod.At(-15, 0))
 	space := collide.NewSpace()
-	space.AddSolid(m)
+	space.AddSolid(tiles.Of(m))
 	w := world.New().AddPlugins(wm.Plugin{}, twod.Plugin{}, light.Plugin{})
 	win := platform.NewWindow(platform.Size(200, 100))
 	win.Add(twod.NewCamera(light.Ambient(color.Black), light.OccludersFrom(space)))
@@ -818,16 +819,16 @@ func TestATilesHeightSetsItsShadowsLength(t *testing.T) {
 		t.Fatal(err)
 	}
 	draw := func(height float32) *image.RGBA {
-		tiles := twod.NewTileset(filled(10, 10, stdcolor.RGBA{}), twod.Cell(10, 10), twod.Solid(1))
+		set := twod.NewTileset(filled(10, 10, stdcolor.RGBA{}), twod.Cell(10, 10), tiles.Solid(1))
 		if height > 0 {
-			tiles = twod.NewTileset(
+			set = twod.NewTileset(
 				filled(10, 10, stdcolor.RGBA{}),
 				twod.Cell(10, 10),
-				twod.Solid(1),
-				twod.Height(height, 1),
+				tiles.Solid(1),
+				light.TileHeight(height, 1),
 			)
 		}
-		m := twod.NewTileMap(tiles, twod.Cells([][]int{{1}, {1}, {1}}), twod.CellSize(10, 10), twod.At(0, -15))
+		m := twod.NewTileMap(set, twod.Cells([][]int{{1}, {1}, {1}}), twod.CellSize(10, 10), twod.At(0, -15))
 		return wallsLitBy(
 			t,
 			r,
@@ -852,7 +853,7 @@ func TestATilesHeightSetsItsShadowsLength(t *testing.T) {
 func wallsLitBy(t *testing.T, r *webgpu2D, d *wgpu.Device, m *twod.TileMap, lamp *light.Light) *image.RGBA {
 	t.Helper()
 	space := collide.NewSpace()
-	space.AddSolid(m)
+	space.AddSolid(tiles.Of(m))
 	w := world.New().AddPlugins(wm.Plugin{}, twod.Plugin{}, light.Plugin{})
 	win := platform.NewWindow(platform.Size(200, 100))
 	win.Add(twod.NewCamera(light.Ambient(color.Black), light.OccludersFrom(space)))
@@ -1014,8 +1015,8 @@ func TestAStaticLightIsBakedAsItIsDrawnLiveShadowsIncluded(t *testing.T) {
 		t.Fatal(err)
 	}
 	column := func() *twod.TileMap {
-		tiles := twod.NewTileset(filled(10, 10, stdcolor.RGBA{}), twod.Cell(10, 10), twod.Solid(1))
-		return twod.NewTileMap(tiles, twod.Cells([][]int{{1}, {1}, {1}}), twod.CellSize(10, 10), twod.At(0, -15))
+		set := twod.NewTileset(filled(10, 10, stdcolor.RGBA{}), twod.Cell(10, 10), tiles.Solid(1))
+		return twod.NewTileMap(set, twod.Cells([][]int{{1}, {1}, {1}}), twod.CellSize(10, 10), twod.At(0, -15))
 	}
 	lamp := func(opts ...light.Option) *light.Light {
 		return light.NewPoint(

@@ -5,13 +5,14 @@ import (
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 )
 
 func TestTheTiledLevelSpawnsItsThingsAndItsWallsBlock(t *testing.T) {
-	level, err := twod.LoadTiled(files, "level.tmj")
+	level, err := twod.LoadTiled(files, "level.tmj", tiles.Properties())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -19,7 +20,7 @@ func TestTheTiledLevelSpawnsItsThingsAndItsWallsBlock(t *testing.T) {
 	if !ok || len(level.TileLayers()) != 2 {
 		t.Fatal("two tile layers, ground and walls")
 	}
-	if x, y, _ := walls.Cell(walls.Center(0, 0)); walls.At(x, y) != 2 || !level.Tilesets()[0].Solid(2) {
+	if x, y, _ := walls.Cell(walls.Center(0, 0)); walls.At(x, y) != 2 || !tiles.Of(walls).Solid(x, y) {
 		t.Fatal("the wall tile is solid by its property in tiles.tsj")
 	}
 	things := twod.NewLayer(1, twod.SortByY())
@@ -34,7 +35,7 @@ func TestTheTiledLevelSpawnsItsThingsAndItsWallsBlock(t *testing.T) {
 	win := platform.NewWindow(platform.Size(640, 384))
 	for _, l := range level.TileLayers() {
 		win.AppendChild(l)
-		space.AddSolid(l)
+		space.AddSolid(tiles.Of(l))
 	}
 	win.AppendChild(things)
 	keys := win.Input()

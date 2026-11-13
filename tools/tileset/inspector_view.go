@@ -108,7 +108,7 @@ type objectField struct {
 
 // engineProperties are the tile properties the engine reads, as the
 // inspector shows them.
-func engineProperties() []twod.Property { return twod.EngineTileProperties() }
+func engineProperties() []twod.Property { return engineTileProperties() }
 
 // valuesOf are the items of property d's pop-up: the occluder group's 0,
 // 1, 2, an enum's values, nil for a bool's switch or a field.

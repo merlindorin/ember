@@ -12,6 +12,7 @@ import (
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/twod/light"
@@ -52,7 +53,7 @@ func main() {
 	above := twod.NewLayer(1).Add(fog.pic)
 
 	space := collide.NewSpace()
-	space.AddSolid(trees)
+	space.AddSolid(tiles.Of(trees))
 	camera := twod.NewCamera(twod.At(320, 192), light.AmbientMap(newShade()), light.OccludersFrom(space))
 	win.Add(floor, garden, trees, above, camera)
 
@@ -79,6 +80,6 @@ func loadTilesets() (*twod.Tileset, *twod.Tileset, error) {
 		return nil, nil, err
 	}
 	return twod.NewTileset(sheet, twod.Cell(16, 16)),
-		twod.NewTileset(tall, twod.Cell(16, 32), twod.Tall(tree, pillar), twod.Solid(tree, pillar)),
+		twod.NewTileset(tall, twod.Cell(16, 32), twod.Tall(tree, pillar), tiles.Solid(tree, pillar)),
 		nil
 }

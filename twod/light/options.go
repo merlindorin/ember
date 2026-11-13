@@ -96,11 +96,18 @@ func SetAmbientMap(cam *twod.Camera, pic *twod.TiledPicture) {
 	AmbientMap(pic)(cam)
 }
 
-// OccludersFrom makes the solids of space, such as its tile maps' walls, and
-// its hard bodies block light in a camera's view, as occluder group 0: an
-// option of the camera. A tile map's tiles block light by their shadows
-// instead (twod.ShadowShapes, NoShadow, OccluderGroup; in Tiled, shapes of
-// class "shadow" and the properties shadow "none" and occluder_group).
+// NoShadows makes a tile map's tiles cast no shadows, whatever their
+// properties say: a map drawn as a picture only, whose walls something
+// else stands for.
+func NoShadows() twod.Option { return func(e twod.Entity) { state(e).NoShadows = true } }
+
+// NoShadowsOf reports whether e is made with NoShadows.
+func NoShadowsOf(e twod.Entity) bool { return state(e).NoShadows }
+
+// OccludersFrom makes the solids and hard bodies of space block light in a
+// camera's view, as occluder group 0: an option of the camera. Tile maps
+// are not among them: light finds the World's maps itself, and a solid
+// reading one, as collide/tiles' Layer does, is skipped.
 func OccludersFrom(space *collide.Space) twod.Option {
 	return func(e twod.Entity) { s := state(e); s.Spaces = append(s.Spaces, space) }
 }

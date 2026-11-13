@@ -8,51 +8,19 @@
     ],
     "propertyTypes": [
         {
-            "id": 1,
-            "name": "shadow",
-            "storageType": "string",
-            "type": "enum",
-            "values": [
-                "cast",
-                "none"
-            ],
-            "valuesAsFlags": false
-        },
-        {
             "color": "#ffa0a0a4",
             "drawFill": true,
-            "id": 2,
+            "id": 1,
             "members": [
-                {
-                    "name": "solid",
-                    "type": "bool",
-                    "value": false
-                },
                 {
                     "name": "tall",
                     "type": "bool",
                     "value": false
                 },
                 {
-                    "name": "shadow",
-                    "propertyType": "shadow",
-                    "type": "string",
-                    "value": "cast"
-                },
-                {
-                    "name": "occluder_group",
-                    "type": "int",
-                    "value": 0
-                },
-                {
-                    "name": "height",
-                    "type": "float",
-                    "value": 0
-                },
-                {
-                    "name": "emissive",
-                    "type": "float",
-                    "value": 0
+                    "name": "solid",
+                    "type": "bool",
+                    "value": false
                 }
             ],
             "name": "ember.Tile",
@@ -64,7 +32,7 @@
         {
             "color": "#ffa0a0a4",
             "drawFill": true,
-            "id": 3,
+            "id": 2,
             "members": [
                 {
                     "name": "title",
@@ -87,7 +55,7 @@
         {
             "color": "#ffa0a0a4",
             "drawFill": true,
-            "id": 4,
+            "id": 3,
             "members": [
                 {
                     "name": "lit",
@@ -105,7 +73,7 @@
         {
             "color": "#ffa0a0a4",
             "drawFill": true,
-            "id": 5,
+            "id": 4,
             "members": [
                 {
                     "name": "to",
@@ -132,7 +100,7 @@
             ]
         },
         {
-            "id": 6,
+            "id": 5,
             "name": "look.state",
             "storageType": "string",
             "type": "enum",
@@ -145,7 +113,7 @@
         {
             "color": "#ffa0a0a4",
             "drawFill": true,
-            "id": 7,
+            "id": 6,
             "members": [
                 {
                     "name": "glow",
@@ -173,38 +141,17 @@
         {
             "color": "#ffa0a0a4",
             "drawFill": true,
-            "id": 8,
+            "id": 7,
             "members": [
-                {
-                    "name": "solid",
-                    "type": "bool",
-                    "value": false
-                },
                 {
                     "name": "tall",
                     "type": "bool",
                     "value": false
                 },
                 {
-                    "name": "shadow",
-                    "propertyType": "shadow",
-                    "type": "string",
-                    "value": "cast"
-                },
-                {
-                    "name": "occluder_group",
-                    "type": "int",
-                    "value": 0
-                },
-                {
-                    "name": "height",
-                    "type": "float",
-                    "value": 0
-                },
-                {
-                    "name": "emissive",
-                    "type": "float",
-                    "value": 0
+                    "name": "solid",
+                    "type": "bool",
+                    "value": false
                 },
                 {
                     "name": "durability",

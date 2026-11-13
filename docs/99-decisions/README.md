@@ -74,6 +74,7 @@ The choices that shape ember, one short file each: what was decided, what else w
 | 0068 | [A Tiled map hides nothing](0068-a-tiled-map-hides-nothing.md) | assets |
 | 0069 | [Variants of a picture are made at load](0069-variants-of-a-picture-are-made-at-load.md) | rendering |
 | 0070 | [Tiled classes are declared in Go](0070-tiled-classes-are-declared-in-go.md) | assets |
+| 0071 | [Each system reads its own tile properties](0071-each-system-reads-its-own-tile-properties.md) | assets |
 
 ## Writing one
 

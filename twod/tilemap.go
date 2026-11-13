@@ -1,7 +1,6 @@
 package twod
 
 import (
-	"slices"
 	"strconv"
 	"strings"
 
@@ -70,6 +69,7 @@ func (m *TileMap) SetFlip(x, y int, f TileFlip) {
 		m.flips = make([]TileFlip, len(m.cells))
 	}
 	m.flips[i] = f
+	m.version++
 	m.syncTalls()
 }
 
@@ -255,16 +255,6 @@ func (m *TileMap) Set(x, y, id int) {
 	m.syncTalls()
 }
 
-// Solid reports whether cell x, y holds a solid tile, which blocks it for
-// paths whatever its Collision shapes; outside the map counts as solid.
-func (m *TileMap) Solid(x, y int) bool {
-	if x < 0 || y < 0 || x >= m.Columns() || y >= m.Rows() {
-		return true
-	}
-	id := m.cells[y*m.columns+x]
-	return id != 0 && m.tileset != nil && m.tileset.Solid(id)
-}
-
 // Picture is what cell x, y shows, in the map's parent's space, trimmed
 // to its tile's Bounds: a Tall tile standing above its cell as the map
 // stands it, any other the part of the cell its pixels cover. ok is false
@@ -318,51 +308,6 @@ func (m *TileMap) Cell(p geom.Vec2) (int, int, bool) {
 	x, y = int(geom.Floor(fx)), int(geom.Floor(fy))
 	columns, rows := m.Columns(), m.Rows()
 	return x, y, x >= 0 && y >= 0 && x < columns && y < rows
-}
-
-// SolidIn lists the rectangles its tiles stop bodies with, whole cells or
-// their Collision shapes, that area, in the map's parent's space, touches:
-// the map is a collide.Solid.
-func (m *TileMap) SolidIn(area geom.Rect) []geom.Rect {
-	if m.tileset == nil || m.isometric {
-		return nil
-	}
-	local := geom.Rect{X: area.X - m.position.X, Y: area.Y - m.position.Y, W: area.W, H: area.H}
-	x0, y0, x1, y1 := m.span(m.tileset.overhang(local, m.tileSize))
-	var out []geom.Rect
-	for y := y0; y <= y1; y++ {
-		for x := x0; x <= x1; x++ {
-			if id := m.At(x, y); id != 0 {
-				out = m.tileset.solids(out, id, m.position.Add(m.origin(x, y)), m.tileSize, m.Flip(x, y))
-			}
-		}
-	}
-	return touching(out, area)
-}
-
-// ShadowsIn are the rectangles the map's tiles block light with within
-// area, in the map's parent's space, as SolidIn's: their collision
-// shapes or solid cells, and their shadow shapes, unless made NoShadow.
-func (m *TileMap) ShadowsIn(area geom.Rect) []ShadowRect {
-	if m.tileset == nil || m.isometric {
-		return nil
-	}
-	local := geom.Rect{X: area.X - m.position.X, Y: area.Y - m.position.Y, W: area.W, H: area.H}
-	x0, y0, x1, y1 := m.span(m.tileset.overhang(local, m.tileSize))
-	var out []ShadowRect
-	for y := y0; y <= y1; y++ {
-		for x := x0; x <= x1; x++ {
-			if id := m.At(x, y); id != 0 {
-				out = m.tileset.shadowsOf(out, id, m.position.Add(m.origin(x, y)), m.tileSize, m.Flip(x, y))
-			}
-		}
-	}
-	return out
-}
-
-// touching keeps the rects of rs that overlap area.
-func touching(rs []geom.Rect, area geom.Rect) []geom.Rect {
-	return slices.DeleteFunc(rs, func(r geom.Rect) bool { return !r.Overlaps(area) })
 }
 
 // span is the range of cells area, in the map's space, covers, clipped to
@@ -433,7 +378,7 @@ func (m *TileMap) tallSprite(i, id int) *Sprite {
 		s,
 		m.light.Mode,
 		m.tileset.scale(m.tileSize),
-		m.tileset.shadowsOf(nil, id, cell, m.tileSize, m.Flip(x, y)),
+		m.tileset.blocksOf(nil, id, cell, m.tileSize, m.Flip(x, y)),
 	)
 	return s
 }

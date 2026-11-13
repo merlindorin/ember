@@ -12,6 +12,7 @@ import (
 	"io/fs"
 	"strings"
 
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/twod"
 )
 
@@ -66,7 +67,7 @@ func Things() *twod.Tileset {
 		strip(16, 48, "crate", "column"),
 		twod.Cell(16, 48),
 		twod.Tall(Crate, Column),
-		twod.Solid(Crate, Column),
+		tiles.Solid(Crate, Column),
 	)
 }
 

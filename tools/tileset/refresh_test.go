@@ -66,22 +66,8 @@ func shown(tool *Tool, d twod.Property) string {
 	if d.Name == "shadow" {
 		id = 1
 	}
-	switch d.Name {
-	case "solid":
-		return fmt.Sprint(tool.tiles.Solid(id))
-	case "tall":
+	if d.Name == "tall" {
 		return fmt.Sprint(tool.tiles.Tall(id))
-	case "shadow":
-		if tool.tiles.CastShadow(id) {
-			return "cast"
-		}
-		return "none"
-	case "occluder_group":
-		return fmt.Sprint(tool.tiles.OccluderGroup(id))
-	case "height":
-		return fmt.Sprint(tool.tiles.Height(id))
-	case "emissive":
-		return fmt.Sprint(tool.tiles.Emissive(id))
 	}
 	if v, ok := tool.tiles.Value(id, d.Name); ok {
 		return v.String()

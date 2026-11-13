@@ -2,7 +2,6 @@ package twod //nolint:testpackage // white-box: shares twod's test helpers, reac
 
 import (
 	"flag"
-	"os"
 	"testing"
 	"testing/fstest"
 
@@ -25,34 +24,30 @@ func propsTileset(t *testing.T, props string) fstest.MapFS {
 	}
 }
 
-func TestTheLoaderReadsTheEngineTilePropertiesTyped(t *testing.T) {
+func TestPropertiesTwodDoesntDeclareKeepTheirTiledTypes(t *testing.T) {
 	ts, err := LoadTiledTileset(propsTileset(t, `{"name": "solid", "type": "bool", "value": true},
 		{"name": "shadow", "type": "string", "propertytype": "shadow", "value": "none"},
 		{"name": "occluder_group", "type": "int", "value": 2},
 		{"name": "height", "type": "float", "value": 24.5},
-		{"name": "emissive", "type": "int", "value": 6},
 		{"name": "name", "type": "string", "value": "pillar"}`), "set.tsj")
 	require.NoError(t, err)
-	assert.True(t, ts.Solid(1))
-	assert.False(t, ts.CastShadow(1))
-	assert.Equal(t, 2, ts.OccluderGroup(1))
-	assert.Equal(t, float32(24.5), ts.Height(1))
-	assert.Equal(t, float32(6), ts.Emissive(1))
-	v, ok := ts.Value(1, "name")
-	assert.True(t, ok)
-	assert.Equal(t, "pillar", v.String())
-	_, ok = ts.Value(1, "missing")
+	for name, want := range map[string]any{
+		"solid": true, "shadow": "none", "occluder_group": 2, "height": 24.5, "name": "pillar",
+	} {
+		v, ok := ts.Value(1, name)
+		assert.True(t, ok, name)
+		assert.Equal(t, want, v.Any(), "%s, for the system that declares it to read", name)
+	}
+	_, ok := ts.Value(1, "missing")
 	assert.False(t, ok, "neither set nor declared")
-	assert.Equal(t, float32(0), ts.Height(2), "a floor stands flat")
+	_, ok = ts.Value(2, "solid")
+	assert.False(t, ok, "solid is collide/tiles' to declare: undeclared here, no default")
 }
 
 func TestTheLoaderNamesTheTilesetTileAndPropertyThatAreWrong(t *testing.T) {
 	const at = "set.tsj: tile 0: "
 	for props, want := range map[string]string{
 		`{"name": "tall", "type": "string", "value": "yes"}`:        at + "property tall: yes is a string, not a bool",
-		`{"name": "shadow", "type": "string", "value": "half"}`:     at + `property shadow: "half" is not one of cast, none`,
-		`{"name": "occluder_group", "type": "int", "value": 3}`:     at + "property occluder_group: 3 is outside 0–2",
-		`{"name": "occluder_group", "type": "float", "value": 1.5}`: "property occluder_group: 1.5 is a float, not an int",
 		`{"name": "reach_down", "type": "string", "value": "four"}`: "property reach_down: four is a string, not an int",
 	} {
 		_, err := LoadTiledTileset(
@@ -89,10 +84,10 @@ func TestAGamesPropertiesReadTypedWithTheirDefaults(t *testing.T) {
 }
 
 func TestAMisspelledPropertyIsANearMiss(t *testing.T) {
-	got, ok := NearMiss("occluder_grup")
+	got, ok := NearMiss("tal")
 	assert.True(t, ok)
-	assert.Equal(t, "occluder_group", got)
-	_, ok = NearMiss("shadow")
+	assert.Equal(t, "tall", got)
+	_, ok = NearMiss("tall")
 	assert.False(t, ok, "a known name is no miss")
 	_, ok = NearMiss("reach_down")
 	assert.False(t, ok, "far from every engine name")
@@ -101,13 +96,4 @@ func TestAMisspelledPropertyIsANearMiss(t *testing.T) {
 }
 
 //nolint:gochecknoglobals // the -update flag go test passes
-var updateProject = flag.Bool("update", false, "write tiled/ember.tiled-project")
-
-func TestTheCheckedInTiledProjectIsTheEnginesProperties(t *testing.T) {
-	if *updateProject {
-		require.NoError(t, os.WriteFile("tiled/ember.tiled-project", TiledProject(), 0o644))
-	}
-	b, err := os.ReadFile("tiled/ember.tiled-project")
-	require.NoError(t, err, "go test ./twod -run TiledProject -update writes it")
-	assert.Equal(t, string(TiledProject()), string(b), "regenerate with: go test ./twod -run TiledProject -update")
-}
+var updateProject = flag.Bool("update", false, "write the checked-in Tiled project files")

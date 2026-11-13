@@ -10,7 +10,7 @@ import (
 	"log"
 
 	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 	"github.com/merlindorin/ember/twod/light"
@@ -40,9 +40,7 @@ func main() {
 		twod.TallIn(garden),
 	)
 
-	space := collide.NewSpace()
-	space.AddSolid(trees)
-	camera := twod.NewCamera(twod.At(320, 192), light.Ambient(moonlight()), light.OccludersFrom(space))
+	camera := twod.NewCamera(twod.At(320, 192), light.Ambient(moonlight()))
 	sun := newSun()
 	win.Add(floor, garden, trees, camera, sun)
 
@@ -64,6 +62,6 @@ func loadTilesets() (*twod.Tileset, *twod.Tileset, error) {
 		return nil, nil, err
 	}
 	return twod.NewTileset(sheet, twod.Cell(16, 16)),
-		twod.NewTileset(tall, twod.Cell(16, 32), twod.Tall(tree, pillar), twod.Solid(tree, pillar)),
+		twod.NewTileset(tall, twod.Cell(16, 32), twod.Tall(tree, pillar), tiles.Solid(tree, pillar)),
 		nil
 }

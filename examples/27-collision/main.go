@@ -12,6 +12,7 @@ import (
 
 	"github.com/merlindorin/ember"
 	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
 )
@@ -30,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	walls := twod.NewTileMap(twod.NewTileset(sheet, twod.Cell(16, 16), twod.Solid(wall)),
+	walls := twod.NewTileMap(twod.NewTileset(sheet, twod.Cell(16, 16), tiles.Solid(wall)),
 		twod.ASCII(room, legend()),
 		twod.CellSize(32, 32),
 	)
@@ -42,7 +43,7 @@ func main() {
 	plate.Add(collide.NewBody(collide.Box(32, 32), collide.Trigger()))
 
 	space := collide.NewSpace()
-	space.AddSolid(walls)
+	space.AddSolid(tiles.Of(walls))
 	win.Add(walls, plate, hero)
 
 	ember.New().

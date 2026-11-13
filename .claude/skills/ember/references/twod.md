@@ -224,15 +224,15 @@ A HUD widget on the same canvas: `examples/17-custom-elements`.
 ## Tile maps and Tiled
 
 - `NewTileset(tex *Texture, cell Grid, opts ...TilesetOption) *Tileset` with `twod.Cell(16, 16)`; tile ids count from 1 along the sheet, 0 is empty.
-- Tileset options: `Solid(ids...)`, `Tall(ids...)`, `TileAnimation(id int, fps float32, frames ...int)`, `Collision(id, shapes...)`.
+- Tileset options: `Tall(ids...)`, `TileAnimation(id int, fps float32, frames ...int)`, `TileValue(id, name, v)`, `TileShapes(id, class, rects...)`; collision's are `tiles.Solid(ids...)`, `tiles.Collision(id, shapes...)`, `tiles.BodyShapes` (package `collide/tiles`), light's `light.TileHeight`, `TileOccluderGroup`, `TileShadow`, `TileShadowShapes`. A tile's properties and shapes: `tileset.Value(id, name)`, `tileset.Shapes(id)` (`[]TileShape{Rect, Class}`).
 - `NewTileMap(tileset, opts ...TileMapOption)` from `ASCII(text string, legend map[rune]int)`, `CSV(text)` or `Cells(grid [][]int)`, sized by `CellSize(w, h float32)`. Its position is the top-left of cell 0,0 (not centred).
-- At run time: `Set(x, y, id int)`, `At(x, y) int`, `Cell(p geom.Vec2) (x, y int, ok bool)`, `Center(x, y) geom.Vec2`, `Solid(x, y) bool`.
+- At run time: `Set(x, y, id int)`, `At(x, y) int`, `Cell(p geom.Vec2) (x, y int, ok bool)`, `Center(x, y) geom.Vec2`; is a cell solid: `tiles.Of(m).Solid(x, y)`.
 - Tiled: `level, err := twod.LoadTiled(files, "level.tmj")`, then `win.Add` each of `level.TileLayers()` (the tile layers' `*TileMap`s; `level.TileLayer("walls")` by name); spawns from `level.Objects("things")` (`ID`, `Name`, `Type`, `Rect`, `Rotation` in radians, `Visible`, `Properties`); `level.Object(id)` by Tiled's id.
 - The whole map (decision 0068): `Class()`, `Columns()`, `Rows()`, `TilePixels()`, `Scale()` (points per map pixel), `Background()`, `ParallaxOrigin()`; `Layers()` is every top layer in file order as `*TiledLayer` (`ID`, `Name`, `Class`, `Kind` `TiledTiles`/`TiledObjects`/`TiledImage`/`TiledGroup`, `Properties`, `Visible`, `Opacity`, `Offset`, `Tint`, `Parallax`, `DrawOrder`; `TileMap()`, `Objects()`, `Layers()`, `Parent()`), `Layer(name)`, `Walk(func(*TiledLayer) bool)`. A tile layer's `Visible`, `Tint`×`Opacity` and `Offset` are applied to its TileMap, the offset as its `CellOffset` so `SetPosition` keeps it (tall tiles in `TallIn` follow; hidden still collides and casts; `TileMap.SetHidden`/`SetTint`/`SetPosition`/`Translate` carry the tall tiles too); an object layer's `Offset` moves its objects; a tileset's drawing offset (`tileoffset`) moves its pictures; Tiled animations play each frame for its own duration; `tileset.Class(id)` is a tile's class; `twod.PixelScale(n)` makes each map pixel n points (cells = the map's tile size × n, read back as `level.Scale()`) where `CellSize` would need the tile size up front. Templates (`.tj`) are merged into their objects; text objects are `TiledText` with `o.Text` and `o.TextStyle` (`*TiledTextStyle`, Tiled's defaults filled); `Properties.Class(name)` reads a class property's members, `Int` takes whole numbers; a `file` property is its path from the fs root. Groups are a tree (`l.Layers()`, `l.Layer(name)`, `Parent()`; `Walk` visits all, `TileLayers()` includes groups', `Layer`/`TileLayer`/`Objects` name top layers); a group's settings reach what it holds: `l.Shown()`, `FoldedOpacity()`, `FoldedTint()`, `FoldedOffset()` are what the engine applies, there for the game's own sprites. An image layer's `l.Picture()` is a `*Sprite` (top-left at the folded offset, map points, hidden and tinted as folded) for the game to add. Nothing is dropped silently: what the loader can't read yet (repeated images, an image layer's or tileset's transparent colour, XML templates, a tileset's class) is an error naming it; two sibling layers of one name too.
 - Objects keep their shape: `o.Shape` is `TiledRectangle`, `TiledEllipse`, `TiledPoint`, `TiledPolygon` or `TiledPolyline`; `o.Points` are a polygon's or polyline's points in map pixels; `Rect` is Tiled's x, y, w, h (a point sized 0). A tile object has `o.Tile` (`*TiledTile{GID, Tileset, ID, Flip}`, nil otherwise; `ID` counts from 1, `Rect.Y` is its picture's bottom); `level.Sprite(o, opts...)` stands it as Tiled draws it (anchor from the tileset's object alignment, the object's size, rotation, flips, hidden when the object is).
 - Classes (decision 0070): `twod.Classes(twod.Class{Name, On: twod.OnMap|OnLayer|OnObject|OnTile, Shapes, Properties: []twod.Property{{Name, Kind, Default, Values, Min, Max, Required, Class, Doc}}})` on the loader; kinds also `KindClass` (members of `Class`, read with `Properties.Class(name)`), `KindFile`, `KindObject`. A map, layer or object of a declared class gets every property, defaults filled; a tile reads its class's defaults through `tileset.Value(id, name)`. Undeclared classes (once one is declared for that use), unknown properties, wrong kinds, `Required` left empty and wrong shapes are load errors; nothing declared, nothing checked. `twod.TiledProject(twod.TileProperties(...), twod.Classes(...))` writes the project file; test the game's against it. `o.Opacity` (Tiled 1.12) fades `level.Sprite(o)`.
 - Only used tilesets are loaded (decision 0067): `level.UsedTilesets()` are those a tile layer or tile object takes a tile from. An unused tileset of its own .tsj isn't even read (its file may be absent): in `level.Tilesets()` it's an empty Tileset with its `Source()`; an unused embedded one keeps properties and shapes, no pictures. `tileset.ImageFile(id)` is a tile's picture file in the fsys.
-- Collision with tile maps is `collide` (`space.AddSolid(tileMap)`), paths `nav`.
+- Each system reads its own tile properties (decision 0071): load with `twod.LoadTiled(files, name, tiles.Properties(), light.TileProperties())`; collision `space.AddSolid(tiles.Of(tileMap))`, paths `nav.New(tiles.Of(tileMap))` (endless: `tiles.Of(inf).AreaAround`); light finds the World's tile maps itself, hidden or not (`light.NoShadows()` on a map drawn only as a picture; `light.TileShadowsIn(dst, m, area)` gives what light casts, for sight and such).
 
 ```go
 package main
@@ -241,6 +241,7 @@ import (
 	"image"
 
 	"github.com/merlindorin/ember"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/input"
 	"github.com/merlindorin/ember/platform"
 	"github.com/merlindorin/ember/twod"
@@ -269,8 +270,8 @@ func main() {
 	for i := range sheet.Pix {
 		sheet.Pix[i] = []uint8{90, 140, 80, 255, 120, 110, 100, 255}[(i/64%2)*4+i%4]
 	}
-	tiles := twod.NewTileset(twod.NewTexture(sheet, twod.Pixelated()), twod.Cell(16, 16), twod.Solid(2))
-	room := twod.NewTileMap(tiles, twod.ASCII(level, map[rune]int{'.': 1, '#': 2}), twod.CellSize(32, 32))
+	set := twod.NewTileset(twod.NewTexture(sheet, twod.Pixelated()), twod.Cell(16, 16), tiles.Solid(2))
+	room := twod.NewTileMap(set, twod.ASCII(level, map[rune]int{'.': 1, '#': 2}), twod.CellSize(32, 32))
 	win := platform.NewWindow(platform.Size(320, 128), platform.FixedSize())
 	win.Add(room)
 	ember.New().AddEntities(win).AddSystems(&Dig{room: room, in: win.Input()}).MustRun()

@@ -3,17 +3,20 @@ package twod_test
 import (
 	"testing"
 
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/twod"
 )
 
-// The questions collision, paths and light ask a tile map every frame, on
-// a temple-sized map: 40×109 cells of 32 points, a third of them walls,
-// half of those with a collision shape. They are the gate of moving tile
-// properties out of twod (design/tiled-maps.md §6): compare before and
-// after on one machine at a fixed bench time,
+// The questions collision and paths ask a tile map every frame, on a
+// temple-sized map: 40×109 cells of 32 points, a third of them walls, half
+// of those with a collision shape, asked of its collide/tiles layer; light's
+// are twod/light's BenchmarkTileMapShadows, on the same map. They are the
+// gate of moving tile properties out of twod (design/tiled-maps.md §6, decision
+// 0071), against BenchmarkTileMap before the move, on one machine at a fixed
+// bench time,
 //
-//	go test -run xxx -bench TileMap -benchtime 2s -count 5 ./twod
+//	go test -run xxx -bench TileMap -benchtime 2s -count 5 ./twod ./twod/light
 
 const (
 	benchColumns, benchRows = 40, 109
@@ -33,8 +36,8 @@ func benchTile(x, y int) int {
 }
 
 func benchTileset() *twod.Tileset {
-	return twod.NewTileset(nil, twod.Cell(16, 16), twod.Solid(wall, shaped),
-		twod.Collision(shaped, geom.Rect{X: 0, Y: 8, W: 16, H: 8}))
+	return twod.NewTileset(nil, twod.Cell(16, 16), tiles.Solid(wall, shaped),
+		tiles.Collision(shaped, geom.Rect{X: 0, Y: 8, W: 16, H: 8}))
 }
 
 func benchTileMap() *twod.TileMap {
@@ -59,7 +62,7 @@ func benchInfiniteMap() *twod.InfiniteMap {
 				}
 			}
 		}))
-	m.SolidIn(geom.Rect{W: benchColumns * benchCell, H: benchRows * benchCell})
+	m.Fill(0, 0, benchColumns, benchRows, make([]int, benchColumns*benchRows))
 	return m
 }
 
@@ -76,46 +79,45 @@ func areas(n int, side float32) []geom.Rect {
 
 //nolint:gochecknoglobals // keeps the compiler from dropping the work
 var (
-	sinkRects   []geom.Rect
-	sinkShadows []twod.ShadowRect
-	sinkSolid   bool
+	sinkRects []geom.Rect
+	sinkSolid bool
 )
 
-type tileQueries interface {
-	SolidIn(area geom.Rect) []geom.Rect
-	ShadowsIn(area geom.Rect) []twod.ShadowRect
-	Solid(x, y int) bool
-}
-
-func benchQueries(b *testing.B, m tileQueries) {
+// benchLayer asks collision's and paths' questions of the map's layer in
+// collide/tiles, which moves them out of twod: SolidIn as a collide.Solid
+// lists, AppendSolidIn as a collide.Space asks, into a slice it keeps, and
+// Solid as nav does.
+func benchLayer(b *testing.B, l *tiles.Layer) {
 	b.Run("SolidIn-body", func(b *testing.B) {
 		around := areas(64, 48)
 		b.ReportAllocs()
 		i := 0
 		for b.Loop() {
-			sinkRects = m.SolidIn(around[i%len(around)])
+			sinkRects = l.SolidIn(around[i%len(around)])
 			i++
 		}
 	})
-	b.Run("ShadowsIn-light", func(b *testing.B) {
-		reach := areas(16, 600)
+	b.Run("AppendSolidIn-body", func(b *testing.B) {
+		around := areas(64, 48)
+		dst := make([]geom.Rect, 0, 64)
 		b.ReportAllocs()
 		i := 0
 		for b.Loop() {
-			sinkShadows = m.ShadowsIn(reach[i%len(reach)])
+			dst = l.AppendSolidIn(dst[:0], around[i%len(around)])
 			i++
 		}
+		sinkRects = dst
 	})
 	b.Run("Solid-cell", func(b *testing.B) {
 		b.ReportAllocs()
 		i := 0
 		for b.Loop() {
-			sinkSolid = m.Solid(i%benchColumns, i*7%benchRows)
+			sinkSolid = l.Solid(i%benchColumns, i*7%benchRows)
 			i++
 		}
 	})
 }
 
-func BenchmarkTileMap(b *testing.B) { benchQueries(b, benchTileMap()) }
+func BenchmarkTileMapLayer(b *testing.B) { benchLayer(b, tiles.Of(benchTileMap())) }
 
-func BenchmarkTileMapInfinite(b *testing.B) { benchQueries(b, benchInfiniteMap()) }
+func BenchmarkTileMapInfiniteLayer(b *testing.B) { benchLayer(b, tiles.Of(benchInfiniteMap())) }

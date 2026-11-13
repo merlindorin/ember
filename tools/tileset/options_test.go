@@ -270,12 +270,22 @@ func TestThePreviewShowsARoomWithTheTilesetAsEdited(t *testing.T) {
 	if len(tool.shown.maps) < 2 || len(tool.shown.SolidIn(geom.Rect{X: -5000, Y: -5000, W: 10000, H: 10000})) == 0 {
 		t.Fatalf("the room's layers stand in the preview, their walls solid: %d layers", len(tool.shown.maps))
 	}
-	everywhere := geom.Rect{X: -5000, Y: -5000, W: 10000, H: 10000}
-	before := len(tool.shown.ShadowsIn(everywhere))
+	walls := func() *twod.Tileset {
+		for _, m := range tool.shown.maps {
+			if filepath.Base(m.Tileset().Source()) == "walls.tsj" {
+				return m.Tileset()
+			}
+		}
+		t.Fatal("the room draws walls.tsj")
+		return nil
+	}
+	if !casts(walls(), 1) {
+		t.Fatal("walls.tsj's tile 0 casts, as saved")
+	}
 	auto.Queue(inspect(t, w, auto).prop("shadow").ID, automation.ActSelect, 1)
 	press("tile-0")
-	if after := len(tool.shown.ShadowsIn(everywhere)); after >= before {
-		t.Fatalf("walls.tsj's tile 0 made No shadow, the room casts fewer shadows at once: %d → %d", before, after)
+	if casts(walls(), 1) {
+		t.Fatal("walls.tsj's tile 0 made No shadow, the room's tileset reads it at once, so light casts none from it")
 	}
 	press("view")
 	press("view/tile-alone")
@@ -321,7 +331,7 @@ func TestAnEditOfSeveralTilesIsSavedAndReadBack(t *testing.T) {
 	shapes := len(readTile(tool.ed.doc, 5).Shapes)
 	for _, id := range []int{5, 6, 7} {
 		n := id + 1
-		if !ts.Tall(n) || ts.CastShadow(n) || ts.OccluderGroup(n) != 1 {
+		if g, _ := ts.Value(n, "occluder_group"); !ts.Tall(n) || casts(ts, n) || g.Int() != 1 {
 			t.Fatalf("the engine reads Tiled tile %d (its %d) tall, casting no shadow, in group 1", id, n)
 		}
 		if got := len(readTile(tool.ed.doc, id).Shapes); got != shapes {

@@ -17,20 +17,20 @@ func TestTheTilePanelEditsTheDeclaredPropertiesAndTheEngineReadsThem(t *testing.
 	w, tool, auto, press := driven(t, path)
 	press("tile-5")
 	in := inspect(t, w, auto)
-	in.typeIn(in.prop("height"), "24")
-	in.choose(in.prop("shadow"), "none")
-	in.typeIn(in.prop("emissive"), "bright")
+	in.typeIn(in.prop("height"), "bright")
 	if !strings.Contains(tool.status.Text(), "not a number") {
 		t.Fatalf("a word for a float property is refused, saying why: %q", tool.status.Text())
 	}
+	in.typeIn(in.prop("height"), "24")
+	in.choose(in.prop("shadow"), "none")
 	press("file")
 	press("file/save")
 	ts, err := twod.LoadTiledTileset(os.DirFS(filepath.Dir(path)), filepath.Base(path))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if ts.Height(6) != 24 || ts.CastShadow(6) {
-		t.Fatalf("Tiled tile 5 reads height 24 and shadow none: %v %v", ts.Height(6), ts.CastShadow(6))
+	if h, _ := ts.Value(6, "height"); h.Float() != 24 || casts(ts, 6) {
+		t.Fatalf("Tiled tile 5 reads height 24 and shadow none: %v %v", h.Float(), casts(ts, 6))
 	}
 	if got := value(in.prop("height")); got != "24" {
 		t.Fatalf("the field shows it: %q", got)

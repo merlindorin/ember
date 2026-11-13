@@ -44,7 +44,7 @@ func TestEditsUndoRedoAndSave(t *testing.T) {
 		if loadErr != nil {
 			t.Fatal(loadErr)
 		}
-		return ts.ShadowShapes(1)
+		return shadowShapes(ts, 1)
 	}())
 	e.Add(Rect, true)
 	i := e.selected
@@ -73,7 +73,7 @@ func TestEditsUndoRedoAndSave(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if s := ts.ShadowShapes(1); len(s) != shadows+1 || s[len(s)-1] != (geom.Rect{W: 16, H: 1}) {
+	if s := shadowShapes(ts, 1); len(s) != shadows+1 || s[len(s)-1] != (geom.Rect{W: 16, H: 1}) {
 		t.Fatalf("the engine reads the saved shadow shape after the %d it had: %v", shadows, s)
 	}
 	if e.Changed() {

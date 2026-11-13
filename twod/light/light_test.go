@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/internal/draw"
@@ -138,9 +139,9 @@ func tallVertices(
 ) ([]draw.Vertex, *platform.Window) {
 	t.Helper()
 	w, win, _ := scene(t)
-	tiles := twod.NewTileset(picture(16, 32), twod.Cell(16, 32), twod.Tall(1))
+	set := twod.NewTileset(picture(16, 32), twod.Cell(16, 32), twod.Tall(1))
 	m := twod.NewTileMap(
-		tiles,
+		set,
 		append([]twod.TileMapOption{twod.Cells([][]int{{1}}), twod.CellSize(32, 32)}, mapOpts...)...)
 	layer := twod.NewLayer(0, layerOpts...).Add(m)
 	win.Add(layer)
@@ -281,11 +282,11 @@ func TestAnAmbientMapLightsAWindowWithItsTilesInView(t *testing.T) {
 }
 
 func TestATileMapsShadowsAreItsOccludersInTheirGroups(t *testing.T) {
-	tiles := twod.NewTileset(picture(16, 16), twod.Cell(16, 16), twod.ShadowShapes(1, geom.Rect{W: 16, H: 16}),
-		twod.Solid(2), twod.CastShadow(false, 2), twod.Solid(3), twod.OccluderGroup(1, 3))
-	m := twod.NewTileMap(tiles, twod.Cells([][]int{{1, 2, 3}}), twod.CellSize(16, 16))
+	set := twod.NewTileset(picture(16, 16), twod.Cell(16, 16), TileShadowShapes(1, geom.Rect{W: 16, H: 16}),
+		tiles.Solid(2), TileShadow(false, 2), tiles.Solid(3), TileOccluderGroup(1, 3))
+	m := twod.NewTileMap(set, twod.Cells([][]int{{1, 2, 3}}), twod.CellSize(16, 16))
 	space := collide.NewSpace()
-	space.AddSolid(m)
+	space.AddSolid(tiles.Of(m))
 	w, win, _ := scene(t, OccludersFrom(space))
 	layer := twod.NewLayer(0).Add(m, NewPoint(80, color.White))
 	win.Add(layer)
@@ -306,8 +307,8 @@ func TestATileMapsShadowsAreItsOccludersInTheirGroups(t *testing.T) {
 
 func TestATallTileThatBlocksLightTakesItRoundWhatItBlocksWith(t *testing.T) {
 	w, win, _ := scene(t)
-	tiles := twod.NewTileset(picture(16, 32), twod.Cell(16, 32), twod.Tall(1), twod.Solid(1))
-	m := twod.NewTileMap(tiles, twod.Cells([][]int{{1}}), twod.CellSize(32, 32))
+	set := twod.NewTileset(picture(16, 32), twod.Cell(16, 32), twod.Tall(1), tiles.Solid(1))
+	m := twod.NewTileMap(set, twod.Cells([][]int{{1}}), twod.CellSize(32, 32))
 	layer := twod.NewLayer(0, Lit()).Add(m)
 	win.Add(layer)
 	w.AddEntities(layer)
@@ -444,9 +445,9 @@ func TestUnlitOnATileMapLeavesItsTallTilesUnlitWhereverTheyAreSorted(t *testing.
 	assert.Equal(t, 0, vs[0].Lit(), "in the map's own layer")
 
 	w, win, _ := scene(t)
-	tiles := twod.NewTileset(picture(16, 32), twod.Cell(16, 32), twod.Tall(1), twod.Solid(1))
+	set := twod.NewTileset(picture(16, 32), twod.Cell(16, 32), twod.Tall(1), tiles.Solid(1))
 	sorted := twod.NewLayer(1, Lit(), twod.SortByY())
-	m := twod.NewTileMap(tiles, twod.Cells([][]int{{1}}), twod.CellSize(32, 32), twod.TallIn(sorted), Unlit())
+	m := twod.NewTileMap(set, twod.Cells([][]int{{1}}), twod.CellSize(32, 32), twod.TallIn(sorted), Unlit())
 	ground := twod.NewLayer(0, Lit()).Add(m)
 	win.Add(ground, sorted)
 	w.AddEntities(ground, sorted)
@@ -460,9 +461,9 @@ func TestUnlitOnATileMapLeavesItsTallTilesUnlitWhereverTheyAreSorted(t *testing.
 
 func TestAStaticLightLeavesTheLiveListForTilesWhoseVersionsFollowWhatChanges(t *testing.T) {
 	space := collide.NewSpace()
-	tiles := twod.NewTileset(picture(16, 16), twod.Cell(16, 16), twod.Solid(1))
-	m := twod.NewTileMap(tiles, twod.Cells([][]int{{1, 0}}), twod.CellSize(16, 16), twod.At(40, 0))
-	space.AddSolid(m)
+	set := twod.NewTileset(picture(16, 16), twod.Cell(16, 16), tiles.Solid(1))
+	m := twod.NewTileMap(set, twod.Cells([][]int{{1, 0}}), twod.CellSize(16, 16), twod.At(40, 0))
+	space.AddSolid(tiles.Of(m))
 	w, win, _ := scene(t, OccludersFrom(space))
 	torch := NewPoint(100, color.White, At(0, 0), Static())
 	live := NewPoint(50, color.White, At(-100, 0))

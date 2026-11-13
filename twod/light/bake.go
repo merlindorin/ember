@@ -2,12 +2,12 @@ package light
 
 import (
 	"math"
+	"slices"
 
 	"github.com/merlindorin/ember/collide"
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/twod"
 )
 
 // bakeTile is a static light tile's side, in the world's points.
@@ -17,18 +17,27 @@ const bakeTile = 256
 // each tile the GPU must have drawn: a tile's version changes when a light
 // reaching it comes, goes or changes, or a shape near it does.
 type bake struct {
-	lights   map[*Light]draw.Light
-	spaces   []*collide.Space
-	versions map[collide.Solid]uint64
-	tiles    map[[2]int]uint64
-	base     uint64
-	next     uint64
+	lights map[*Light]draw.Light
+	spaces []*collide.Space
+	// maps are the tile maps blocking its lights, and cacheOf their
+	// shadows, placed.
+	maps     []tileSource
+	cacheOf  func(tileSource) *mapCache
+	versions map[any]uint64
+	mapKeys  map[tileSource]mapKey
+	// mapped is whether the bake has seen its maps once: a map coming or
+	// going after that changes every tile.
+	mapped bool
+	tiles  map[[2]int]uint64
+	base   uint64
+	next   uint64
 }
 
 func newBake() *bake {
 	return &bake{
 		lights:   map[*Light]draw.Light{},
-		versions: map[collide.Solid]uint64{},
+		versions: map[any]uint64{},
+		mapKeys:  map[tileSource]mapKey{},
 		tiles:    map[[2]int]uint64{},
 		base:     1,
 		next:     2,
@@ -84,11 +93,13 @@ func tileSpan(r geom.Rect) (int, int, int, int) {
 	return f(r.X), f(r.Y), f(r.X + r.W), f(r.Y + r.H)
 }
 
-// update takes this frame's static lights, in the world, and spaces,
-// giving a new version to the tiles of every light that came, went or
-// changed, and to all of them when a shape source changed.
-func (b *bake) update(lights map[*Light]draw.Light, spaces []*collide.Space) {
-	b.spaces = spaces
+// update takes this frame's static lights, in the world, spaces and tile
+// maps, giving a new version to the tiles of every light that came, went
+// or changed, and to all of them when a shape source changed.
+func (b *bake) update(
+	lights map[*Light]draw.Light, spaces []*collide.Space, maps []tileSource, cacheOf func(tileSource) *mapCache,
+) {
+	b.spaces, b.maps, b.cacheOf = spaces, maps, cacheOf
 	for l, s := range lights {
 		old, ok := b.lights[l]
 		switch {
@@ -107,10 +118,26 @@ func (b *bake) update(lights map[*Light]draw.Light, spaces []*collide.Space) {
 		}
 	}
 	changed := false
+	for _, m := range maps {
+		k := keyOf(m)
+		if old, known := b.mapKeys[m]; !known || old != k {
+			changed = changed || known || b.mapped
+			b.mapKeys[m] = k
+		}
+	}
+	if len(b.mapKeys) > len(maps) {
+		for m := range b.mapKeys {
+			if !slices.Contains(maps, m) {
+				delete(b.mapKeys, m)
+				changed = true
+			}
+		}
+	}
+	b.mapped = true
 	for _, sp := range spaces {
 		for _, src := range sp.SolidSources() {
 			v, ok := src.(interface{ Version() uint64 })
-			if !ok {
+			if !ok || fromMap(src) {
 				continue
 			}
 			if old, known := b.versions[src]; !known || old != v.Version() {
@@ -187,12 +214,14 @@ func (b *bake) tileBake(tile geom.Rect) draw.TileBake {
 	}
 	toFrame := geom.Transform2D{X: geom.V2(1, 0), Y: geom.V2(0, 1), Origin: origin.Scale(-1)}
 	r := draw.LightRect(size)
+	for _, m := range b.maps {
+		for _, sh := range b.cacheOf(m).shadowsIn(nil, m, frame) {
+			quad(li.Occluders, nil, toFrame, sh.rect, r, 1<<sh.group, sh.height)
+		}
+	}
 	for _, sp := range b.spaces {
 		for _, src := range sp.SolidSources() {
-			if caster, ok := src.(twod.ShadowCaster); ok {
-				for _, sh := range caster.ShadowsIn(frame) {
-					quad(li.Occluders, nil, toFrame, sh.Rect, r, 1<<sh.Group, sh.Height)
-				}
+			if fromMap(src) {
 				continue
 			}
 			for _, solid := range src.SolidIn(frame) {

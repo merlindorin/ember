@@ -16,7 +16,7 @@ import (
 	"strings"
 
 	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/collide"
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/examples/internal/crypt"
 	"github.com/merlindorin/ember/geom"
@@ -57,7 +57,9 @@ type panel struct {
 	floorUnlit bool
 	things     []twod.TileMapOption
 	// tiles are options on the crate's and the column's tileset.
-	tiles       []twod.TilesetOption
+	tiles []twod.TilesetOption
+	// noOccluders leaves the crates and columns not solid: they cast
+	// nothing.
 	noOccluders bool
 	sprites     func() []*twod.Sprite
 	debug       light.DebugView
@@ -133,11 +135,14 @@ func scene(p panel) *platform.Window {
 	}
 	ground.Add(floor)
 	room := twod.NewLayer(0, twod.SortByY(), light.Lit())
-	tiles := append([]twod.TilesetOption{
-		twod.Tall(crypt.Crate, crypt.Column), twod.Solid(crypt.Crate, crypt.Column),
-		twod.Height(24, crypt.Crate), twod.Height(48, crypt.Column),
-	}, p.tiles...)
-	set := twod.NewTileset(crypt.Things().Texture(), twod.Cell(16, 48), tiles...)
+	tileOpts := []twod.TilesetOption{
+		twod.Tall(crypt.Crate, crypt.Column), light.TileHeight(24, crypt.Crate), light.TileHeight(48, crypt.Column),
+	}
+	if !p.noOccluders {
+		tileOpts = append(tileOpts, tiles.Solid(crypt.Crate, crypt.Column))
+	}
+	tileOpts = append(tileOpts, p.tiles...)
+	set := twod.NewTileset(crypt.Things().Texture(), twod.Cell(16, 48), tileOpts...)
 	layout := twod.ASCII(
 		"..........\n"+
 			".cccc.....\n"+
@@ -173,16 +178,11 @@ func scene(p panel) *platform.Window {
 		overlay.Add(plot(p.falloff))
 	}
 
-	space := collide.NewSpace()
-	space.AddSolid(things)
 	ambient := night()
 	if p.ambient != nil {
 		ambient = *p.ambient
 	}
 	opts := []twod.CameraOption{twod.At(width/2, height/2), light.Ambient(ambient)}
-	if !p.noOccluders {
-		opts = append(opts, light.OccludersFrom(space))
-	}
 	if p.ambientMap {
 		opts = append(opts, light.AmbientMap(moonlit()))
 	}

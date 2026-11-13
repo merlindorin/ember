@@ -40,7 +40,7 @@ func overview() map[string]panel {
 			sprites: crate(),
 		},
 		"parts-shadows": {
-			call:    "+ light.OccludersFrom(space)",
+			call:    "+ tiles.Solid(crate, column)",
 			at:      behind(),
 			ambient: dim,
 			lights:  point(180, warm()),
@@ -143,13 +143,13 @@ func shadows() map[string]panel {
 		return point(260, warm(), append([]light.Option{light.Elevation(112), light.Falloff(0.6)}, opts...)...)
 	}
 	return map[string]panel{
-		"occluders-off": {call: "no light.OccludersFrom(space)", lights: point(220, warm()), noOccluders: true},
-		"occluders-on":  {call: "light.OccludersFrom(space)", lights: point(220, warm())},
-		"height-24":     {call: "twod.Height(24, crate)", lights: far},
+		"occluders-off": {call: "crates and columns not solid", lights: point(220, warm()), noOccluders: true},
+		"occluders-on":  {call: "tiles.Solid(crate, column)", lights: point(220, warm())},
+		"height-24":     {call: "light.TileHeight(24, crate)", lights: far},
 		"height-8": {
-			call:   "twod.Height(8, crate)",
+			call:   "light.TileHeight(8, crate)",
 			lights: far,
-			tiles:  []twod.TilesetOption{twod.Height(8, crypt.Crate)},
+			tiles:  []twod.TilesetOption{light.TileHeight(8, crypt.Crate)},
 		},
 		"elevation-0":   {call: "light.Elevation(0)", lights: point(220, warm())},
 		"elevation-100": {call: "light.Elevation(100)", lights: far},
@@ -174,14 +174,14 @@ func shadows() map[string]panel {
 			lights: fading(light.ShadowFade(), light.FadeFrom(0.5)),
 		},
 		"groups-all": {
-			call:   "twod.OccluderGroup(1, crate)",
+			call:   "light.TileOccluderGroup(1, crate)",
 			lights: point(220, warm()),
-			tiles:  []twod.TilesetOption{twod.OccluderGroup(1, crypt.Crate)},
+			tiles:  []twod.TilesetOption{light.TileOccluderGroup(1, crypt.Crate)},
 		},
 		"groups-blockedby": {
 			call:   "light.BlockedBy(0)",
 			lights: point(220, warm(), light.BlockedBy(0)),
-			tiles:  []twod.TilesetOption{twod.OccluderGroup(1, crypt.Crate)},
+			tiles:  []twod.TilesetOption{light.TileOccluderGroup(1, crypt.Crate)},
 		},
 		"shadow-black": {call: "black shadows, the default", lights: point(220, warm())},
 		"shadow-color": {

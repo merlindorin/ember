@@ -4,7 +4,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/twod"
+	"github.com/merlindorin/ember/twod/light"
 )
 
 // engineDeclared is what the tool declares with no -props: the engine's
@@ -20,18 +22,35 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	declared = append(twod.EngineTileProperties(), defs...)
+	declared = append(engineTileProperties(), defs...)
 	os.Exit(m.Run())
 }
 
 func TestWithoutPropsTheToolKnowsTheEnginesPropertiesOnly(t *testing.T) {
-	engine := twod.EngineTileProperties()
+	engine := engineTileProperties()
 	if len(engineDeclared) != len(engine) {
 		t.Fatalf("the engine's %d properties, no game's: %d", len(engine), len(engineDeclared))
 	}
 	for i, d := range engine {
 		if engineDeclared[i].Name != d.Name {
 			t.Fatalf("property %d is %s, not the engine's %s", i, engineDeclared[i].Name, d.Name)
+		}
+	}
+}
+
+func TestTheEnginesPropertiesAreTwodsCollideTilesAndLightsEachOnce(t *testing.T) {
+	names := map[string]int{}
+	for _, d := range engineTileProperties() {
+		names[d.Name]++
+	}
+	for _, d := range twod.Declared(tiles.Properties(), light.TileProperties()) {
+		if names[d.Name] != 1 {
+			t.Fatalf("%s is declared %d times, once wanted", d.Name, names[d.Name])
+		}
+	}
+	for name, n := range names {
+		if n != 1 {
+			t.Fatalf("%s is declared %d times, once wanted", name, n)
 		}
 	}
 }

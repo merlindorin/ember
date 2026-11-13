@@ -6,10 +6,8 @@ import (
 	stdcolor "image/color"
 	"testing"
 
-	"github.com/merlindorin/ember/collide"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +16,7 @@ import (
 // (tall), 4 and 5 water frames, played as tile 4.
 func tiles() *Tileset {
 	return NewTileset(NewTexture(image.NewRGBA(image.Rect(0, 0, 32, 16))), Cell(8, 8),
-		Solid(2), Tall(3), TileAnimation(4, 2, 4, 5))
+		TileValue(2, "solid", true), Tall(3), TileAnimation(4, 2, 4, 5))
 }
 
 const room = `
@@ -61,22 +59,6 @@ func TestCellsAndPointsConvertBothWays(t *testing.T) {
 		assert.True(t, inside)
 		assert.Equal(t, c, [2]int{cx, cy}, "an isometric cell's centre is in it")
 	}
-}
-
-func TestSolidTilesStopCollideBodies(t *testing.T) {
-	w := world.New()
-	space := collide.NewSpace()
-	w.AddSystems(collide.NewTracker(space))
-	walls := NewTileMap(tiles(), ASCII(room, legend), CellSize(32, 32))
-	space.AddSolid(walls)
-	hero := NewSprite(nil, At(48, 80))
-	hero.AppendChild(collide.NewBody(collide.Box(16, 16)))
-	w.AddEntities(walls, hero)
-	_, hits := space.Move(hero, geom.V2(-100, 0))
-	require.NotEmpty(t, hits)
-	assert.InDelta(t, 32+8, hero.Position().X, 0.01, "stopped by the wall column at 0..32")
-	assert.Equal(t, []geom.Rect{{W: 32, H: 32}}, walls.SolidIn(geom.Rect{X: 1, Y: 1, W: 2, H: 2}))
-	assert.Empty(t, walls.SolidIn(geom.Rect{X: 40, Y: 40, W: 2, H: 2}), "floor is not solid")
 }
 
 func TestTallTilesStandAsSpritesAtTheirFeet(t *testing.T) {
@@ -146,7 +128,7 @@ func TestTilesetsWithGuttersAndInScenes(t *testing.T) {
 		Cell(8, 8),
 		Margin(1),
 		Spacing(2, 2),
-		Solid(2),
+		TileValue(2, "solid", true),
 	)
 	assert.Equal(t, geom.Rect{X: 11, Y: 1, W: 8, H: 8}, frame(ts, 2, 0), "margin and spacing")
 	ts.setProperty(2, "sound", "stone")
@@ -154,20 +136,21 @@ func TestTilesetsWithGuttersAndInScenes(t *testing.T) {
 	require.NoError(t, err)
 	var back Tileset
 	require.NoError(t, json.Unmarshal(data, &back))
-	assert.True(t, back.Solid(2))
+	solid, _ := back.Value(2, "solid")
+	assert.True(t, solid.Bool())
 	assert.Equal(t, frame(ts, 2, 0), frame(&back, 2, 0))
 	v, ok := back.Property(2, "sound")
 	assert.True(t, ok)
 	assert.Equal(t, "stone", v)
 }
 
-func TestBodyShapesSurviveTheTilesetsJSON(t *testing.T) {
-	ts := NewTileset(atlas(16, 16), Cell(16, 16), BodyShapes(1, geom.Rect{Y: 12, W: 16, H: 4}))
+func TestShapesSurviveTheTilesetsJSON(t *testing.T) {
+	ts := NewTileset(atlas(16, 16), Cell(16, 16), TileShapes(1, "body", geom.Rect{Y: 12, W: 16, H: 4}))
 	data, err := json.Marshal(ts)
 	require.NoError(t, err)
 	var back Tileset
 	require.NoError(t, json.Unmarshal(data, &back))
-	assert.Equal(t, []geom.Rect{{Y: 12, W: 16, H: 4}}, back.BodyShapes(1))
+	assert.Equal(t, []TileShape{{geom.Rect{Y: 12, W: 16, H: 4}, "body"}}, back.Shapes(1))
 }
 
 func TestEveryTileDrawsWholeStandingOnItsCell(t *testing.T) {
@@ -317,29 +300,6 @@ func TestATileRisingOrSpreadingIntoViewIsDrawnFromItsCellOutside(t *testing.T) {
 		lo, hi := corners(list.Unindexed())
 		assert.Equal(t, c.want, geom.Rect{X: lo.X, Y: lo.Y, W: hi.X - lo.X, H: hi.Y - lo.Y}, c.name)
 	}
-}
-
-func TestATilesShapesAreWhatStopsBodies(t *testing.T) {
-	ts := NewTileset(nil, Cell(16, 16), Solid(3), Collision(1, geom.Rect{X: 0, Y: 4, W: 5, H: 28}))
-	ts.tiles[1] = tileImage{atlas(16, 32), geom.Rect{W: 16, H: 32}}
-	ts.tiles[3] = tileImage{atlas(16, 16), geom.Rect{W: 16, H: 16}}
-	m := NewTileMap(ts, Cells([][]int{{1, 1, 3}}), CellSize(32, 32), At(100, 200))
-	m.SetFlip(1, 0, TileFlipX)
-	assert.True(t, ts.Solid(1), "a tile with shapes stops bodies")
-	assert.True(t, m.Solid(0, 0), "and blocks its cell for paths")
-	assert.True(t, m.Solid(2, 0), "a solid tile with no shapes blocks its cell whole")
-	got := m.SolidIn(geom.Rect{X: 0, Y: 0, W: 1000, H: 1000})
-	assert.Equal(t, []geom.Rect{
-		{X: 100, Y: 200 - 32 + 8, W: 10, H: 56},
-		{X: 132 + 32 - 10, Y: 200 - 32 + 8, W: 10, H: 56},
-		{X: 164, Y: 200, W: 32, H: 32},
-	}, got, "its bar, rising with the tile above its cell, mirrored when the cell is; the whole cell for the plain one")
-	assert.Equal(
-		t,
-		[]geom.Rect{{X: 100, Y: 200 - 32 + 8, W: 10, H: 56}},
-		m.SolidIn(geom.Rect{X: 100, Y: 190, W: 12, H: 4}),
-		"only what the area touches, from the cell below it too",
-	)
 }
 
 func TestATilesPictureIsItsTextureAndRegion(t *testing.T) {

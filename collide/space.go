@@ -13,6 +13,13 @@ type Solid interface {
 	SolidIn(area geom.Rect) []geom.Rect
 }
 
+// SolidAppender is a Solid that appends its rectangles to a slice it is
+// given: the space asks it so, and a move allocates nothing for it.
+type SolidAppender interface {
+	Solid
+	AppendSolidIn(dst []geom.Rect, area geom.Rect) []geom.Rect
+}
+
 // Hit is something a move or a ray met: a body, or a solid's rectangle.
 type Hit struct {
 	// Body is what was met, nil for a solid's rectangle.
@@ -42,9 +49,11 @@ type Space struct {
 	// step counts the fixed steps the Tracker closed, so it knows the
 	// bodies a move has filed since.
 	step uint64
-	// found is near's result and obstacles gather's, reused.
+	// found is near's result, obstacles gather's and rects a solid's,
+	// reused.
 	found     []*Body
 	obstacles []obstacle
+	rects     []geom.Rect
 }
 
 // cellRange is the grid cells a rectangle covers, from x0, y0 to x1, y1.
@@ -285,10 +294,20 @@ func (s *Space) gather(b *Body, area geom.Rect) {
 		}
 	}
 	for _, solid := range s.solids {
-		for _, r := range solid.SolidIn(area) {
+		for _, r := range s.solidIn(solid, area) {
 			s.obstacles = append(s.obstacles, obstacle{r, nil})
 		}
 	}
+}
+
+// solidIn is what solid stops bodies with in area, into s.rects when it
+// appends.
+func (s *Space) solidIn(solid Solid, area geom.Rect) []geom.Rect {
+	if a, ok := solid.(SolidAppender); ok {
+		s.rects = a.AppendSolidIn(s.rects[:0], area)
+		return s.rects
+	}
+	return solid.SolidIn(area)
 }
 
 // first is the earliest of s.obstacles b meets moving by delta from at.

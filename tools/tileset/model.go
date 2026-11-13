@@ -6,8 +6,10 @@ import (
 	"slices"
 	"strconv"
 
+	"github.com/merlindorin/ember/collide/tiles"
 	"github.com/merlindorin/ember/geom"
 	"github.com/merlindorin/ember/twod"
+	"github.com/merlindorin/ember/twod/light"
 )
 
 // Kind is a shape's kind, as Tiled draws it.
@@ -122,7 +124,19 @@ var core = map[string]bool{propSolid: true, propTall: true, propShadow: true, pr
 // game's when -props names a file of them.
 //
 //nolint:gochecknoglobals // set once from -props, before the tool starts
-var declared = twod.EngineTileProperties()
+var declared = engineTileProperties()
+
+// engineTileProperties are the tile properties the engine reads: twod's,
+// collide/tiles' and light's, each name once.
+func engineTileProperties() []twod.Property {
+	out := twod.EngineTileProperties()
+	for _, d := range twod.Declared(tiles.Properties(), light.TileProperties()) {
+		if !slices.ContainsFunc(out, func(e twod.Property) bool { return e.Name == d.Name }) {
+			out = append(out, d)
+		}
+	}
+	return out
+}
 
 // definition is property name's definition, when declared.
 func definition(name string) (twod.Property, bool) {

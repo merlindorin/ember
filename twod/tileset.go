@@ -18,9 +18,9 @@ func init() {
 	node.RegisterResource("twod.Tileset", func() node.Resource { return &Tileset{} })
 }
 
-// Tileset is a texture atlas cut into tiles, with what each tile is: solid
-// for collision, tall to sort with characters, animated, or carrying
-// properties. Tiles are numbered from 1, left to right then top to bottom;
+// Tileset is a texture atlas cut into tiles, with what each tile is: tall
+// to sort with characters, animated, or carrying properties and shapes the
+// systems read (collide/tiles, twod/light). Tiles are numbered from 1, left to right then top to bottom;
 // 0 is an empty cell. Maps share it. A tileset can also hold tiles of
 // their own, each a part of any texture at any size, as a Tiled
 // collection does or as MergeTilesets puts several tilesets together.
@@ -29,17 +29,14 @@ type Tileset struct {
 	tileW, tileH   int
 	spaceX, spaceY int
 	margin         int
-	solid, tall    map[int]bool
-	// shapes are the tiles' collision shapes, in their pixels; roomShapes
-	// the same placed in a cell, by cell size, for Room.
-	shapes map[int][]geom.Rect
-	// shadows are tiles' shapes that block light only; noShadow are tiles
-	// that block no light; occluderGroup are tiles' occluder groups.
-	shadows map[int][]geom.Rect
-	// bodies are tiles' shapes that stop bodies only, casting nothing.
-	bodies        map[int][]geom.Rect
-	noShadow      map[int]bool
-	occluderGroup map[int]int
+	tall           map[int]bool
+	// shapes are the tiles' shapes, in their pixels, with their class.
+	shapes map[int][]TileShape
+	// version changes with any tile's property or shape; cached are the
+	// systems' tables of the tiles, made at a version.
+	version uint64
+	cached  map[any]cachedTable
+	cacheMu sync.Mutex
 	// faces caches, by tile, cell size and flip, the box a tile that
 	// blocks light takes its light round.
 	faces map[faceKey]geom.Rect
@@ -47,15 +44,12 @@ type Tileset struct {
 	// by id: what a map's every cell asks each frame.
 	faceCell geom.Vec2
 	faceList []faceEntry
-	// height and emissive are the tiles' height and emissive properties,
-	// in their pixels; load the properties declared when they were read.
-	height, emissive map[int]float32
-	load             *tiledLoad
-	roomShapes       map[roomKey]shaped
-	spills           map[geom.Vec2]spill
-	roomMu           sync.Mutex
-	props            map[int]TiledProperties
-	anims            map[int]tileAnimation
+	// faceVersion is the version faces were worked out at.
+	faceVersion uint64
+	// load are the properties declared when they were read.
+	load  *tiledLoad
+	props map[int]TiledProperties
+	anims map[int]tileAnimation
 	// classes are the tiles' classes, as Tiled names them.
 	classes map[int]string
 	// tiles are the tiles with a picture of their own rather than a cell of
@@ -137,102 +131,19 @@ type TilesetOption func(*Tileset)
 // NewTileset cuts tex into tiles of cell.
 func NewTileset(tex *Texture, cell Grid, opts ...TilesetOption) *Tileset {
 	t := &Tileset{
-		texture:       tex,
-		tileW:         max(cell.w, 1),
-		tileH:         max(cell.h, 1),
-		solid:         map[int]bool{},
-		tall:          map[int]bool{},
-		props:         map[int]TiledProperties{},
-		anims:         map[int]tileAnimation{},
-		tiles:         map[int]tileImage{},
-		shapes:        map[int][]geom.Rect{},
-		shadows:       map[int][]geom.Rect{},
-		bodies:        map[int][]geom.Rect{},
-		noShadow:      map[int]bool{},
-		occluderGroup: map[int]int{},
-		height:        map[int]float32{},
-		emissive:      map[int]float32{},
+		texture: tex,
+		tileW:   max(cell.w, 1),
+		tileH:   max(cell.h, 1),
+		tall:    map[int]bool{},
+		props:   map[int]TiledProperties{},
+		anims:   map[int]tileAnimation{},
+		tiles:   map[int]tileImage{},
+		shapes:  map[int][]TileShape{},
 	}
 	for _, opt := range opts {
 		opt(t)
 	}
 	return t
-}
-
-// Solid marks tiles that stop moving bodies.
-func Solid(ids ...int) TilesetOption {
-	return func(t *Tileset) {
-		for _, id := range ids {
-			t.solid[id] = true
-		}
-	}
-}
-
-// Collision gives tile id its collision shapes, rectangles in its pixels
-// from its top-left corner, such as a thin wall's bar: it stops moving
-// bodies there only, and still blocks its whole cell for paths.
-func Collision(id int, shapes ...geom.Rect) TilesetOption {
-	return func(t *Tileset) { t.shapes[id] = append(t.shapes[id], shapes...) }
-}
-
-// ShadowShapes gives tile id shapes that block light only, rectangles in
-// its pixels as Collision's: a tree's trunk and canopy shadow it, though
-// only its trunk stops bodies. A tile with only these blocks light, not
-// movement.
-func ShadowShapes(id int, shapes ...geom.Rect) TilesetOption {
-	return func(t *Tileset) { t.shadows[id] = append(t.shadows[id], shapes...) }
-}
-
-// BodyShapes gives tile id shapes that stop bodies only, rectangles in its
-// pixels as Collision's, casting no shadow: a bar's reach past its art, a
-// low rail. Its Collision shapes, or its whole cell when Solid, still cast;
-// a tile with only these casts nothing.
-func BodyShapes(id int, shapes ...geom.Rect) TilesetOption {
-	return func(t *Tileset) { t.bodies[id] = append(t.bodies[id], shapes...) }
-}
-
-// CastShadow says whether tiles block light, true by default for those
-// with collision or shadow shapes; false keeps them stopping bodies only:
-// a fence, a low wall.
-func CastShadow(on bool, ids ...int) TilesetOption {
-	return func(t *Tileset) {
-		for _, id := range ids {
-			if on {
-				delete(t.noShadow, id)
-			} else {
-				t.noShadow[id] = true
-			}
-		}
-	}
-}
-
-// OccluderGroup puts tiles' shadows in occluder group n (0, 1 or 2), for
-// lights BlockedBy only some groups; 0 by default.
-func OccluderGroup(n int, ids ...int) TilesetOption {
-	return func(t *Tileset) {
-		for _, id := range ids {
-			t.occluderGroup[id] = min(max(n, 0), 2)
-		}
-	}
-}
-
-// Height sets how tall tiles stand, in their pixels, for the length of
-// their shadows from a light with an Elevation.
-func Height(points float32, ids ...int) TilesetOption {
-	return func(t *Tileset) {
-		for _, id := range ids {
-			t.height[id] = max(points, 0)
-		}
-	}
-}
-
-// Emissive sets how far tiles glow, in their pixels.
-func Emissive(reach float32, ids ...int) TilesetOption {
-	return func(t *Tileset) {
-		for _, id := range ids {
-			t.emissive[id] = max(reach, 0)
-		}
-	}
 }
 
 // Tall marks tiles that rise above the ground, such as trees: a map draws
@@ -332,56 +243,7 @@ func (t *Tileset) overhang(area geom.Rect, cell geom.Vec2) geom.Rect {
 	}
 	k := t.scale(cell)
 	right, up := max(t.largest.X*k-cell.X, 0), max(t.largest.Y*k-cell.Y, 0)
-	sp := t.shapeSpill(cell)
-	right = max(right, sp.right)
-	return geom.Rect{
-		X: area.X - right,
-		Y: area.Y - sp.below,
-		W: area.W + right + sp.left,
-		H: area.H + max(up, sp.above) + sp.below,
-	}
-}
-
-// spill is how far tiles' shapes reach past their cell on each side.
-type spill struct{ left, above, right, below float32 }
-
-// shapeSpill is the farthest any tile's shapes reach past its cell, by
-// side, for a cell of size cell, found once.
-func (t *Tileset) shapeSpill(cell geom.Vec2) spill {
-	t.roomMu.Lock()
-	defer t.roomMu.Unlock()
-	if s, ok := t.spills[cell]; ok {
-		return s
-	}
-	var s spill
-	ids := map[int]bool{}
-	for id := range t.shapes {
-		ids[id] = true
-	}
-	for id := range t.bodies {
-		ids[id] = true
-	}
-	for id := range ids {
-		for _, r := range t.solids(nil, id, geom.Vec2{}, cell, 0) {
-			s.left = max(s.left, -r.X)
-			s.above = max(s.above, -r.Y)
-			s.right = max(s.right, r.X+r.W-cell.X)
-			s.below = max(s.below, r.Y+r.H-cell.Y)
-		}
-	}
-	for id, shapes := range t.shadows {
-		for _, r := range t.place(nil, shapes, id, geom.Vec2{}, cell, 0) {
-			s.left = max(s.left, -r.X)
-			s.above = max(s.above, -r.Y)
-			s.right = max(s.right, r.X+r.W-cell.X)
-			s.below = max(s.below, r.Y+r.H-cell.Y)
-		}
-	}
-	if t.spills == nil {
-		t.spills = map[geom.Vec2]spill{}
-	}
-	t.spills[cell] = s
-	return s
+	return geom.Rect{X: area.X - right, Y: area.Y, W: area.W + right, H: area.H + up}
 }
 
 // draw draws tile id on the cell at origin, of size cell, at time,
@@ -447,93 +309,6 @@ func (t *Tileset) TileSize(id int) (int, int) {
 	return int(r.W), int(r.H)
 }
 
-// Solid is whether tile id stops moving bodies, whole or by its
-// Collision or body shapes.
-func (t *Tileset) Solid(id int) bool {
-	return t.solid[id] || len(t.shapes[id]) > 0 || len(t.bodies[id]) > 0
-}
-
-// Collision is tile id's collision shapes, in its pixels from its top-left
-// corner; none for a tile solid whole or not at all.
-func (t *Tileset) Collision(id int) []geom.Rect { return t.shapes[id] }
-
-// ShadowShapes are tile id's shapes that block light only.
-func (t *Tileset) ShadowShapes(id int) []geom.Rect { return t.shadows[id] }
-
-// BodyShapes are tile id's shapes that stop bodies only.
-func (t *Tileset) BodyShapes(id int) []geom.Rect { return t.bodies[id] }
-
-// CastShadow reports whether tile id blocks light: by its collision
-// shapes, its solid cell (when it has no body shapes) or its shadow
-// shapes, unless CastShadow(false). Body shapes never do.
-func (t *Tileset) CastShadow(id int) bool {
-	cell := t.solid[id] && len(t.shapes[id]) == 0 && len(t.bodies[id]) == 0
-	return !t.noShadow[id] && (len(t.shapes[id]) > 0 || cell || len(t.shadows[id]) > 0)
-}
-
-// OccluderGroup is tile id's occluder group.
-func (t *Tileset) OccluderGroup(id int) int { return t.occluderGroup[id] }
-
-// ShadowRect is a rectangle that blocks light, in a map's space, and its
-// occluder group.
-type ShadowRect struct {
-	Rect  geom.Rect
-	Group int
-	// Height is how tall it stands, in the map's points, 0 for a height
-	// not known: it then blocks all the way.
-	Height float32
-}
-
-// ShadowCaster is a solid whose shadows aren't simply its solid
-// rectangles: a tile map, whose tiles may block light only, or bodies only.
-// The light package reads it.
-type ShadowCaster interface {
-	ShadowsIn(area geom.Rect) []ShadowRect
-}
-
-// shadowsOf are the shadows tile id casts standing on the cell at origin,
-// of size cell, flipped by f: its collision shapes, or its whole cell when
-// solid, and its shadow shapes, unless it casts none.
-func (t *Tileset) shadowsOf(out []ShadowRect, id int, origin, cell geom.Vec2, f TileFlip) []ShadowRect {
-	if t.noShadow[id] {
-		return out
-	}
-	g, h := t.occluderGroup[id], t.Height(id)*t.scale(cell)
-	for _, r := range t.casters(nil, id, origin, cell, f) {
-		out = append(out, ShadowRect{r, g, h})
-	}
-	for _, r := range t.place(nil, t.shadows[id], id, origin, cell, f) {
-		out = append(out, ShadowRect{r, g, h})
-	}
-	return out
-}
-
-// solids are the rects tile id stops bodies with, standing on the cell at
-// origin, of size cell, flipped by f: its shapes and body shapes, or the
-// whole cell.
-func (t *Tileset) solids(out []geom.Rect, id int, origin, cell geom.Vec2, f TileFlip) []geom.Rect {
-	if len(t.shapes[id]) == 0 && len(t.bodies[id]) == 0 {
-		if !t.solid[id] {
-			return out
-		}
-		return append(out, geom.Rect{X: origin.X, Y: origin.Y, W: cell.X, H: cell.Y})
-	}
-	out = t.place(out, t.shapes[id], id, origin, cell, f)
-	return t.place(out, t.bodies[id], id, origin, cell, f)
-}
-
-// casters are the rects of tile id's collision that block light: its
-// shapes, or its whole cell when solid with no shapes of any kind.
-func (t *Tileset) casters(out []geom.Rect, id int, origin, cell geom.Vec2, f TileFlip) []geom.Rect {
-	if len(t.shapes[id]) == 0 {
-		if !t.solid[id] || len(t.bodies[id]) > 0 {
-			return out
-		}
-		return append(out, geom.Rect{X: origin.X, Y: origin.Y, W: cell.X, H: cell.Y})
-	}
-	return t.place(out, t.shapes[id], id, origin, cell, f)
-}
-
 // place puts shapes, in tile id's pixels, on the cell at origin, of size
 // cell, flipped by f.
 func (t *Tileset) place(out []geom.Rect, shapes []geom.Rect, id int, origin, cell geom.Vec2, f TileFlip) []geom.Rect {
@@ -553,6 +328,9 @@ func (t *Tileset) place(out []geom.Rect, shapes []geom.Rect, id int, origin, cel
 	}
 	return out
 }
+
+// Tall is whether tile id stands as a sprite of its own, sorted with
+// characters.
 func (t *Tileset) Tall(id int) bool { return t.tall[id] }
 
 // Class is tile id's class, as Tiled names it (its type before Tiled 1.9),
@@ -613,6 +391,7 @@ func (t *Tileset) setProperty(id int, name string, value any) {
 	}
 	t.props[id][name] = value
 	t.names = nil
+	t.version++
 }
 
 func (t *Tileset) columns() int {
@@ -705,15 +484,8 @@ func (t *Tileset) merge(src *Tileset, off int) {
 			t.files[off+id] = f
 		}
 	}
-	t.solid = shifted(t.solid, src.solid, off, same)
 	t.shapes = shifted(t.shapes, src.shapes, off, slices.Clone)
 	t.tall = shifted(t.tall, src.tall, off, same)
-	t.shadows = shifted(t.shadows, src.shadows, off, slices.Clone)
-	t.bodies = shifted(t.bodies, src.bodies, off, slices.Clone)
-	t.noShadow = shifted(t.noShadow, src.noShadow, off, same)
-	t.occluderGroup = shifted(t.occluderGroup, src.occluderGroup, off, same)
-	t.height = shifted(t.height, src.height, off, same)
-	t.emissive = shifted(t.emissive, src.emissive, off, same)
 	t.classes = shifted(t.classes, src.classes, off, same)
 	if src.load != nil {
 		if t.load == nil {
@@ -757,23 +529,18 @@ func same[V any](v V) V { return v }
 func (*Tileset) ResourceType() string { return "twod.Tileset" }
 
 type tilesetJSON struct {
-	Texture       *Texture                `json:"texture"`
-	TileW         int                     `json:"tile_w"`
-	TileH         int                     `json:"tile_h"`
-	SpaceX        int                     `json:"space_x"`
-	SpaceY        int                     `json:"space_y"`
-	Margin        int                     `json:"margin"`
-	Solid         []int                   `json:"solid"`
-	Tall          []int                   `json:"tall"`
-	Props         map[int]TiledProperties `json:"properties"`
-	Tiles         map[int]tileImageJSON   `json:"tiles,omitempty"`
-	Shapes        map[int][]geom.Rect     `json:"collision,omitempty"`
-	Shadows       map[int][]geom.Rect     `json:"shadow_shapes,omitempty"`
-	Bodies        map[int][]geom.Rect     `json:"body_shapes,omitempty"`
-	NoShadow      []int                   `json:"no_shadow,omitempty"`
-	OccluderGroup map[int]int             `json:"occluder_group,omitempty"`
-	Anims         map[int]animationJSON   `json:"animations"`
-	Classes       map[int]string          `json:"classes,omitempty"`
+	Texture *Texture                `json:"texture"`
+	TileW   int                     `json:"tile_w"`
+	TileH   int                     `json:"tile_h"`
+	SpaceX  int                     `json:"space_x"`
+	SpaceY  int                     `json:"space_y"`
+	Margin  int                     `json:"margin"`
+	Tall    []int                   `json:"tall"`
+	Props   map[int]TiledProperties `json:"properties"`
+	Tiles   map[int]tileImageJSON   `json:"tiles,omitempty"`
+	Shapes  map[int][]TileShape     `json:"shapes,omitempty"`
+	Anims   map[int]animationJSON   `json:"animations"`
+	Classes map[int]string          `json:"classes,omitempty"`
 }
 
 type animationJSON struct {
@@ -806,23 +573,12 @@ func (t *Tileset) MarshalJSON() ([]byte, error) {
 		SpaceX:  t.spaceX,
 		SpaceY:  t.spaceY,
 		Margin:  t.margin,
-		Solid:   keys(t.solid),
 		Tall:    keys(t.tall),
 		Props:   t.props,
 	}
 	if len(t.shapes) > 0 {
 		d.Shapes = t.shapes
 	}
-	if len(t.shadows) > 0 {
-		d.Shadows = t.shadows
-	}
-	if len(t.bodies) > 0 {
-		d.Bodies = t.bodies
-	}
-	if len(t.occluderGroup) > 0 {
-		d.OccluderGroup = t.occluderGroup
-	}
-	d.NoShadow = keys(t.noShadow)
 	if len(t.tiles) > 0 {
 		d.Tiles = map[int]tileImageJSON{}
 		for id, own := range t.tiles {
@@ -851,7 +607,6 @@ func (t *Tileset) UnmarshalJSON(b []byte) error {
 		Cell(d.TileW, d.TileH),
 		Spacing(d.SpaceX, d.SpaceY),
 		Margin(d.Margin),
-		Solid(d.Solid...),
 		Tall(d.Tall...),
 	)
 	for id, props := range d.Props {
@@ -870,18 +625,6 @@ func (t *Tileset) UnmarshalJSON(b []byte) error {
 	}
 	for id, shapes := range d.Shapes {
 		t.shapes[id] = shapes
-	}
-	for id, shapes := range d.Shadows {
-		t.shadows[id] = shapes
-	}
-	for id, shapes := range d.Bodies {
-		t.bodies[id] = shapes
-	}
-	for _, id := range d.NoShadow {
-		t.noShadow[id] = true
-	}
-	for id, g := range d.OccluderGroup {
-		t.occluderGroup[id] = g
 	}
 	return nil
 }

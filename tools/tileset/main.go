@@ -50,10 +50,14 @@ func main() {
 			fmt.Fprintln(os.Stderr, "tileset:", err)
 			os.Exit(1)
 		}
-		declared = append(twod.EngineTileProperties(), defs...)
+		declared = append(engineTileProperties(), defs...)
 	}
 	if *project {
-		os.Stdout.Write(twod.TiledProject(twod.TileProperties(declared[len(twod.EngineTileProperties()):]...)))
+		game := declared[len(engineTileProperties()):]
+		if _, err := os.Stdout.Write(twod.TiledProject(twod.TileProperties(game...))); err != nil {
+			fmt.Fprintln(os.Stderr, "tileset:", err)
+			os.Exit(1)
+		}
 		return
 	}
 	if flag.NArg() > 1 {

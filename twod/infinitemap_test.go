@@ -5,10 +5,8 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	"github.com/merlindorin/ember/collide"
 	"github.com/merlindorin/ember/color"
 	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/nav"
 	"github.com/merlindorin/ember/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -149,69 +147,6 @@ func TestTallTilesStandAndLeaveWithTheirChunk(t *testing.T) {
 	assert.Len(t, trees.TallSprites(), 1, "Set stands a tree too")
 }
 
-func TestSolidsWorkAcrossChunkBorders(t *testing.T) {
-	// A wall column at cell -1, the last of chunk -1, and floor elsewhere.
-	m := NewInfiniteMap(tiles(), ChunkSize(4), CellSize(32, 32), Generator(func(cx, _ int, cells [][]int) {
-		for y := range cells {
-			for x := range cells[y] {
-				cells[y][x] = 1
-			}
-			if cx == -1 {
-				cells[y][3] = 2
-			}
-		}
-	}))
-	assert.Equal(t,
-		[]geom.Rect{{X: -32, Y: 96, W: 32, H: 32}, {X: -32, Y: 128, W: 32, H: 32}},
-		m.SolidIn(geom.Rect{X: -40, Y: 100, W: 60, H: 40}), "across chunks 0 and 1 vertically, -1 and 0 sideways")
-
-	w := world.New()
-	space := collide.NewSpace()
-	w.AddSystems(collide.NewTracker(space))
-	space.AddSolid(m)
-	hero := NewSprite(nil, At(48, 120))
-	hero.AppendChild(collide.NewBody(collide.Box(16, 16)))
-	w.AddEntities(m, hero)
-	_, hits := space.Move(hero, geom.V2(-100, 0))
-	require.NotEmpty(t, hits)
-	assert.InDelta(t, 8, hero.Position().X, 0.01, "stopped by the wall in the chunk before zero")
-}
-
-func TestAnAreaIsAGridForNav(t *testing.T) {
-	m := NewInfiniteMap(tiles(), ChunkSize(4), CellSize(10, 10), Generator(func(cx, _ int, cells [][]int) {
-		for y := range cells {
-			for x := range cells[y] {
-				cells[y][x] = 1
-			}
-		}
-		if cx == 0 {
-			for y := range 3 {
-				cells[y][2] = 2
-			}
-		}
-	}))
-	area := m.Area(-4, 0, 12, 8)
-	filled := make([]bool, 12*8)
-	area.FillSolid(filled)
-	for y := range 8 {
-		for x := range 12 {
-			assert.Equal(t, area.Solid(x, y), filled[y*12+x], "FillSolid agrees with Solid at %d, %d", x, y)
-		}
-	}
-	assert.True(t, area.Solid(6, 0), "map cell 2, 0 is the area's 6, 0")
-	assert.True(t, area.Solid(-1, 0), "outside the area is solid")
-	x, y, ok := area.Cell(m.Center(0, 0))
-	assert.True(t, ok)
-	assert.Equal(t, [2]int{4, 0}, [2]int{x, y})
-	path, reaches := nav.New(area).Find(m.Center(0, 0), m.Center(4, 0))
-	require.True(t, reaches)
-	below := false
-	for _, p := range path {
-		below = below || p.Y > 30
-	}
-	assert.True(t, below, "around the wall's end, across chunks: %v", path)
-}
-
 func TestFarFromTheOriginCellsStillLandOnWholePoints(t *testing.T) {
 	w, win, c := app()
 	m := NewInfiniteMap(tiles(), CellSize(16, 16), Generator(floor))
@@ -286,39 +221,6 @@ func TestAMinimapCameraHasItsChunksMadeToo(t *testing.T) {
 	w.RunFrames(1)
 	k, _, _ := m.split(5000/32, 0)
 	assert.Contains(t, m.chunks, k, "around what the minimap shows, though no camera draws the map")
-}
-
-func TestAFlowFieldFollowsTheHeroOverAnInfiniteMap(t *testing.T) {
-	m := NewInfiniteMap(tiles(), ChunkSize(16), CellSize(32, 32), Generator(func(cx, cy int, cells [][]int) {
-		if cx == 0 && cy == 0 {
-			for y := 4; y < 9; y++ {
-				cells[y][8] = 2
-			}
-		}
-	}))
-	field := nav.NewFlowField(nil, nav.Around(m.AreaAround, 64, 64))
-	hero := m.Center(12, 6)
-	field.SetTarget(hero)
-	dir, ok := field.Toward(m.Center(5, 6))
-	require.True(t, ok)
-	assert.Greater(
-		t,
-		geom.Abs(dir.Y),
-		float32(0.3),
-		"the wall at column 8 is in the way: the way bends round it, %v",
-		dir,
-	)
-	field.SetTarget(hero.Add(geom.V2(5000, 0)))
-	_, ok = field.Toward(hero.Add(geom.V2(4990, 0)))
-	assert.True(t, ok, "far away, a new window around the hero")
-}
-
-func BenchmarkFlowFieldOverAnInfiniteMap(b *testing.B) {
-	m := NewInfiniteMap(tiles(), ChunkSize(16), CellSize(32, 32), Generator(meadow(1, new(int))), KeepChunks(256))
-	field := nav.NewFlowField(nil, nav.Around(m.AreaAround, 128, 128))
-	for i := range b.N {
-		field.SetTarget(geom.V2(float32(i%2)*5000, 0))
-	}
 }
 
 func TestWalkingFarLeavesNoForgottenTreesInTheWorld(t *testing.T) {

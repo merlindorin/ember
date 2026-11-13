@@ -1,7 +1,7 @@
 # Tiled maps: the whole map, and nothing ignored silently
 
 Status: **approved by the user (2026-11-13), with the answers under "Decided"; §6 was added after and is for the
-user's review.** Step A is built (493b522e7, decision 0068). Decision number reserved: 0068.
+user's review.** Built: step A (493b522e7, decision 0068), B (f59d7ebd7), C (628bbbda6, 4a7a75a79). Decision number reserved: 0068.
 engine-render, who owns `ember/twod`, has read it against the code; its remarks are folded in.
 
 ## Why
@@ -274,7 +274,10 @@ A game with no lights still loads light properties, a new light property means e
 
 ```go
 level, err := twod.LoadTiled(fsys, name, tiles.Properties(), light.TileProperties(), game.Classes())
-space.AddSolid(tiles.Of(level.TileLayer("walls")))
+walls, _ := level.TileLayer("walls")
+solid := tiles.Of(walls) // a collide.Solid and a nav grid
+space.AddSolid(solid)
+paths := nav.New(solid)
 ```
 
 - `collide` and `nav` stay free of `twod`, as today: `collide/tiles` is the one place that knows both.
@@ -282,6 +285,21 @@ space.AddSolid(tiles.Of(level.TileLayer("walls")))
   and emissive fields and their options. `twod.Solid(ids…)` becomes `tiles.Solid(ids…)`.
 - `emissive`: light either makes map tiles glow from it or stops declaring it. Chosen in the step, not left as it
   is.
+
+**Four things the move must settle**, found by engine-render reading the code:
+
+- **How light finds the maps.** Today light learns of a map's shadows by asking the collide space's solids whether
+  they are a `twod.ShadowCaster`. Once the space holds `tiles.Of(map)`, light would see nothing. So light looks for
+  tile maps itself: it keeps a view of the tile maps in the World, as it does of lights and occluders, and a map
+  shown in a window casts there. A hidden map still casts, as decided.
+- **`twod` draws with silhouettes.** Drawing reads a tile's shadow shapes in three places: a tall tile is lit at its
+  base, lit tiles are drawn by their silhouette, and rooms use solids. `twod` cannot simply forget them. Light hands
+  them over through the engine's internal lighting hook (`internal/lit`, which `twod` and light already share):
+  `twod` asks "what is this tile's lit base" and draws with the answer, without knowing a property's name.
+- **Endless maps.** `twod.InfiniteMap` is a solid and a shadow caster too, with its own `SolidIn` and `ShadowsIn`,
+  and the horde's flow field reads it. It moves the same way, with the same tables, kept per chunk.
+- **Paths.** `nav.New(tileMap)` reads `TileMap.Solid` today; it takes `tiles.Of(tileMap)` instead. That is a change
+  in every game and example that finds paths, not a rename.
 
 **Speed, measured first.** Solids and shadows are asked for every frame, so the move must not cost. Today's
 numbers, on a temple-sized map (40×109 cells, a third of them walls, half of those with a collision shape; Apple M1
@@ -305,19 +323,26 @@ system that reads it:
    applied, in one flat slice with an offset per cell. A query walks the cells of its area and copies; nothing is
    placed, scaled or allocated per call (`AppendSolidIn(dst, area)` fills the caller's slice). Rebuilt when the
    map's `Version` changes; a single `TileMap.Set`, as a crumbling floor does, redoes that cell only.
-3. **Runs of whole cells merged** (optional, measured apart). A wall of twenty solid cells is one rectangle, for
-   collision and above all for light, whose cost follows the number of casters. Only cells of the same group and
-   height merge. It lands only if the lit goldens are identical.
+The per-map table is keyed on the map's `Version` and its cell offset, and the tileset's version counter also
+covers tilesets merged from several.
+
+Merging runs of whole cells into one rectangle (a wall of twenty cells as one caster) is left out of this step. It
+changes where casters join, so soft shadow edges can move by a pixel at the seams and the lit goldens could not stay
+identical. It comes back, with a stated tolerance, only if the benches show light still needs it.
 
 **The gate.** The step starts by adding these three benches to `ember/twod` on `wip`, with the numbers above as the
 baseline, beside `nav`'s flow field bench, `bench2d` and Lantervale's frame bench. The step lands only when none is
-slower at a fixed bench time, before and after on the same machine. The aim for layers 1 and 2: `SolidIn` under
+slower at a fixed bench time, before and after on the same machine. The aim: `SolidIn` under
 100 ns with no allocation, `ShadowsIn` under 5 µs with none, `Solid` under 5 ns. These are aims to check, not
 promises; the table above is the only measurement so far.
 
 **What it costs.** The light examples and panels, examples 27 to 29, the tileset tool, the guide's tile properties
 and shadows pages and Lantervale's `levels`, `act` and `dungeon` all name the moved options and getters. The change
-is mechanical but wide, which is why it is its own step, after G.
+is wide, and for light and paths more than mechanical, which is why it is its own step, after G.
+
+**Size.** engine-render's estimate is 8 to 9 days: the benches half a day, `collide/tiles` with the path grid a day
+and a half, light declaring its properties, finding the maps and handing `twod` its silhouettes two days, the tables
+for `TileMap` and `InfiniteMap` two days, the callers two days. That is more than steps A to D together.
 
 ## Still refused, on purpose
 
@@ -333,7 +358,7 @@ is mechanical but wide, which is why it is its own step, after G.
 | C | §3 group and image layers | engine-render | a nested group: the tree, `Walk`'s order, its offset and opacity folded onto a `TileMap`; the same name in two groups; an image layer; `repeatx` refused |
 | D | §4 tiles: per-frame durations, drawing offset, class | engine-render | an animation of uneven frames drawn at three times; a tileset with an offset |
 | G | §5 declared classes | engine-render | a class default filled on a tile, an object, a layer and the map; each refusal; the project file written and read back by the loader |
-| I | §6 each system reads its own tile properties: the benches first, then the move with the per-tileset and per-map tables; merged runs apart | engine-render (`ember/twod`, `twod/light`), engine-core (`collide/tiles`, `nav`) | the three benches and the frame benches before and after; every lit golden unchanged; a tileset changed after first use; one cell set on a cached map |
+| I | §6 each system reads its own tile properties: the benches first, then the move with the per-tileset and per-map tables, `InfiniteMap` included | engine-render (`ember/twod`, `twod/light`), engine-core (`collide/tiles`, `nav`) | the three benches and the frame benches before and after; every lit golden unchanged; a hidden map still casting; a tileset changed after first use; one cell set on a cached map; a map with a cell offset |
 | E | Lantervale drops its second parse | lantervale-dev | `levels` reads class, size, layers and markers from `twod.Tiled`; `header`, `rawLayer`, `rawObject` are deleted; `offOf` uses `Tileset.ID`; after G, its markers are declared classes and its project file is written from them |
 | F | The guide's Tiled page and example 29, updated with each step as it lands; the page after it, [Tile properties](../06-2d/12-tile-properties.md), becomes the "Classes and properties" reference of what the engine declares and reads, and at G of how a game declares its own | doc-writer | the guide test; a test that the section names every engine property and class |
 | H | Lantervale's page of the classes and properties its maps may use (`lantervale/docs/04-world/`), kept current with each step | level-designer | after G, a test that the page names every class and property the game declares |
@@ -342,7 +367,7 @@ Each step is one branch and lands apart, in the order A, B, C, D, G, I. E follow
 change, so it is shown to the user before it lands.
 
 engine-render's rough sizes: A about 2 days, B about 3 days with templates, C about 1 day (it needs B's tall-tile
-change), D about half a day, G 3 to 4 days. I is not sized yet.
+change), D about half a day, G 3 to 4 days, I 8 to 9 days.
 
 **Cost at load.** Reading layers in order and their settings adds no pass over the cells. Step A is measured on
 `temple.tmj` (40×109 cells, 111 tilesets) before and after; the load must not get slower.

@@ -528,6 +528,12 @@ var Shots = []Shot{ //nolint:gochecknoglobals // the guide's list of pictures
 	},
 	{Out: "06-2d/recolours-and-masks.png", Run: "./examples/43-recolours-and-masks"},
 	{
+		Out:   "06-2d/recolours-and-masks-tiled.png",
+		Run:   "./examples/internal/tiledvariants",
+		Args:  []string{"-dir", "{tmp}/variants"},
+		Files: []string{"twod/tiled/variants"},
+	},
+	{
 		Out: "06-2d/tiled-pictures.gif",
 		Run: "./examples/42-tiled-pictures",
 		Env: map[string]string{

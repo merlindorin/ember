@@ -210,24 +210,27 @@ type tiledTileset struct {
 		Width  int `json:"width"`
 		Height int `json:"height"`
 	} `json:"grid"`
-	Tiles []struct {
-		ID         int             `json:"id"`
-		Type       string          `json:"type"`
-		Class      string          `json:"class"`
-		Image      string          `json:"image"`
-		X          int             `json:"x"`
-		Y          int             `json:"y"`
-		Width      int             `json:"width"`
-		Height     int             `json:"height"`
-		Properties []tiledProperty `json:"properties"`
-		Animation  []struct {
-			TileID   int `json:"tileid"`
-			Duration int `json:"duration"`
-		} `json:"animation"`
-		ObjectGroup struct {
-			Objects []tiledCollision `json:"objects"`
-		} `json:"objectgroup"`
-	} `json:"tiles"`
+	Tiles []tiledTile `json:"tiles"`
+}
+
+// tiledTile is what a tileset says of one tile.
+type tiledTile struct {
+	ID         int             `json:"id"`
+	Type       string          `json:"type"`
+	Class      string          `json:"class"`
+	Image      string          `json:"image"`
+	X          int             `json:"x"`
+	Y          int             `json:"y"`
+	Width      int             `json:"width"`
+	Height     int             `json:"height"`
+	Properties []tiledProperty `json:"properties"`
+	Animation  []struct {
+		TileID   int `json:"tileid"`
+		Duration int `json:"duration"`
+	} `json:"animation"`
+	ObjectGroup struct {
+		Objects []tiledCollision `json:"objects"`
+	} `json:"objectgroup"`
 }
 
 // tiledCollision is a collision shape drawn on a tile in Tiled's collision
@@ -1007,44 +1010,8 @@ func tiledTilesetOf(
 		tileset = NewTileset(nil, Cell(w, h))
 	}
 	for _, tile := range ts.Tiles {
-		id := tile.ID + 1
-		if tile.Image != "" {
-			tex, err := load(tile.Image)
-			if err != nil {
-				return nil, err
-			}
-			region := geom.Rect{X: float32(tile.X), Y: float32(tile.Y), W: float32(tile.Width), H: float32(tile.Height)}
-			tileset.setTileImage(id, path.Join(dir, tile.Image), tex, region)
-		}
-		name := cmp.Or(tile.Class, tile.Type)
-		class, err := props.classOf(name, OnTile)
-		if err != nil {
-			return nil, fmt.Errorf("tile %d: %w", tile.ID, err)
-		}
-		if name != "" {
-			if tileset.classes == nil {
-				tileset.classes = map[int]string{}
-			}
-			tileset.classes[id] = name
-		}
-		for _, p := range tile.Properties {
-			if err = tileset.setTiledProperty(id, p, props, class, dir); err != nil {
-				return nil, fmt.Errorf("tile %d: property %s: %w", tile.ID, p.Name, err)
-			}
-		}
-		if err = tileset.required(id, class); err != nil {
-			return nil, fmt.Errorf("tile %d: %w", tile.ID, err)
-		}
-		for _, shape := range tile.ObjectGroup.Objects {
-			tileset.addTiledShape(id, shape)
-		}
-		if len(tile.Animation) > 0 {
-			a := tileAnimation{}
-			for _, f := range tile.Animation {
-				a.frames = append(a.frames, f.TileID+1)
-				a.durations = append(a.durations, float32(f.Duration)/1000)
-			}
-			tileset.anims[id] = a
+		if err := tileset.setTiledTile(tile, load, props, dir); err != nil {
+			return nil, err
 		}
 	}
 	if err := tileset.setLoad(props); err != nil {
@@ -1053,6 +1020,53 @@ func tiledTilesetOf(
 	tileset.objectAlign = ts.ObjectAlignment
 	tileset.offset = geom.V2(float32(ts.TileOffset.X), float32(ts.TileOffset.Y))
 	return tileset, nil
+}
+
+// setTiledTile gives t what Tiled's tile says of it: its own picture, read
+// by load, its class, properties, shapes and animation.
+func (t *Tileset) setTiledTile(
+	tile tiledTile, load func(name string) (*Texture, error), props *tiledLoad, dir string,
+) error {
+	id := tile.ID + 1
+	if tile.Image != "" {
+		tex, err := load(tile.Image)
+		if err != nil {
+			return err
+		}
+		region := geom.Rect{X: float32(tile.X), Y: float32(tile.Y), W: float32(tile.Width), H: float32(tile.Height)}
+		t.setTileImage(id, path.Join(dir, tile.Image), tex, region)
+	}
+	name := cmp.Or(tile.Class, tile.Type)
+	class, err := props.classOf(name, OnTile)
+	if err != nil {
+		return fmt.Errorf("tile %d: %w", tile.ID, err)
+	}
+	if name != "" {
+		if t.classes == nil {
+			t.classes = map[int]string{}
+		}
+		t.classes[id] = name
+	}
+	for _, p := range tile.Properties {
+		if err = t.setTiledProperty(id, p, props, class, dir); err != nil {
+			return fmt.Errorf("tile %d: property %s: %w", tile.ID, p.Name, err)
+		}
+	}
+	if err = t.required(id, class); err != nil {
+		return fmt.Errorf("tile %d: %w", tile.ID, err)
+	}
+	for _, shape := range tile.ObjectGroup.Objects {
+		t.addTiledShape(id, shape)
+	}
+	if len(tile.Animation) > 0 {
+		a := tileAnimation{}
+		for _, f := range tile.Animation {
+			a.frames = append(a.frames, f.TileID+1)
+			a.durations = append(a.durations, float32(f.Duration)/1000)
+		}
+		t.anims[id] = a
+	}
+	return nil
 }
 
 // setTileImage gives tile id its own picture, file in the fsys: tex, or

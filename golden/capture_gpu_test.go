@@ -5,6 +5,7 @@ package golden //nolint:testpackage // runs scenes through the unexported run
 import (
 	"bytes"
 	"context"
+	"image/png"
 	"os"
 	"path/filepath"
 	"strings"
@@ -51,5 +52,32 @@ func TestACaptureIsTheSamePictureWithOnlyItsFrameDrawn(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// TestAHiddenCaptureKeepsTheSizeTheWindowAsked captures a window larger
+// than the screen: Windows fits a window to its screen, a hidden one too,
+// and the capture came out at the screen's size.
+func TestAHiddenCaptureKeepsTheSizeTheWindowAsked(t *testing.T) {
+	dir := t.TempDir()
+	shot := filepath.Join(dir, "large.png")
+	s := Scene{Name: "large", Pkg: "golden/testdata/large", Frame: 2}
+	if out, _, err := run(context.Background(), "..", s, shot, dir); err != nil {
+		if os.Getenv(optionalEnv) == "1" && strings.Contains(string(out), "no graphics adapter") {
+			t.Skipf("no GPU adapter here, and %s=1: %s", optionalEnv, out)
+		}
+		t.Fatalf("%v: %s", err, out)
+	}
+	f, err := os.Open(shot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	c, err := png.DecodeConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Width != 4800 || c.Height != 2800 {
+		t.Fatalf("a 2400×1400 window at 2 pixels a point is 4800×2800: got %d×%d", c.Width, c.Height)
 	}
 }

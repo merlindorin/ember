@@ -340,10 +340,10 @@ func TestAHalfClearSwatchNamesItsAlpha(t *testing.T) {
 	}
 }
 
-func BenchmarkRecolourAWaterSheet(b *testing.B) {
-	// lantervale's water sheet is 384×48, a few dozen colours, about half
-	// of them swapped.
-	sheet := picture(384, 48, func(img *image.NRGBA) {
+// waterSheet is a sheet as lantervale's water: 384×48, a few dozen colours,
+// about half of them swapped by darkWater.
+func waterSheet() *image.NRGBA {
+	return picture(384, 48, func(img *image.NRGBA) {
 		for y := range 48 {
 			for x := range 384 {
 				switch (x + y) % 4 {
@@ -357,7 +357,22 @@ func BenchmarkRecolourAWaterSheet(b *testing.B) {
 			}
 		}
 	})
-	pal := darkWater()
+}
+
+func BenchmarkRecolourAWaterSheet(b *testing.B) {
+	sheet, pal := waterSheet(), darkWater()
+	for b.Loop() {
+		if _, err := twod.Recolour(twod.NewTexture(sheet), pal); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+// With a swap at an alpha in the palette, every pixel looks its own alpha
+// up first; the sheet is opaque, so each one then falls back to any alpha.
+func BenchmarkRecolourAWaterSheetAtAnAlpha(b *testing.B) {
+	sheet := waterSheet()
+	pal := twod.NewPalette(append(darkWater().Swaps(), twod.SwapAt(rgb8(blue), 100, rgb8(black)))...)
 	for b.Loop() {
 		if _, err := twod.Recolour(twod.NewTexture(sheet), pal); err != nil {
 			b.Fatal(err)

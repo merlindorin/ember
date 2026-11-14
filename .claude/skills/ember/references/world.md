@@ -16,6 +16,7 @@ Package `github.com/lantervale/ember/world`. Guide: `docs/02-world`. Examples: `
 
 `ember.New` adds: desktop windows (a default one only if the game adds none), the renderer, cameras' controllers, skeletal animation, the `ease` tween system, `audio`, the GPU and automation (`EMBER_AUTOMATION=host:port` to serve it).
 Options: `ember.Headless()`, `ember.Automation(auto *automation.Automation)`, `ember.CrashLog(path string)`.
+Without `ember.CrashLog`, `crash.log` and `errors.log` go in the user's config folder under the slug of the window's title; `EMBER_CRASH_DIR=dir` puts them in `dir/<slug>/` instead (tests and captures set it). A clean run leaves no folder it made itself.
 `server.New` adds every one of those except the GPU and the desktop runner (decision 0064). Option: `server.Automation(auto *automation.Automation)`. Plugins are `AddPlugins(plugins ...Plugin)`, `Plugin` is `Build(w *World)`.
 
 Builders all return `*World`, so chain them:

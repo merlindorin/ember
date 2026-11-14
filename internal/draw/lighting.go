@@ -292,6 +292,14 @@ func LightingFor(w *world.World, win *platform.Window) *Lighting {
 	return nil
 }
 
+// ReadsBack reports whether the game waits on what drawing win this frame
+// brings back, its light probes' answers: a runner that draws only some
+// frames must draw this one.
+func ReadsBack(w *world.World, win *platform.Window) bool {
+	li := LightingFor(w, win)
+	return li != nil && len(li.Probes) > 0
+}
+
 // ShapeBounds is the rectangle round a shape light's shape, in its
 // window's points, without its reach.
 func (l Light) ShapeBounds() geom.Rect {

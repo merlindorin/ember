@@ -21,6 +21,9 @@
 //
 //	EMBER_CAPTURE=shot.png  save frame EMBER_CAPTURE_FRAME (default 120), then quit;
 //	                        extra windows are saved as shot-2.png, shot-3.png…
+//	                        A hidden run ticks the frames before it without
+//	                        drawing them, but those a light probe is answered
+//	                        from; EMBER_CAPTURE_DRAW=all draws every frame
 //	EMBER_CAPTURE=walk.gif  record EMBER_CAPTURE_FRAMES frames (default 90), one every
 //	                        EMBER_CAPTURE_EVERY (default 2, so 30 fps), from frame
 //	                        EMBER_CAPTURE_FRAME (default 1), as a looping GIF at the
@@ -82,6 +85,7 @@ import (
 	"github.com/lantervale/ember/geom"
 	"github.com/lantervale/ember/input"
 	"github.com/lantervale/ember/internal/audiodevice"
+	"github.com/lantervale/ember/internal/draw"
 	"github.com/lantervale/ember/internal/errlog"
 	"github.com/lantervale/ember/internal/wm"
 	"github.com/lantervale/ember/platform"
@@ -407,6 +411,17 @@ func (d *driver) drawAll(final bool, path string) {
 	wm.SetCurrent(d.world, nil)
 }
 
+// readsBack reports whether the game waits on what drawing this frame
+// brings back, so a run that skips frames draws it all the same.
+func (d *driver) readsBack() bool {
+	for _, n := range d.natives {
+		if draw.ReadsBack(d.world, n.window) {
+			return true
+		}
+	}
+	return false
+}
+
 // afterTick runs what follows a frame's tick: the pads' rumble, the
 // windows opened and closed, and the screenshot Shift+F12 asks for.
 func (d *driver) afterTick(in *input.State) error {
@@ -432,7 +447,15 @@ type runSettings struct {
 	gifFrames, gifEvery int
 	maxFrames           int
 	profile             string
+	// everyFrame is unset for a hidden run capturing a still, unless
+	// EMBER_CAPTURE_DRAW=all.
+	everyFrame bool
 }
+
+// draws reports whether frame is drawn for what the settings alone say: a
+// hidden run capturing a still ticks the frames before the captured one
+// without drawing them, as nobody sees them (decision 0072).
+func (s runSettings) draws(frame int) bool { return s.everyFrame || frame >= s.captureFrame }
 
 // readRunSettings reads them from the environment.
 func readRunSettings() runSettings {
@@ -445,6 +468,8 @@ func readRunSettings() runSettings {
 	s.captureFrame = envInt("EMBER_CAPTURE_FRAME", firstFrame)
 	s.gifFrames, s.gifEvery = envInt("EMBER_CAPTURE_FRAMES", 90), max(1, envInt("EMBER_CAPTURE_EVERY", 2))
 	s.maxFrames = envInt("EMBER_FRAMES", 0)
+	still := os.Getenv("EMBER_HIDDEN") != "" && s.capturePath != "" && !s.animated
+	s.everyFrame = !still || os.Getenv("EMBER_CAPTURE_DRAW") == "all"
 	return s
 }
 
@@ -559,7 +584,9 @@ func (d *driver) run() error {
 		}
 		final := set.capturePath != "" && !set.animated && frame == set.captureFrame
 		d.recording = set.animated && frame >= set.captureFrame && (frame-set.captureFrame)%set.gifEvery == 0
-		d.drawAll(final, set.capturePath)
+		if set.draws(frame) || d.readsBack() {
+			d.drawAll(final, set.capturePath)
+		}
 
 		d.world.EndFrame()
 		d.framing = false

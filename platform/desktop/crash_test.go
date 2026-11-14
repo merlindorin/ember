@@ -182,3 +182,33 @@ func TestAPanicOutsideTheFrameIsLoggedByTheRuntime(t *testing.T) {
 	assert.Contains(t, string(got), "panic: boom in a goroutine")
 	assert.NotContains(t, string(got), "last crash", "the new crash replaces the last one")
 }
+
+func TestACleanRunRemovesTheFolderItMadeAndNoOther(t *testing.T) {
+	t.Run("made by the run and left empty, it goes", func(t *testing.T) {
+		dir := filepath.Join(t.TempDir(), "game")
+		watchFatal(filepath.Join(dir, "crash.log"))()
+		assert.NoDirExists(t, dir)
+	})
+	t.Run("there before the run, it stays even empty", func(t *testing.T) {
+		dir := filepath.Join(t.TempDir(), "game")
+		require.NoError(t, os.Mkdir(dir, 0o755))
+		watchFatal(filepath.Join(dir, "crash.log"))()
+		assert.DirExists(t, dir)
+	})
+	t.Run("holding a file, it stays", func(t *testing.T) {
+		dir := filepath.Join(t.TempDir(), "game")
+		stop := watchFatal(filepath.Join(dir, "crash.log"))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "errors.log"), []byte("gpu: refused\n"), 0o600))
+		stop()
+		assert.FileExists(t, filepath.Join(dir, "errors.log"))
+	})
+	t.Run("a run that wrote its crash log keeps it", func(t *testing.T) {
+		path := filepath.Join(t.TempDir(), "game", "crash.log")
+		stop := watchFatal(path)
+		require.NoError(t, os.WriteFile(path, []byte("fatal error: all goroutines are asleep\n"), 0o600))
+		stop()
+		got, err := os.ReadFile(path)
+		require.NoError(t, err)
+		assert.Equal(t, "fatal error: all goroutines are asleep\n", string(got))
+	})
+}

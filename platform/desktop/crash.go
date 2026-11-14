@@ -63,11 +63,16 @@ func writeCrash(path string, r report) error {
 // panic to path as well as stderr, which a windowed Windows build has not.
 // The last crash's log waits beside it while the game runs; stop ends the
 // watch and puts that log back when nothing was written, so a clean run
-// neither leaves an empty log nor loses the last one.
+// neither leaves an empty log nor loses the last one. The log has to be
+// open before the runtime needs it, so its folder is made at once; a run
+// that made the folder and leaves nothing in it removes it.
 //
 //nolint:gosec // the game's own crash log, under its config folder
 func watchFatal(path string) func() {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	dir := filepath.Dir(path)
+	_, err := os.Stat(dir)
+	made := os.IsNotExist(err)
+	if err = os.MkdirAll(dir, 0o755); err != nil {
 		return func() {}
 	}
 	last := path + ".last"
@@ -83,6 +88,9 @@ func watchFatal(path string) func() {
 		if kept {
 			_ = os.Rename(last, path) // best effort: the last log stays as .last
 		}
+		if made {
+			os.Remove(dir)
+		}
 		return func() {}
 	}
 	return func() {
@@ -96,6 +104,9 @@ func watchFatal(path string) func() {
 			os.Remove(path)
 		case kept:
 			os.Remove(last)
+		}
+		if made {
+			os.Remove(dir) // refused while the folder holds anything
 		}
 	}
 }

@@ -53,7 +53,9 @@ sheet, err := twod.LoadTexture(fsys, name, twod.Recoloured(pal))
 
 - **Exact colours.** Pack art is a fixed palette, so a swap matches a colour exactly, alpha kept. A picture that
   holds none of a palette's colours is an error at load, since the palette then does nothing and was meant for
-  another picture.
+  another picture. A sheet that draws one colour opaque and half clear (an outline and its shadow) tells them apart
+  with `SwapAt(from, alpha, to)`, which matches only pixels of that 8-bit alpha and wins over a `Swap` of the same
+  colour; in a palette picture, a half-clear swatch is one, at its own alpha.
 - **Two ways to write one.** In Go or data as pairs of colours, or as a small picture of two rows of swatches that
   an artist edits in a pixel editor. The engine reads both; a game picks.
 - **Animated sheets and atlases** are recoloured whole, every frame and tile where it was.
@@ -142,7 +144,7 @@ game names the palette in its data, beside the sheet.
 
 | Step | What | Owner | Tests |
 |---|---|---|---|
-| R1 | `Palette`, `Recolour`, `Recoloured`, `LoadPalette`, the cache | engine-core, in `ember/twod` | exact swap, alpha kept, a palette that matches nothing refused, one texture for two equal asks, a recolour of the water sheet timed |
+| R1 | `Palette`, `Recolour`, `Recoloured`, `LoadPalette`, the cache; `SwapAt`, a swap at one alpha | engine-core, in `ember/twod` | exact swap, alpha kept, a palette that matches nothing refused, one texture for two equal asks, a recolour of the water sheet timed; a swap at an alpha leaves the colour at others, wins over one at any, is its own palette; a half-clear swatch names its alpha |
 | R2 | `Masked`, `Inverted`, the mask tileset by name | engine-core, in `ember/twod` | opaque keeps, clear cuts, half fades; a mask of another size refused; collision unchanged |
 | R3 | the Tiled properties, `Palettes`, `Masks`, the mask layer; a tile's `tint` | engine-render, after Tiled maps steps G and I | each property on a tile, an object and a layer; unknown names refused with the nearest; a mask layer cutting the named layer |
 | R4 | Lantervale: dark water and slimes on palettes; the generators and baked pictures deleted | lantervale-dev, game-designer for `palettes.yaml` | the levels and slimes draw as before, checked against captures; shown to the user before landing |

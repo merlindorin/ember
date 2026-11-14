@@ -14,43 +14,76 @@ import (
 	"github.com/lantervale/ember/color"
 )
 
-// ColorSwap is one swap of a Palette: From becomes To.
+// ColorSwap is one swap of a Palette: From becomes To. With AtAlpha it
+// matches only pixels of that Alpha; without, any alpha.
 type ColorSwap struct {
 	From, To color.Color
+	Alpha    uint8
+	AtAlpha  bool
 }
 
-// Swap swaps a colour for another, exactly: what a palette is made of.
+// Swap swaps a colour for another, exactly, at any alpha: what a palette is
+// made of.
 func Swap(from, to color.Color) ColorSwap { return ColorSwap{From: from, To: to} }
 
+// SwapAt swaps a colour for another only where a pixel has that 8-bit
+// alpha, so one colour drawn opaque and half clear can be told apart. It
+// wins over a Swap of the same colour; alpha 0 matches nothing.
+func SwapAt(from color.Color, alpha uint8, to color.Color) ColorSwap {
+	return ColorSwap{From: from, To: to, Alpha: alpha, AtAlpha: true}
+}
+
 // Palette swaps colours: each From becomes its To where a picture holds it
-// exactly, as 8-bit sRGB, the pixel's alpha kept; any other colour stays as
+// exactly, as 8-bit sRGB, at the alpha it names or at any; the pixel's alpha
+// is kept, From's and To's own alpha unused, and any other colour stays as
 // drawn (decision 0069). Recolour applies it to a texture, Recoloured to one
 // as it loads.
 type Palette struct {
 	swaps []ColorSwap
-	table map[[3]uint8][3]uint8
+	// table is keyed by slot: a colour at one alpha, or at any.
+	table map[uint32][3]uint8
+	// atAlpha says a swap names an alpha, so pixels look theirs up first.
+	atAlpha bool
 	// key names the palette by what it swaps, so two equal palettes share
 	// their recoloured textures.
 	key string
 }
 
-// NewPalette is a palette of swaps; a colour swapped twice takes its last
-// To.
+// swapSlot is rgb at alpha in a palette's table. Alpha 0 is the colour at any
+// alpha: no swap matches a clear pixel.
+func swapSlot(rgb [3]uint8, alpha uint8) uint32 {
+	return uint32(alpha)<<24 | uint32(rgb[0])<<16 | uint32(rgb[1])<<8 | uint32(rgb[2])
+}
+
+// NewPalette is a palette of swaps; a colour swapped twice at the same
+// alpha, or twice at any, takes its last To.
 func NewPalette(swaps ...ColorSwap) *Palette {
-	p := &Palette{table: map[[3]uint8][3]uint8{}}
+	p := &Palette{table: map[uint32][3]uint8{}}
+	same := func(a, b ColorSwap) bool {
+		return rgb8(a.From) == rgb8(b.From) && a.AtAlpha == b.AtAlpha && (!a.AtAlpha || a.Alpha == b.Alpha)
+	}
 	for _, s := range swaps {
-		from := rgb8(s.From)
-		if _, again := p.table[from]; again {
-			i := slices.IndexFunc(p.swaps, func(o ColorSwap) bool { return rgb8(o.From) == from })
+		if i := slices.IndexFunc(p.swaps, func(o ColorSwap) bool { return same(o, s) }); i >= 0 {
 			p.swaps[i] = s
 		} else {
 			p.swaps = append(p.swaps, s)
 		}
-		p.table[from] = rgb8(s.To)
 	}
-	keys := make([]string, 0, len(p.table))
-	for from, to := range p.table {
-		keys = append(keys, fmt.Sprintf("%02x%02x%02x>%02x%02x%02x", from[0], from[1], from[2], to[0], to[1], to[2]))
+	keys := make([]string, 0, len(p.swaps))
+	for _, s := range p.swaps {
+		from, to := rgb8(s.From), rgb8(s.To)
+		at := ""
+		switch {
+		case !s.AtAlpha:
+			p.table[swapSlot(from, 0)] = to
+		case s.Alpha != 0:
+			p.table[swapSlot(from, s.Alpha)] = to
+			p.atAlpha = true
+		}
+		if s.AtAlpha {
+			at = fmt.Sprintf("@%02x", s.Alpha)
+		}
+		keys = append(keys, fmt.Sprintf("%02x%02x%02x%s>%02x%02x%02x", from[0], from[1], from[2], at, to[0], to[1], to[2]))
 	}
 	slices.Sort(keys)
 	p.key = strings.Join(keys, ",")
@@ -62,8 +95,10 @@ func (p *Palette) Swaps() []ColorSwap { return slices.Clone(p.swaps) }
 
 // LoadPalette reads the palette picture name in fsys: two rows of square
 // swatches, each colour of the row above becoming the one below it, as an
-// artist paints them in a pixel editor. Swatches are opaque, and a colour
-// swapped twice, to two colours, is an error naming it.
+// artist paints them in a pixel editor. An opaque swatch swaps its colour at
+// any alpha; a half-clear one only at its own alpha, as SwapAt, and the
+// swatch below it is as clear. A clear swatch, or a colour swapped twice at
+// one alpha, to two colours, is an error naming it.
 func LoadPalette(fsys fs.FS, name string) (*Palette, error) {
 	f, err := fsys.Open(name)
 	if err != nil {
@@ -79,30 +114,30 @@ func LoadPalette(fsys fs.FS, name string) (*Palette, error) {
 	if side == 0 || b.Dy()%2 != 0 || b.Dx()%side != 0 {
 		return nil, fmt.Errorf("twod: palette %s: %dx%d is not two rows of square swatches", name, b.Dx(), b.Dy())
 	}
-	swatch := func(column, row int) (stdcolor.NRGBA, error) {
+	swatch := func(column, row int) stdcolor.NRGBA {
 		c, _ := stdcolor.NRGBAModel.Convert(img.At(b.Min.X+column*side+side/2, b.Min.Y+row*side+side/2)).(stdcolor.NRGBA)
-		if c.A != 0xff {
-			return c, fmt.Errorf("twod: palette %s: swatch %d of row %d is not opaque", name, column+1, row+1)
-		}
-		return c, nil
+		return c
 	}
 	var swaps []ColorSwap
-	seen := map[[3]uint8][3]uint8{}
+	seen := map[[4]uint8][3]uint8{}
 	for column := range b.Dx() / side {
-		from, fromErr := swatch(column, 0)
-		if fromErr != nil {
-			return nil, fromErr
+		from, to := swatch(column, 0), swatch(column, 1)
+		if from.A == 0 {
+			return nil, fmt.Errorf("twod: palette %s: swatch %d of row 1 is clear", name, column+1)
 		}
-		to, toErr := swatch(column, 1)
-		if toErr != nil {
-			return nil, toErr
+		if to.A != from.A {
+			return nil, fmt.Errorf("twod: palette %s: swatch %d of row 2 is not as clear as the one above it", name, column+1)
 		}
-		key, want := [3]uint8{from.R, from.G, from.B}, [3]uint8{to.R, to.G, to.B}
+		key, want := [4]uint8{from.R, from.G, from.B, from.A}, [3]uint8{to.R, to.G, to.B}
 		if had, twice := seen[key]; twice && had != want {
-			return nil, fmt.Errorf("twod: palette %s: #%02x%02x%02x is swapped twice", name, from.R, from.G, from.B)
+			return nil, fmt.Errorf("twod: palette %s: #%02x%02x%02x%02x is swapped twice", name, from.R, from.G, from.B, from.A)
 		}
 		seen[key] = want
-		swaps = append(swaps, Swap(color.RGB8(from.R, from.G, from.B), color.RGB8(to.R, to.G, to.B)))
+		swap := Swap(color.RGB8(from.R, from.G, from.B), color.RGB8(to.R, to.G, to.B))
+		if from.A != 0xff {
+			swap = SwapAt(swap.From, from.A, swap.To)
+		}
+		swaps = append(swaps, swap)
 	}
 	return NewPalette(swaps...), nil
 }
@@ -114,8 +149,9 @@ func rgb8(c color.Color) [3]uint8 {
 	return [3]uint8{b(s[0]), b(s[1]), b(s[2])}
 }
 
-// recolour is img through p: every pixel of a swapped colour takes its To,
-// keeping its alpha. A picture holding none of p's colours is an error.
+// recolour is img through p: every pixel of a swapped colour takes the To
+// of its alpha, else the one at any alpha, keeping its alpha. A picture
+// holding none of p's colours is an error.
 func (p *Palette) recolour(img image.Image) (*image.NRGBA, error) {
 	b := img.Bounds()
 	out := image.NewNRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
@@ -126,7 +162,15 @@ func (p *Palette) recolour(img image.Image) (*image.NRGBA, error) {
 		if px[3] == 0 {
 			continue
 		}
-		if to, ok := p.table[[3]uint8{px[0], px[1], px[2]}]; ok {
+		rgb := [3]uint8{px[0], px[1], px[2]}
+		to, ok := [3]uint8{}, false
+		if p.atAlpha {
+			to, ok = p.table[swapSlot(rgb, px[3])]
+		}
+		if !ok {
+			to, ok = p.table[swapSlot(rgb, 0)]
+		}
+		if ok {
 			px[0], px[1], px[2], matched = to[0], to[1], to[2], true
 		}
 	}

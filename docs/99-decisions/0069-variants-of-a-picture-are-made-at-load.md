@@ -15,8 +15,10 @@ variant is the same picture through a recolour or a mask ([masks and recolours](
 
 - A **recolour** swaps exact colours by a `twod.Palette`: `NewPalette(Swap(from, to)…)` in code or data, or
   `LoadPalette` from a picture of two rows of swatches. Colours match as 8-bit sRGB, alpha kept; other colours stay as
-  drawn. `Recolour(tex, pal)` gives a new texture, and `LoadTexture(…, Recoloured(pal))` recolours one as it loads. A
-  palette that matches no colour of the picture is an error.
+  drawn. A swap matches its colour at any alpha, or with `SwapAt(from, alpha, to)` (a half-clear swatch in a palette
+  picture) only at that 8-bit alpha, which wins over the swap at any. `Recolour(tex, pal)` gives a new texture, and
+  `LoadTexture(…, Recoloured(pal))` recolours one as it loads. A palette that matches no colour of the picture is an
+  error.
 - A **mask** keeps a picture only where a mask picture is opaque:
   `Masked(tex, region, mask, maskRegion, Inverted()…)`.
 - Both run once, on the CPU, and give a `twod.Texture`, cached by its source and its operation: two equal asks share

@@ -203,6 +203,143 @@ func TestAPalettePictureIsTwoRowsOfSwatches(t *testing.T) {
 	}
 }
 
+// slime is a sheet as Lantervale's green slime is drawn: its outline opaque
+// and its shadow the same colour at alpha 100.
+func slime() (*twod.Texture, stdcolor.NRGBA, stdcolor.NRGBA) {
+	outline := stdcolor.NRGBA{0x28, 0x35, 0x40, 0xff}
+	shadow := outline
+	shadow.A = 100
+	return twod.NewTexture(picture(2, 1, func(img *image.NRGBA) {
+		img.SetNRGBA(0, 0, outline)
+		img.SetNRGBA(1, 0, shadow)
+	})), outline, shadow
+}
+
+func recoloured(t *testing.T, tex *twod.Texture, swaps ...twod.ColorSwap) []stdcolor.NRGBA {
+	t.Helper()
+	got, err := twod.Recolour(tex, twod.NewPalette(swaps...))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b := got.Image.Bounds()
+	px := make([]stdcolor.NRGBA, 0, b.Dx())
+	for x := range b.Dx() {
+		px = append(px, nrgbaAt(got.Image, x, 0))
+	}
+	return px
+}
+
+func withAlpha(c stdcolor.NRGBA, a uint8) stdcolor.NRGBA {
+	c.A = a
+	return c
+}
+
+func TestASwapAtAnAlphaLeavesTheColourAtOthers(t *testing.T) {
+	tex, outline, shadow := slime()
+	got := recoloured(t, tex, twod.SwapAt(rgb8(outline), 0xff, rgb8(black)))
+	if want := []stdcolor.NRGBA{black, shadow}; !slices.Equal(got, want) {
+		t.Fatalf("the opaque outline is swapped and the shadow left: %v, want %v", got, want)
+	}
+	got = recoloured(t, tex, twod.Swap(rgb8(outline), rgb8(black)))
+	if want := []stdcolor.NRGBA{black, withAlpha(black, 100)}; !slices.Equal(got, want) {
+		t.Fatalf("a swap without an alpha takes every alpha, keeping it: %v, want %v", got, want)
+	}
+}
+
+func TestASwapAtAnAlphaWinsOverOneAtAny(t *testing.T) {
+	tex, outline, _ := slime()
+	half := twod.NewTexture(picture(1, 1, func(img *image.NRGBA) { img.SetNRGBA(0, 0, withAlpha(outline, 50)) }))
+	for _, swaps := range [][]twod.ColorSwap{
+		{twod.Swap(rgb8(outline), rgb8(black)), twod.SwapAt(rgb8(outline), 100, rgb8(blue))},
+		{twod.SwapAt(rgb8(outline), 100, rgb8(blue)), twod.Swap(rgb8(outline), rgb8(black))},
+	} {
+		got, want := recoloured(t, tex, swaps...), []stdcolor.NRGBA{black, withAlpha(blue, 100)}
+		if !slices.Equal(got, want) {
+			t.Errorf("%v: %v, want %v", swaps, got, want)
+		}
+		if other := recoloured(t, half, swaps...); other[0] != withAlpha(black, 50) {
+			t.Errorf("%v: another alpha takes the swap at any: %v", swaps, other[0])
+		}
+	}
+}
+
+func TestASwapAtAnAlphaIsItsOwnPalette(t *testing.T) {
+	tex, outline, _ := slime()
+	at := func() *twod.Palette { return twod.NewPalette(twod.SwapAt(rgb8(outline), 0xff, rgb8(black))) }
+	first, err := twod.Recolour(tex, at())
+	if err != nil {
+		t.Fatal(err)
+	}
+	again, err := twod.Recolour(tex, at())
+	if err != nil {
+		t.Fatal(err)
+	}
+	anyAlpha, err := twod.Recolour(tex, twod.NewPalette(twod.Swap(rgb8(outline), rgb8(black))))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first != again || anyAlpha == first {
+		t.Fatal("two equal palettes share a texture, a swap at any alpha is another palette")
+	}
+	twice := twod.NewPalette(twod.SwapAt(rgb8(outline), 100, rgb8(blue)), twod.SwapAt(rgb8(outline), 100, rgb8(black)),
+		twod.Swap(rgb8(outline), rgb8(grey)))
+	if want := []twod.ColorSwap{
+		twod.SwapAt(rgb8(outline), 100, rgb8(black)), twod.Swap(rgb8(outline), rgb8(grey)),
+	}; !slices.Equal(twice.Swaps(), want) {
+		t.Fatalf("a colour swapped twice at one alpha takes its last To: %v", twice.Swaps())
+	}
+}
+
+func TestASwapAtAnAlphaThePictureLacksMatchesNothing(t *testing.T) {
+	opaque := twod.NewTexture(picture(1, 1, func(img *image.NRGBA) { img.SetNRGBA(0, 0, blue) }))
+	if _, err := twod.Recolour(opaque, twod.NewPalette(twod.SwapAt(rgb8(blue), 100, rgb8(black)))); err == nil {
+		t.Fatal("a palette whose colour the picture holds at no alpha it names is refused")
+	}
+}
+
+func TestASwapAtAlphaZeroMatchesNothing(t *testing.T) {
+	tex, outline, _ := slime()
+	atZero := twod.SwapAt(rgb8(outline), 0, rgb8(blue))
+	if _, err := twod.Recolour(tex, twod.NewPalette(atZero)); err == nil {
+		t.Fatal("a palette of one swap at alpha 0 is refused")
+	}
+	for _, swaps := range [][]twod.ColorSwap{
+		{twod.Swap(rgb8(outline), rgb8(black)), atZero},
+		{atZero, twod.Swap(rgb8(outline), rgb8(black))},
+	} {
+		got, want := recoloured(t, tex, swaps...), []stdcolor.NRGBA{black, withAlpha(black, 100)}
+		if !slices.Equal(got, want) {
+			t.Errorf("%v: the swap at any alpha still applies: %v, want %v", swaps, got, want)
+		}
+	}
+}
+
+func TestAHalfClearSwatchNamesItsAlpha(t *testing.T) {
+	shadow := withAlpha(blue, 100)
+	fsys := fstest.MapFS{
+		"slime.png": &fstest.MapFile{Data: swatches(4,
+			[]stdcolor.NRGBA{blue, shadow}, []stdcolor.NRGBA{darkBlue, withAlpha(black, 100)})},
+		"unlike.png": &fstest.MapFile{Data: swatches(2, []stdcolor.NRGBA{shadow}, []stdcolor.NRGBA{black})},
+		"clear.png": &fstest.MapFile{
+			Data: swatches(4, []stdcolor.NRGBA{withAlpha(blue, 0)}, []stdcolor.NRGBA{withAlpha(black, 0)}),
+		},
+	}
+	pal, err := twod.LoadPalette(fsys, "slime.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := []twod.ColorSwap{
+		twod.Swap(rgb8(blue), rgb8(darkBlue)), twod.SwapAt(rgb8(blue), 100, rgb8(black)),
+	}; !slices.Equal(pal.Swaps(), want) {
+		t.Fatalf("an opaque swatch swaps at any alpha, a half-clear one at its own: %v", pal.Swaps())
+	}
+	for _, bad := range []string{"unlike.png", "clear.png"} {
+		if _, err = twod.LoadPalette(fsys, bad); err == nil || !strings.Contains(err.Error(), bad) {
+			t.Errorf("%s is refused, naming it: %v", bad, err)
+		}
+	}
+}
+
 func BenchmarkRecolourAWaterSheet(b *testing.B) {
 	// lantervale's water sheet is 384×48, a few dozen colours, about half
 	// of them swapped.

@@ -58,6 +58,18 @@ func TestTheCrashLogGoesInTheGamesFolder(t *testing.T) {
 	assert.Equal(t, "my-game-2", slug("  My Game: 2! "))
 }
 
+func TestEmberCrashDirStandsInForTheConfigFolder(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("EMBER_CRASH_DIR", dir)
+	assert.Equal(
+		t,
+		filepath.Join(dir, "ember-survivors", "crash.log"),
+		crashPath("", "Ember Survivors"),
+		"a harness keeps its runs' logs out of the player's folder",
+	)
+	assert.Equal(t, "/saves/crash.log", crashPath("/saves/crash.log", "Ember Survivors"), "the game's own path wins")
+}
+
 func TestWithoutAnAdapterThePlayerIsToldWhichBackendsWereTried(t *testing.T) {
 	msg := noAdapter([]string{"Direct3D 12", "Vulkan", "OpenGL"}, "wgpu: no adapter: No suitable adapter found")
 	assert.True(

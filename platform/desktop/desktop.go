@@ -44,6 +44,9 @@
 //	EMBER_SCALE=2           in a hidden run, pixels per point the windows draw
 //	                        at, whatever the screen's (a CI screen is 1×)
 //	EMBER_FRAMES=n          quit after n frames
+//	EMBER_CRASH_DIR=dir     the folder crash.log and errors.log go under, in
+//	                        place of the user's config folder, when the game
+//	                        gave no CrashLog: a test's or a capture's own
 //	EMBER_STATS=1           print, on quitting, the GPU and the backend it drew
 //	                        through, the frame, tick and render times, each
 //	                        system and the GPU's passes, averaged over the
@@ -98,8 +101,9 @@ func init() {
 // CrashLog is where a failure to start or a panic while running is
 // written, with the Go, GLFW and wgpu-native versions, the backend and the
 // GPU; empty, it is
-// crash.log in the user's config folder under the slug of the primary
-// window's title. On Windows a message box says why as well.
+// crash.log in the user's config folder (EMBER_CRASH_DIR when set) under
+// the slug of the primary window's title. On Windows a message box says
+// why as well.
 type Plugin struct{ CrashLog string }
 
 func (p Plugin) Build(w *world.World) {

@@ -63,11 +63,19 @@ func Compare(a, b image.Image) Diff {
 
 // pageEnv is environ for a page's run: hidden, and at 2 pixels a point
 // unless EMBER_SCALE says otherwise, since the thresholds are measured at
-// 2x and a 1x display (a CI runner) antialiases text and edges coarser.
-func pageEnv(environ []string) []string {
+// 2x and a 1x display (a CI runner) antialiases text and edges coarser. A
+// page that fails writes its crash log under dir (EMBER_CRASH_DIR), not
+// in the player's config folder, unless one is set.
+func pageEnv(environ []string, dir string) []string {
 	env := append(slices.Clone(environ), "EMBER_HIDDEN=1")
-	if !slices.ContainsFunc(environ, func(e string) bool { return strings.HasPrefix(e, "EMBER_SCALE=") }) {
+	set := func(name string) bool {
+		return slices.ContainsFunc(environ, func(e string) bool { return strings.HasPrefix(e, name+"=") })
+	}
+	if !set("EMBER_SCALE") {
 		env = append(env, "EMBER_SCALE=2")
+	}
+	if !set("EMBER_CRASH_DIR") {
+		env = append(env, "EMBER_CRASH_DIR="+dir)
 	}
 	return env
 }
@@ -110,7 +118,8 @@ func pixelsAt(t testing.TB, pkg string, w, h, zoom int) Diff {
 	shot, page := filepath.Join(dir, "ember.png"), filepath.Join(dir, "page.html")
 	run := func(env ...string) {
 		cmd := exec.CommandContext(t.Context(), "go", "run", pkg)
-		cmd.Env = append(append(pageEnv(os.Environ()), fmt.Sprintf("EMBER_UI_ZOOM=%d", zoom)), env...)
+		cmd.Env = append(pageEnv(os.Environ(), filepath.Join(dir, "crash")), fmt.Sprintf("EMBER_UI_ZOOM=%d", zoom))
+		cmd.Env = append(cmd.Env, env...)
 		if out, err := cmd.CombinedOutput(); err != nil {
 			t.Fatalf("%s: %v: %s", pkg, err, out)
 		}

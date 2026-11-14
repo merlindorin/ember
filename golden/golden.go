@@ -15,6 +15,8 @@
 // pixels be over the levels, for a software adapter on a CI runner;
 // EMBER_GOLDEN_REPORT names a Markdown file each comparison appends its row
 // to; with EMBER_GPU_OPTIONAL=1 a machine without a GPU skips the scenes.
+// A scene that fails writes its crash log in the test's own folder
+// (EMBER_CRASH_DIR), never in the player's config folder.
 package golden
 
 import (
@@ -73,7 +75,7 @@ func Run(t *testing.T, root, refs string, scenes []Scene) {
 		t.Run(s.Name, func(t *testing.T) {
 			dir := t.TempDir()
 			shot := filepath.Join(dir, s.Name+".png")
-			capture(t, root, s, shot, filepath.Join(dir, "saves"))
+			capture(t, root, s, shot, dir)
 			for n := 1; ; n++ {
 				got := windowShot(shot, n)
 				if _, err := os.Stat(got); err != nil {
@@ -119,29 +121,43 @@ func check(t *testing.T, s Scene, ref string, half *image.NRGBA) {
 	}
 }
 
-// capture runs s hidden from root and captures its frame s.Frame into path.
-func capture(t *testing.T, root string, s Scene, path, saves string) {
-	t.Helper()
+// environ is base with the capture's settings, then the scene's own: its
+// saves in dir, and its crash log there too (EMBER_CRASH_DIR), so a scene
+// that fails leaves nothing in the player's config folder.
+func (s Scene) environ(base []string, shot, dir string) []string {
+	// EMBER_SCALE draws at 2 pixels a point on every screen, as the
+	// references were made, a 1× CI screen too.
+	env := append(
+		append([]string{}, base...),
+		"EMBER_HIDDEN=1",
+		"EMBER_SCALE=2",
+		"EMBER_CAPTURE="+shot,
+		fmt.Sprintf("EMBER_CAPTURE_FRAME=%d", s.Frame),
+		"EMBER_CRASH_DIR="+filepath.Join(dir, "crash"),
+	)
+	if s.Saves != "" {
+		env = append(env, s.Saves+"="+filepath.Join(dir, "saves"))
+	}
+	return append(env, s.Env...)
+}
+
+// run runs s hidden from root, its frame s.Frame captured into shot and
+// its own files kept in dir, and gives what it printed.
+func run(root string, s Scene, shot, dir string) ([]byte, error) {
 	pkg := s.Pkg
 	if pkg != "." {
 		pkg = "./" + pkg
 	}
 	cmd := exec.CommandContext(context.Background(), "go", "run", pkg)
 	cmd.Dir = root
-	// EMBER_SCALE draws at 2 pixels a point on every screen, as the
-	// references were made, a 1× CI screen too.
-	cmd.Env = append(
-		os.Environ(),
-		"EMBER_HIDDEN=1",
-		"EMBER_SCALE=2",
-		"EMBER_CAPTURE="+path,
-		fmt.Sprintf("EMBER_CAPTURE_FRAME=%d", s.Frame),
-	)
-	if s.Saves != "" {
-		cmd.Env = append(cmd.Env, s.Saves+"="+saves)
-	}
-	cmd.Env = append(cmd.Env, s.Env...)
-	if out, err := cmd.CombinedOutput(); err != nil {
+	cmd.Env = s.environ(os.Environ(), shot, dir)
+	return cmd.CombinedOutput()
+}
+
+// capture runs s hidden from root and captures its frame s.Frame into path.
+func capture(t *testing.T, root string, s Scene, path, dir string) {
+	t.Helper()
+	if out, err := run(root, s, path, dir); err != nil {
 		if _, statErr := os.Stat(path); statErr != nil {
 			if os.Getenv(optionalEnv) == "1" && strings.Contains(string(out), "no graphics adapter") {
 				t.Skipf("no GPU adapter here, and %s=1: %s", optionalEnv, out)

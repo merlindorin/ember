@@ -92,7 +92,8 @@ func capture(ctx context.Context, dir, out string) map[string]string {
 		path := filepath.Join(out, name+".png")
 		cmd := exec.CommandContext(ctx, bin, args...)
 		cmd.Dir = dir
-		cmd.Env = append(append(os.Environ(), "EMBER_HIDDEN=1", "EMBER_CAPTURE_FRAME=10", "EMBER_CAPTURE="+path), env...)
+		cmd.Env = append(append(os.Environ(), "EMBER_HIDDEN=1", "EMBER_CAPTURE_FRAME=10", "EMBER_CAPTURE="+path,
+			"EMBER_CRASH_DIR="+filepath.Join(out, "crash")), env...)
 		if msg, err := cmd.CombinedOutput(); err != nil {
 			log.Printf("%s: %v: %s", name, err, msg)
 			return

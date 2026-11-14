@@ -103,14 +103,19 @@ func watchFatal(path string) func() {
 // crashPath is where a crash log goes: path when the game gave one, else
 // crash.log in the user's config folder under the slug of title, the
 // primary window's, such as ember-survivors for "Ember Survivors"; the
-// temporary folder when there is no config folder.
+// temporary folder when there is no config folder. EMBER_CRASH_DIR names
+// a folder that stands in for the config folder, for the tests and
+// captures that run a program which may fail.
 func crashPath(path, title string) string {
 	if path != "" {
 		return path
 	}
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		dir = os.TempDir()
+	dir := os.Getenv("EMBER_CRASH_DIR")
+	if dir == "" {
+		var err error
+		if dir, err = os.UserConfigDir(); err != nil {
+			dir = os.TempDir()
+		}
 	}
 	return filepath.Join(dir, slug(title), "crash.log")
 }

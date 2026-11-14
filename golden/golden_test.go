@@ -3,9 +3,77 @@ package golden //nolint:testpackage // white-box: checks which references Update
 import (
 	"image"
 	"image/color"
+	"io/fs"
+	"os"
+	"os/exec"
 	"path/filepath"
+	"slices"
+	"strings"
 	"testing"
 )
+
+// elsewhere moves the player's home and config folder to a fresh folder for
+// the test, Go's own folders staying where they are.
+func elsewhere(t *testing.T) string {
+	t.Helper()
+	out, err := exec.Command("go", "env", "GOCACHE", "GOMODCACHE", "GOPATH", "GOENV").Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, v := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+		t.Setenv([]string{"GOCACHE", "GOMODCACHE", "GOPATH", "GOENV"}[i], strings.TrimSpace(v))
+	}
+	home := t.TempDir()
+	for _, k := range []string{"HOME", "XDG_CONFIG_HOME", "AppData"} {
+		t.Setenv(k, home)
+	}
+	return home
+}
+
+func TestASceneThatFailsLeavesNothingInThePlayersConfigFolder(t *testing.T) {
+	if testing.Short() {
+		t.Skip("builds and runs a program")
+	}
+	home, dir := elsewhere(t), t.TempDir()
+	config, err := os.UserConfigDir()
+	if err != nil || !strings.HasPrefix(config, home) {
+		t.Fatalf("the config folder is not under the test's home: %s, %v", config, err)
+	}
+	s := Scene{Name: "fails", Pkg: "golden/testdata/fails", Frame: 5}
+	out, err := run("..", s, filepath.Join(dir, "fails.png"), dir)
+	if err == nil {
+		t.Fatalf("the scene fails: %s", out)
+	}
+	log := filepath.Join(dir, "crash", "golden-fails", "crash.log")
+	if _, err = os.Stat(log); err != nil {
+		t.Errorf("its crash log is in the test's folder: %v: %s", err, out)
+	}
+	_ = filepath.WalkDir(home, func(path string, d fs.DirEntry, _ error) error {
+		if d != nil && !d.IsDir() && strings.HasSuffix(path, ".log") {
+			t.Errorf("a log under the player's home: %s", path)
+		}
+		return nil
+	})
+}
+
+func TestASceneRunsHiddenWithItsFilesInTheTestsFolder(t *testing.T) {
+	dir := t.TempDir()
+	s := Scene{Name: "title", Frame: 60, Saves: "GAME_DIR", Env: []string{"EMBER_CAPTURE_KEYS=enter:5-7"}}
+	env := s.environ([]string{"HOME=/h"}, filepath.Join(dir, "title.png"), dir)
+	for _, want := range []string{
+		"HOME=/h", "EMBER_HIDDEN=1", "EMBER_SCALE=2", "EMBER_CAPTURE=" + filepath.Join(dir, "title.png"),
+		"EMBER_CAPTURE_FRAME=60", "GAME_DIR=" + filepath.Join(dir, "saves"), "EMBER_CAPTURE_KEYS=enter:5-7",
+		"EMBER_CRASH_DIR=" + filepath.Join(dir, "crash"),
+	} {
+		if !slices.Contains(env, want) {
+			t.Errorf("no %s in %v", want, env)
+		}
+	}
+	own := Scene{Env: []string{"EMBER_CRASH_DIR=/elsewhere"}}.environ(nil, "x.png", dir)
+	if own[len(own)-1] != "EMBER_CRASH_DIR=/elsewhere" {
+		t.Errorf("a scene's own Env comes last, so it wins: %v", own)
+	}
+}
 
 func TestUpdateRewritesOnlyWhatFailsOrIsNamed(t *testing.T) {
 	for _, c := range []struct {

@@ -51,7 +51,8 @@ func Automation(auto *automation.Automation) Option {
 // CrashLog is where the desktop runner writes what went wrong when the
 // game fails to start or panics, such as the game's save folder. Without
 // it, crash.log goes in the user's config folder under the slug of the
-// primary window's title.
+// primary window's title, or under EMBER_CRASH_DIR when a test or a
+// capture sets it.
 func CrashLog(path string) Option { return func(c *options) { c.crashLog = path } }
 
 // New returns a World with the full presentation stack.

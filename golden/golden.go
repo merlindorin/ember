@@ -17,9 +17,11 @@
 // pixels be over the levels, for a software adapter on a CI runner;
 // EMBER_GOLDEN_REPORT names a Markdown file each comparison appends its row
 // to, with how long the scene ran; with EMBER_GPU_OPTIONAL=1 a machine
-// without a GPU skips the scenes.
-// A scene that fails writes its crash log in the test's own folder
-// (EMBER_CRASH_DIR), never in the player's config folder.
+// without a GPU skips the scenes. Only the captured frame is drawn, the
+// ones before it ticked (decision 0072); a scene that needs every frame
+// drawn says EMBER_CAPTURE_DRAW=all in its Env. A scene that fails writes
+// its crash log in the test's own folder (EMBER_CRASH_DIR), never in the
+// player's config folder.
 package golden
 
 import (

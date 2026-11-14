@@ -79,6 +79,7 @@ EMBER_HIDDEN=1 EMBER_CAPTURE=walk.gif EMBER_CAPTURE_FRAMES=75 EMBER_CAPTURE_KEYS
 EMBER_CAPTURE_MOUSE="320,192@0;140,120@40;left:30-40"   # scripted cursor (window points, at steps, straight lines) and mouse buttons in captures
 EMBER_CAPTURE_TEXT="Heron@150"   # typed text in captures, one character every four steps (EMBER_CAPTURE_MOUSE also takes back/forward)
 EMBER_CAPTURE_PAD=...   # scripted gamepad buttons and sticks in captures (see docs/design/guide-plan.md)
+EMBER_CAPTURE_DRAW=all   # draw every frame of a hidden still capture; without it only the captured frame is drawn, and those a light probe is answered from (decision 0072)
 EMBER_CRASH_DIR=dir   # where crash.log and errors.log go (dir/<slug of the window's title>/) when the program gave no ember.CrashLog, in place of the user's config folder; golden.Run, task shots, the ui Chrome pixel pages and emberdiff set it to their own temp folder, so set it too in any new harness that runs a program
 go test -run xxx -bench BulletHell .  # the busiest frame: 500 enemies, 1,000 bullets, particles, 300 bars (CPU)
 # Example numbers follow the guide's page order; inserting a page renumbers the examples after it (also in gpu/golden_gpu_test.go: run `task golden`).

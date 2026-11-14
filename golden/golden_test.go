@@ -1,6 +1,8 @@
 package golden //nolint:testpackage // white-box: checks which references Update rewrites
 
 import (
+	"context"
+	"errors"
 	"image"
 	"image/color"
 	"io/fs"
@@ -10,6 +12,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 )
 
 // elsewhere moves the player's home and config folder to a fresh folder for
@@ -40,7 +43,7 @@ func TestASceneThatFailsLeavesNothingInThePlayersConfigFolder(t *testing.T) {
 		t.Fatalf("the config folder is not under the test's home: %s, %v", config, err)
 	}
 	s := Scene{Name: "fails", Pkg: "golden/testdata/fails", Frame: 5}
-	out, err := run("..", s, filepath.Join(dir, "fails.png"), dir)
+	out, _, err := run(context.Background(), "..", s, filepath.Join(dir, "fails.png"), dir)
 	if err == nil {
 		t.Fatalf("the scene fails: %s", out)
 	}
@@ -54,6 +57,50 @@ func TestASceneThatFailsLeavesNothingInThePlayersConfigFolder(t *testing.T) {
 		}
 		return nil
 	})
+}
+
+func TestASceneStillRunningAtItsDeadlineIsKilledAndWhatItWroteKept(t *testing.T) {
+	if testing.Short() {
+		t.Skip("builds and runs a program")
+	}
+	dir := t.TempDir()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	s := Scene{Name: "stalls", Pkg: "golden/testdata/stalls", Frame: 5}
+	began := time.Now()
+	out, took, err := run(ctx, "..", s, filepath.Join(dir, "stalls.png"), dir)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("the scene is stopped at its deadline: %v: %s", err, out)
+	}
+	if !strings.Contains(string(out), "frame 3") {
+		t.Errorf("what it wrote before is kept: %q", out)
+	}
+	if took < time.Second || took > time.Minute || time.Since(began) > 5*time.Minute {
+		t.Errorf("it ran for its 2 s, its build apart: %s", took)
+	}
+}
+
+func TestASceneHasTheTestsTimeLessAMarginOrLessWhenTold(t *testing.T) {
+	for _, c := range []struct {
+		env  string
+		left time.Duration
+		want time.Duration
+		bad  bool
+	}{
+		{"", 0, 0, false},
+		{"", 30 * time.Minute, 30*time.Minute - margin, false},
+		{"", margin / 2, margin / 4, false},
+		{"10m", 0, 10 * time.Minute, false},
+		{"10m", 30 * time.Minute, 10 * time.Minute, false},
+		{"10m", 5 * time.Minute, 5*time.Minute - margin, false},
+		{"soon", time.Minute, 0, true},
+		{"-1s", time.Minute, 0, true},
+	} {
+		got, err := limit(c.env, c.left)
+		if got != c.want || (err != nil) != c.bad {
+			t.Errorf("%s=%q with %s left: %s, %v; want %s, bad %v", timeoutEnv, c.env, c.left, got, err, c.want, c.bad)
+		}
+	}
 }
 
 func TestASceneRunsHiddenWithItsFilesInTheTestsFolder(t *testing.T) {
@@ -134,7 +181,7 @@ func TestASceneLikeItsReferencePassesAndAPixelOffCounts(t *testing.T) {
 	ref := filepath.Join(t.TempDir(), "scene.png")
 	pic := image.NewNRGBA(image.Rect(0, 0, 2, 2))
 	Save(t, ref, pic)
-	check(t, Scene{Name: "scene"}, ref, pic) // the same picture passes: it would fail t
+	check(t, Scene{Name: "scene"}, ref, pic, 0) // the same picture passes: it would fail t
 	off := image.NewNRGBA(pic.Bounds())
 	off.SetNRGBA(0, 0, color.NRGBA{200, 0, 0, 255})
 	if d, _ := Compare(t, Load(t, ref), off); d.Over != 1 {

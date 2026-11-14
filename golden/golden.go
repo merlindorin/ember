@@ -11,16 +11,20 @@
 //
 // -update writes the references from the current renderer, of only the
 // scenes that fail or that -run names whole (Golden/title), so the others
-// keep theirs byte for byte. EMBER_GOLDEN_SHARE lets that share of a scene's
+// keep theirs byte for byte. A scene still running when the test's time is
+// nearly out, or after EMBER_GOLDEN_TIMEOUT (10m, say), is killed and the
+// test says what it printed. EMBER_GOLDEN_SHARE lets that share of a scene's
 // pixels be over the levels, for a software adapter on a CI runner;
 // EMBER_GOLDEN_REPORT names a Markdown file each comparison appends its row
-// to; with EMBER_GPU_OPTIONAL=1 a machine without a GPU skips the scenes.
+// to, with how long the scene ran; with EMBER_GPU_OPTIONAL=1 a machine
+// without a GPU skips the scenes.
 // A scene that fails writes its crash log in the test's own folder
 // (EMBER_CRASH_DIR), never in the player's config folder.
 package golden
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"image"
@@ -30,9 +34,11 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 // Update is -update: rewrite the references from the current renderer.
@@ -47,6 +53,7 @@ const (
 	shareEnv    = "EMBER_GOLDEN_SHARE"
 	reportEnv   = "EMBER_GOLDEN_REPORT"
 	optionalEnv = "EMBER_GPU_OPTIONAL"
+	timeoutEnv  = "EMBER_GOLDEN_TIMEOUT"
 )
 
 // Scene is one picture to hold: the package Pkg run from the module's root
@@ -75,7 +82,7 @@ func Run(t *testing.T, root, refs string, scenes []Scene) {
 		t.Run(s.Name, func(t *testing.T) {
 			dir := t.TempDir()
 			shot := filepath.Join(dir, s.Name+".png")
-			capture(t, root, s, shot, dir)
+			took := capture(t, root, s, shot, dir)
 			for n := 1; ; n++ {
 				got := windowShot(shot, n)
 				if _, err := os.Stat(got); err != nil {
@@ -84,14 +91,15 @@ func Run(t *testing.T, root, refs string, scenes []Scene) {
 					}
 					return
 				}
-				check(t, s, windowShot(filepath.Join(refs, s.Name+".png"), n), ToPoints(t, Load(t, got)))
+				check(t, s, windowShot(filepath.Join(refs, s.Name+".png"), n), ToPoints(t, Load(t, got)), took)
 			}
 		})
 	}
 }
 
-// check holds half, a capture in points, to ref.
-func check(t *testing.T, s Scene, ref string, half *image.NRGBA) {
+// check holds half, a capture in points of a scene that ran for took, to
+// ref.
+func check(t *testing.T, s Scene, ref string, half *image.NRGBA, took time.Duration) {
 	t.Helper()
 	if _, err := os.Stat(ref); err != nil {
 		if *Update {
@@ -106,7 +114,8 @@ func check(t *testing.T, s Scene, ref string, half *image.NRGBA) {
 		allowed = max(allowed, int(share*float64(d.Total)))
 	}
 	t.Logf("%s: %d of %d pixels over %d levels, at most %d off", filepath.Base(ref), d.Over, d.Total, Levels, d.Most)
-	Report(t, fmt.Sprintf("| %s | %d of %d | %d | %d |", filepath.Base(ref), d.Over, d.Total, d.Most, allowed))
+	ran := took.Round(time.Millisecond)
+	Report(t, fmt.Sprintf("| %s | %d of %d | %d | %d | %s |", filepath.Base(ref), d.Over, d.Total, d.Most, allowed, ran))
 	if *Update {
 		if rewrite(flag.Lookup("test.run").Value.String(), s.Name, false, d.Over > allowed) {
 			Save(t, ref, half)
@@ -141,23 +150,84 @@ func (s Scene) environ(base []string, shot, dir string) []string {
 	return append(env, s.Env...)
 }
 
-// run runs s hidden from root, its frame s.Frame captured into shot and
-// its own files kept in dir, and gives what it printed.
-func run(root string, s Scene, shot, dir string) ([]byte, error) {
+// run builds s from root into dir and runs it hidden, its frame s.Frame
+// captured into shot and its own files kept in dir. It gives what the
+// scene printed and how long it ran, its build apart; a scene still
+// running when ctx ends is killed, what it printed so far kept.
+func run(ctx context.Context, root string, s Scene, shot, dir string) ([]byte, time.Duration, error) {
 	pkg := s.Pkg
 	if pkg != "." {
 		pkg = "./" + pkg
 	}
-	cmd := exec.CommandContext(context.Background(), "go", "run", pkg)
+	bin := filepath.Join(dir, "scene")
+	if runtime.GOOS == "windows" {
+		bin += ".exe"
+	}
+	build := exec.CommandContext(context.WithoutCancel(ctx), "go", "build", "-o", bin, pkg)
+	build.Dir = root
+	if out, err := build.CombinedOutput(); err != nil {
+		return out, 0, fmt.Errorf("go build %s: %w", pkg, err)
+	}
+	cmd := exec.CommandContext(ctx, bin) //nolint:gosec // the scene this test has just built, in its own folder
 	cmd.Dir = root
 	cmd.Env = s.environ(os.Environ(), shot, dir)
-	return cmd.CombinedOutput()
+	cmd.WaitDelay = 10 * time.Second
+	began := time.Now()
+	out, err := cmd.CombinedOutput()
+	took := time.Since(began)
+	if ctx.Err() != nil {
+		err = fmt.Errorf("killed after %s: %w", took.Round(time.Second), ctx.Err())
+	}
+	return out, took, err
 }
 
-// capture runs s hidden from root and captures its frame s.Frame into path.
-func capture(t *testing.T, root string, s Scene, path, dir string) {
+// margin is the time a test keeps after its scene's deadline, to say what
+// the scene printed before go test's own timeout stops everything.
+const margin = 30 * time.Second
+
+// limit is how long a scene may run: the time the test has left less
+// margin (half of it when less is left; 0 for a test without a deadline),
+// or EMBER_GOLDEN_TIMEOUT when that is sooner. 0 is no limit.
+func limit(env string, left time.Duration) (time.Duration, error) {
+	d := max(left-margin, left/2)
+	if env == "" {
+		return d, nil
+	}
+	told, err := time.ParseDuration(env)
+	if err != nil || told <= 0 {
+		return 0, fmt.Errorf("%s=%q: a duration such as 10m", timeoutEnv, env)
+	}
+	if d == 0 || told < d {
+		d = told
+	}
+	return d, nil
+}
+
+// capture runs s hidden from root, captures its frame s.Frame into path
+// and gives how long the scene ran.
+func capture(t *testing.T, root string, s Scene, path, dir string) time.Duration {
 	t.Helper()
-	if out, err := run(root, s, path, dir); err != nil {
+	var left time.Duration
+	if end, ok := t.Deadline(); ok {
+		left = time.Until(end)
+	}
+	d, err := limit(os.Getenv(timeoutEnv), left)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	if d > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, d)
+		defer cancel()
+	}
+	out, took, err := run(ctx, root, s, path, dir)
+	t.Logf("%s: ran %s", s.Name, took.Round(time.Millisecond))
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			Report(t, fmt.Sprintf("| %s | killed at its deadline | | | %s |", s.Name, took.Round(time.Millisecond)))
+			t.Fatalf("%v (%s at most; %s sets it); it printed: %s", err, d.Round(time.Second), timeoutEnv, out)
+		}
 		if _, statErr := os.Stat(path); statErr != nil {
 			if os.Getenv(optionalEnv) == "1" && strings.Contains(string(out), "no graphics adapter") {
 				t.Skipf("no GPU adapter here, and %s=1: %s", optionalEnv, out)
@@ -165,6 +235,7 @@ func capture(t *testing.T, root string, s Scene, path, dir string) {
 			t.Fatalf("%v: %s", err, out)
 		}
 	}
+	return took
 }
 
 // rewrite reports whether -update rewrites scene name's reference: when
@@ -214,7 +285,7 @@ func Report(t *testing.T, row string) {
 	}
 	defer f.Close()
 	if info, statErr := f.Stat(); statErr == nil && info.Size() == 0 {
-		fmt.Fprintln(f, "| Picture | Pixels over | Most off | Allowed |\n|---|---|---|---|")
+		fmt.Fprintln(f, "| Picture | Pixels over | Most off | Allowed | Ran |\n|---|---|---|---|---|")
 	}
 	fmt.Fprintln(f, row)
 }

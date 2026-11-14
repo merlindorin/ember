@@ -97,7 +97,7 @@ func TestGoldenInTheBrowser(t *testing.T) {
 				golden.Levels,
 				d.Most,
 			)
-			golden.Report(t, fmt.Sprintf("| %s (web) | %d of %d | %d | %d |", s.Name, d.Over, d.Total, d.Most, allowed))
+			golden.Report(t, fmt.Sprintf("| %s (web) | %d of %d | %d | %d | |", s.Name, d.Over, d.Total, d.Most, allowed))
 			if d.Over > allowed {
 				shot := filepath.Join(os.TempDir(), "golden-web-"+s.Name+".png")
 				diff := filepath.Join(os.TempDir(), "golden-web-"+s.Name+"-diff.png")

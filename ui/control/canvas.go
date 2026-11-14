@@ -1,8 +1,8 @@
 package control
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // Canvas is a canvas element: the game's Draw, which paint calls in the

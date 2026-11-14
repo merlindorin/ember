@@ -14,8 +14,8 @@ import (
 	"time"
 
 	"github.com/ebitengine/oto/v3"
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/world"
 )
 
 // latency is how much sound the device buffers ahead.

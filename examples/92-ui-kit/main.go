@@ -12,13 +12,13 @@ import (
 	"strings"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/examples/internal/lucide"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/examples/internal/lucide"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
+	"github.com/lantervale/ember/world"
 )
 
 // panel.png is a framed 24×24 panel, the image and nine-patch elements' picture.

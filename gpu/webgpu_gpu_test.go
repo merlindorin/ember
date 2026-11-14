@@ -7,12 +7,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/render"
 
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/internal/wgpu"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/internal/wgpu"
 )
 
 // The WebGPU presenter's shader and pipelines, on a real GPU (task wgpu):

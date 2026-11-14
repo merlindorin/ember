@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
 )
 
 func TestASlimeLurksInTheDarkAndShowsInTheLight(t *testing.T) {

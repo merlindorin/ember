@@ -5,10 +5,10 @@ import (
 	"image"
 	"testing"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
 )
 
 func TestNewWindowDefaults(t *testing.T) {

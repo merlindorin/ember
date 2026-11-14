@@ -5,9 +5,9 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 func endless(ts *twod.Tileset) *twod.InfiniteMap {

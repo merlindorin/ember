@@ -4,8 +4,8 @@ import (
 	"image/color"
 	"math"
 
-	ecolor "github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/twod"
+	ecolor "github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/twod"
 )
 
 func moonlight() ecolor.Color {

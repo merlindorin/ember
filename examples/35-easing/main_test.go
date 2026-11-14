@@ -3,10 +3,10 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
 )
 
 func TestTheWalkerGoesRoundTheLoopAndBack(t *testing.T) {

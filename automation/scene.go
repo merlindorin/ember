@@ -8,10 +8,10 @@ import (
 	"slices"
 
 	"connectrpc.com/connect"
-	"github.com/merlindorin/ember/automation/scenepb"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/node"
-	"github.com/merlindorin/ember/node/node3d"
+	"github.com/lantervale/ember/automation/scenepb"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/node"
+	"github.com/lantervale/ember/node/node3d"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 

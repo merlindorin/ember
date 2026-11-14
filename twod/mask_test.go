@@ -5,8 +5,8 @@ import (
 	stdcolor "image/color"
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // maskTest is a 4×1 tile of one opaque colour at x 4–7 of an 8×1 sheet, and

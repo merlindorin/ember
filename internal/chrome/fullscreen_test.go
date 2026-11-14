@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/internal/chrome"
+	"github.com/lantervale/ember/internal/chrome"
 )
 
 // page is the probe running in Chrome, driven by its own input events.

@@ -3,8 +3,8 @@ package netside_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/internal/netside"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/internal/netside"
+	"github.com/lantervale/ember/world"
 )
 
 func TestEachWorldKeepsItsOwnSides(t *testing.T) {

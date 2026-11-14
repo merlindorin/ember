@@ -5,7 +5,7 @@ package gpu //nolint:testpackage // white-box: drives the renderer's unexported 
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/golden"
+	"github.com/lantervale/ember/golden"
 )
 
 // edges3D is the share of a 3D scene's pixels that may be over the levels,

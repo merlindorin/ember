@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/merlindorin/ember/internal/wgpu"
+	"github.com/lantervale/ember/internal/wgpu"
 )
 
 // attach gives n its WebGPU surface, and with the first window, the

@@ -1,6 +1,6 @@
 package twod
 
-import "github.com/merlindorin/ember/geom"
+import "github.com/lantervale/ember/geom"
 
 // TileShape is a shape drawn on a tile, in Tiled's collision editor or by
 // TileShapes: a rectangle in the tile's pixels from its top-left corner,

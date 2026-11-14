@@ -22,7 +22,7 @@ import (
 	"sync"
 	"unicode"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // Roles of recorded elements.

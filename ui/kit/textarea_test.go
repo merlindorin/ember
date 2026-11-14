@@ -3,12 +3,12 @@ package kit_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/internal/box"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/internal/box"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/kit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
 )
 
 // Pads plays scripted gamepads: each is plugged in for a range of frames,

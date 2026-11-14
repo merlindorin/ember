@@ -14,12 +14,12 @@ import (
 
 	"connectrpc.com/connect"
 	"connectrpc.com/grpcreflect"
-	"github.com/merlindorin/ember/automation/automationpb"
-	"github.com/merlindorin/ember/automation/automationpb/automationpbconnect"
-	"github.com/merlindorin/ember/automation/scenepb/scenepbconnect"
-	"github.com/merlindorin/ember/internal/wm"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/automation/automationpb"
+	"github.com/lantervale/ember/automation/automationpb/automationpbconnect"
+	"github.com/lantervale/ember/automation/scenepb/scenepbconnect"
+	"github.com/lantervale/ember/internal/wm"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/world"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
 )

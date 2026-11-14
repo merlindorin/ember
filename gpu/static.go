@@ -4,10 +4,10 @@ import (
 	"math"
 	"unsafe"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/internal/wgpu"
-	"github.com/merlindorin/ember/platform"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/internal/wgpu"
+	"github.com/lantervale/ember/platform"
 )
 
 // staticTexels is a baked tile's side in texels: a texel a point of the

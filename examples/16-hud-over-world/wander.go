@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 // Wander walks each walker back and forth along its route, 60 points a

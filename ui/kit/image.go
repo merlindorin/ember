@@ -3,7 +3,7 @@ package kit
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // Image is an img of class "kit-image" showing src, an image

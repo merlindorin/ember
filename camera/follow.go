@@ -1,12 +1,12 @@
 package camera
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/render"
-	"github.com/merlindorin/ember/scene"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/render"
+	"github.com/lantervale/ember/scene"
+	"github.com/lantervale/ember/world"
 )
 
 // Follow is the action-RPG camera: it trails a target from a fixed pitch

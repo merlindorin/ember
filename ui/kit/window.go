@@ -3,7 +3,7 @@ package kit
 import (
 	"slices"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // Window is a dialog of class "kit-window" drawn in the game window, a title

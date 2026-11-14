@@ -4,8 +4,8 @@ import (
 	"math"
 	"slices"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/world"
 )
 
 // Solid is anything with solid rectangles, such as a tile map's walls.

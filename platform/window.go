@@ -15,12 +15,12 @@ package platform
 import (
 	"image"
 
-	"github.com/merlindorin/ember/internal/cursorhint"
+	"github.com/lantervale/ember/internal/cursorhint"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/world"
 )
 
 // Option sets up a window: its title, size, position and look.

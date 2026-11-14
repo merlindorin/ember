@@ -1,10 +1,10 @@
 package light
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/world"
 )
 
 // DebugView is what a window's lighting debug view shows over it: F3's

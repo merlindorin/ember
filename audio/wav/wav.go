@@ -9,7 +9,7 @@ import (
 	"io"
 	"math"
 
-	"github.com/merlindorin/ember/audio"
+	"github.com/lantervale/ember/audio"
 )
 
 func init() { //nolint:gochecknoinits // importing the package registers the decoder, by design

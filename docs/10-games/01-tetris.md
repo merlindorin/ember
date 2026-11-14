@@ -4,4 +4,4 @@
 
 Line clears flash and spark; the arrows or the pad's cross move and drop, Up or A turns, and Escape or Menu opens the menu, with the leaderboard and the sound.
 
-[Play in your browser](https://merlindorin.github.io/ember/live/index.html?wasm=games-tetris.wasm.gz) · [The code](https://github.com/merlindorin/ember/tree/main/games/tetris) · `go run ./games/tetris`
+[Play in your browser](https://lantervale.github.io/ember/live/index.html?wasm=games-tetris.wasm.gz) · [The code](https://github.com/lantervale/ember/tree/main/games/tetris) · `go run ./games/tetris`

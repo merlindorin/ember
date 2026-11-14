@@ -2,7 +2,7 @@
 // a World was given. Games hold theirs instead.
 package netside
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 type sides struct{ server, client any }
 

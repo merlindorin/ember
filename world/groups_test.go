@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 type walker interface {

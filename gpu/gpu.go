@@ -7,10 +7,10 @@ package gpu
 import (
 	"os"
 
-	"github.com/merlindorin/ember/render"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/render"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
+	"github.com/lantervale/ember/world"
 )
 
 // Settings tune quality versus cost.

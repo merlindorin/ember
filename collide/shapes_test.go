@@ -3,7 +3,7 @@ package collide //nolint:testpackage // white-box: shares the unexported thing, 
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // barMap is a bar 4 points wide, x 16 to 20, all the way down three rows

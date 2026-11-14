@@ -11,13 +11,13 @@ import (
 
 	"golang.org/x/text/cases"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/internal/box"
-	"github.com/merlindorin/ember/ui/internal/chrome"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/internal/fonts"
-	"github.com/merlindorin/ember/ui/layout"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/internal/box"
+	"github.com/lantervale/ember/ui/internal/chrome"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/fonts"
+	"github.com/lantervale/ember/ui/layout"
 )
 
 // textLines is, for every text node under body with more than spaces,

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/games/internal/sound"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/games/internal/sound"
 )
 
 // Sounds are Tetris's effects, made in code.

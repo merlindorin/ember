@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/ui"
 )
 
 // Form is a div of class "kit-form", a grid of a column of

@@ -15,14 +15,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/css"
-	"github.com/merlindorin/ember/ui/internal/assets"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/internal/fonts"
-	"github.com/merlindorin/ember/ui/internal/style"
-	"github.com/merlindorin/ember/ui/layout"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/css"
+	"github.com/lantervale/ember/ui/internal/assets"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/fonts"
+	"github.com/lantervale/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/layout"
 )
 
 // Option adds to the exported page.

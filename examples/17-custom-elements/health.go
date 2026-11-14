@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // Health takes damage from one button and heals with the other, their

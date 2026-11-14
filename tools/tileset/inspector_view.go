@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // The inspector is a view the Tool drives: it shows an inspectorState and

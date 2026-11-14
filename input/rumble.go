@@ -1,8 +1,8 @@
 package input
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/inputfeed"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/inputfeed"
 )
 
 // MaxRumbleSeconds is the longest a pad rumbles from one call.

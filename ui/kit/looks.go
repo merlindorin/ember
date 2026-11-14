@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // The looks below are kit's variants of its elements, given as args where
 // the element takes them. Each is a class with kit's prefix, kit-, so a

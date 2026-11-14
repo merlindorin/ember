@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
+	"github.com/lantervale/ember/world"
 )
 
 // settings is a small settings screen: a heading, a form and two buttons.

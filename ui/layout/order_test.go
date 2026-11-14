@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 func sized(w float32, order int) *dom.Node {

@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // ColorRect is a div of class "kit-color-rect" filled
 // with c, a CSS colour. It is as large as its box: give it a size with a

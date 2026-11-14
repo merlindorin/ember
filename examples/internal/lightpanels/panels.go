@@ -3,11 +3,11 @@ package main
 import (
 	"math"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/examples/internal/crypt"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/examples/internal/crypt"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
 )
 
 // panels are every picture of the Light pages, by name.

@@ -1,6 +1,6 @@
 package main
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 func texts() map[string]element {
 	return map[string]element{

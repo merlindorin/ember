@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // Panel is a section of class "kit-panel" on the panel colour, with a
 // border and rounded corners. Title gives it a title bar. Classes "kit-checked" (the old ember/ui's

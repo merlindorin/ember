@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 func TestGeomValuesMarshalByTheirFieldNames(t *testing.T) {

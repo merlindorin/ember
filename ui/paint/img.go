@@ -1,9 +1,9 @@
 package paint
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 // img draws an img element's picture, its src found through Images, in

@@ -4,11 +4,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui/control"
-	"github.com/merlindorin/ember/ui/internal/box"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui/control"
+	"github.com/lantervale/ember/ui/internal/box"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 // line is a one-line text field's text laid out: where each position is

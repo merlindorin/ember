@@ -5,7 +5,7 @@
 // returns.
 package control
 
-import "github.com/merlindorin/ember/input"
+import "github.com/lantervale/ember/input"
 
 // Intent is what a key or a pad button asks of the focused control.
 type Intent int

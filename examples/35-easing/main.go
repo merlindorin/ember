@@ -10,12 +10,12 @@ import (
 	"embed"
 	"log"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/ease"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/ease"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
 )
 
 //go:embed walker.png

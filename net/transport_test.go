@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/net"
-	"github.com/merlindorin/ember/net/nettest"
-	"github.com/merlindorin/ember/net/quic"
+	"github.com/lantervale/ember/net"
+	"github.com/lantervale/ember/net/nettest"
+	"github.com/lantervale/ember/net/quic"
 )
 
 func TestPipeTransport(t *testing.T) {

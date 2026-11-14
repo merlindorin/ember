@@ -4,8 +4,8 @@ import (
 	"math"
 	"strconv"
 
-	"github.com/merlindorin/ember/ui/control"
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/control"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // machine is n's control, made from its attributes the first time it is

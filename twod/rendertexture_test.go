@@ -5,8 +5,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

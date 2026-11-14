@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // Slider is a range input of class "kit-slider" at value,
 // between 0 and 100 unless Range bounds it and on its Step, dragged,

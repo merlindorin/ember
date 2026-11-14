@@ -1,12 +1,12 @@
 package light
 
 import (
-	"github.com/merlindorin/ember/collide"
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/lit"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/collide"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/lit"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 func state(e twod.Entity) *lit.State { return lit.Of(e) }

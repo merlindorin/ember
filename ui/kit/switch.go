@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // Switch is the old ember/ui's Check drawn as a switch: a label of class "kit-switch"
 // holding a checkbox with the switch attribute, of class "kit-switch-track",

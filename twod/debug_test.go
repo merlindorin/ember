@@ -3,10 +3,10 @@ package twod //nolint:testpackage // white-box: shares twod's test helpers, reac
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/internal/wm"
-	"github.com/merlindorin/ember/platform"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/internal/wm"
+	"github.com/lantervale/ember/platform"
 	"github.com/stretchr/testify/assert"
 )
 

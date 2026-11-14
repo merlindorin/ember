@@ -3,8 +3,8 @@ package nettest_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/net/nettest"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/net/nettest"
 	"github.com/stretchr/testify/require"
 )
 

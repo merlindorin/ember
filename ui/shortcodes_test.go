@@ -7,9 +7,9 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -4,10 +4,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/ui/align"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/ui/align"
 )
 
 func TestBothFacesShowWhatIsSent(t *testing.T) {

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/collide"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/collide"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 // Door opens the middle wall when something steps on the plate: the wall

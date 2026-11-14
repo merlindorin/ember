@@ -10,8 +10,8 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/twod"
 )
 
 // The colours the recolour tests swap, as a pack's palette writes them.

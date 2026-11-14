@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/node"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/node"
+	"github.com/lantervale/ember/world"
 )
 
 //nolint:gochecknoinits // registers the package's node types on import

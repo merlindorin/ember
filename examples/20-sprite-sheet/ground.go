@@ -3,7 +3,7 @@ package main
 import (
 	"strings"
 
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/twod"
 )
 
 // newGround is grass under the whole window: the first tile of the meadow

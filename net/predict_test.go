@@ -3,9 +3,9 @@ package net //nolint:testpackage // white-box: shares the package's test rig and
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/scene"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/scene"
+	"github.com/lantervale/ember/world"
 )
 
 type Walk struct{ V float32 }

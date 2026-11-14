@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // Button is a button of class "kit-button" showing text.
 // Classes "kit-primary" and "kit-destructive" are the old ember/ui's call-to-action and

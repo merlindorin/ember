@@ -1,6 +1,6 @@
 package main
 
-import "github.com/merlindorin/ember/ease"
+import "github.com/lantervale/ember/ease"
 
 // easings are the families shown, a row each, through their InOut form:
 // each family also has an In form, slow at the start, and an Out form,

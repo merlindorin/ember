@@ -10,10 +10,10 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
 )
 
 // page lets the menu take the window's whole height.

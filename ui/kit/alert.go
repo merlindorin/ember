@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // Alert is a dialog of class "kit-alert" asking title,
 // explained by message, answered by buttons, with the old ember/ui's icon above.

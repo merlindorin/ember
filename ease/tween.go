@@ -1,6 +1,6 @@
 package ease
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 // Tween is an entity that drives a value over a duration: each frame the
 // ease system advances it and calls its apply function with the eased

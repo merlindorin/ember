@@ -3,9 +3,9 @@ package twod
 import (
 	"slices"
 
-	"github.com/merlindorin/ember/internal/twodgrid"
+	"github.com/lantervale/ember/internal/twodgrid"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // A layer with at least gridFrom children files its still sprites in

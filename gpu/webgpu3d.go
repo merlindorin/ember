@@ -8,13 +8,13 @@ import (
 	"sort"
 	"unsafe"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/wgpu"
-	"github.com/merlindorin/ember/mesh"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/render"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/wgpu"
+	"github.com/lantervale/ember/mesh"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/render"
+	"github.com/lantervale/ember/world"
 )
 
 // sceneColor and sceneDepth are the formats the 3D scene draws into: HDR

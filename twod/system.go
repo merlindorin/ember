@@ -6,17 +6,17 @@ import (
 
 	"slices"
 
-	"github.com/merlindorin/ember/internal/cursorhint"
-	"github.com/merlindorin/ember/internal/draw"
-	lt "github.com/merlindorin/ember/internal/lit"
+	"github.com/lantervale/ember/internal/cursorhint"
+	"github.com/lantervale/ember/internal/draw"
+	lt "github.com/lantervale/ember/internal/lit"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/precollect"
-	"github.com/merlindorin/ember/internal/slot"
-	"github.com/merlindorin/ember/internal/wm"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/precollect"
+	"github.com/lantervale/ember/internal/slot"
+	"github.com/lantervale/ember/internal/wm"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/world"
 )
 
 // Plugin installs the 2D system. ember.New adds it.

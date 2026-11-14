@@ -7,9 +7,9 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/netside"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/netside"
+	"github.com/lantervale/ember/world"
 )
 
 // Predicted is implemented by entities a client simulates ahead of the

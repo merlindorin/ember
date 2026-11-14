@@ -10,9 +10,9 @@ import (
 
 	"github.com/rivo/uniseg"
 
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/ui/internal/box"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/ui/internal/box"
+	"github.com/lantervale/ember/ui/internal/style"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/gobold"
 	"golang.org/x/image/font/gofont/gobolditalic"

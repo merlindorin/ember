@@ -1,6 +1,6 @@
 package layout
 
-import "github.com/merlindorin/ember/ui/internal/style"
+import "github.com/lantervale/ember/ui/internal/style"
 
 // blockContext marks a block laid out inside its parent's block formatting context, so its
 // margins may collapse with its children's; nil is the root of a formatting context.

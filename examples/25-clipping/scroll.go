@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 // Scroll moves the texts left 120 points a second, and starts each one

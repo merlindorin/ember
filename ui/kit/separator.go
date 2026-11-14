@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // Separator is an hr of class "kit-separator", a 1-point
 // line in the border colour, inset 6 points at its ends, in a 9-point

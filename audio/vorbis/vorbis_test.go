@@ -7,8 +7,8 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/audio/vorbis"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/audio/vorbis"
 )
 
 // testdata/tone.ogg is half a second of 440 Hz left and 660 Hz right at

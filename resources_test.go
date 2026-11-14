@@ -12,7 +12,7 @@ import (
 	"unicode"
 )
 
-const module = "github.com/merlindorin/ember"
+const module = "github.com/lantervale/ember"
 
 // TestTheEngineExposesNoResources keeps decision 0015: engine packages
 // share state through values the game holds, entities and private

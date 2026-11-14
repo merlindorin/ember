@@ -5,12 +5,12 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui/internal/box"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui/internal/box"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 //nolint:gochecknoglobals // fixed values every paint reads; Go has no constant colours, tables or shapes

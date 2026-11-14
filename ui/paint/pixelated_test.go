@@ -4,7 +4,7 @@ import (
 	"image"
 	"testing"
 
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/twod"
 	"github.com/stretchr/testify/assert"
 )
 

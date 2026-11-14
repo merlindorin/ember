@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
 )
 
 // button is a default, a primary and a destructive button, and one disabled.

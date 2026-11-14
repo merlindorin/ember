@@ -16,8 +16,8 @@ import (
 	"path"
 	"slices"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
 )
 
 // Tiled is a map made in the Tiled editor: what the file says of itself,

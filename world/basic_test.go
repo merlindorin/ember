@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 func TestBasicEntity_HasAncestor(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 // Burning is what the Cooling system needs: any entity with Heat and a Name.

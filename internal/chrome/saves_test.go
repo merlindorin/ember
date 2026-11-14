@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/internal/chrome"
+	"github.com/lantervale/ember/internal/chrome"
 )
 
 // goroot is the Go root the go command builds with, for its wasm_exec.js.

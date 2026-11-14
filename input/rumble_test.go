@@ -3,10 +3,10 @@ package input_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/internal/inputfeed"
+	"github.com/lantervale/ember/internal/inputfeed"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/input"
 )
 
 func padOn(s *input.State, id int) *input.Gamepad {

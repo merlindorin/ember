@@ -3,11 +3,11 @@ package ui
 import (
 	"sync/atomic"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 // following is what a node follows: its entity, the offset, and where it

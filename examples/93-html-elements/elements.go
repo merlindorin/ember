@@ -4,8 +4,8 @@ import (
 	"maps"
 	"math"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui"
 )
 
 // element builds one element's page, shown in a window w points wide and

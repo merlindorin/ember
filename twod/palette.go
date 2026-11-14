@@ -11,7 +11,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/color"
+	"github.com/lantervale/ember/color"
 )
 
 // ColorSwap is one swap of a Palette: From becomes To.

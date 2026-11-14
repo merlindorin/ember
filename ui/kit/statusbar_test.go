@@ -3,8 +3,8 @@ package kit_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
 	"github.com/stretchr/testify/assert"
 )
 

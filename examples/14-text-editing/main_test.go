@@ -4,13 +4,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
+	"github.com/lantervale/ember/world"
 )
 
 // app is the notes app as main builds it, headless.

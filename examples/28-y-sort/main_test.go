@@ -3,12 +3,12 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/collide"
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/collide"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
 )
 
 func TestTheHeroSortsWithTheTreesAndStopsAtTheirTrunks(t *testing.T) {

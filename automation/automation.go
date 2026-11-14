@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/merlindorin/ember/internal/slot"
-	"github.com/merlindorin/ember/node"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/internal/slot"
+	"github.com/lantervale/ember/node"
+	"github.com/lantervale/ember/world"
 )
 
 // Automation records a World's widgets and the game's actions and, given an

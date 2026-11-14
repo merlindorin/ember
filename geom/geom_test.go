@@ -3,7 +3,7 @@ package geom_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 const eps = 1e-4

@@ -72,18 +72,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/merlindorin/ember/internal/inputfeed"
-	"github.com/merlindorin/ember/internal/wgpu"
+	"github.com/lantervale/ember/internal/inputfeed"
+	"github.com/lantervale/ember/internal/wgpu"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/audiodevice"
-	"github.com/merlindorin/ember/internal/errlog"
-	"github.com/merlindorin/ember/internal/wm"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/platform/capture"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/audiodevice"
+	"github.com/lantervale/ember/internal/errlog"
+	"github.com/lantervale/ember/internal/wm"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/platform/capture"
+	"github.com/lantervale/ember/world"
 )
 
 //nolint:gochecknoinits // GLFW must be driven from the main OS thread, locked before main runs

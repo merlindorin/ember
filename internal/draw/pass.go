@@ -1,12 +1,12 @@
 package draw
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/slot"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/render"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/slot"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/render"
+	"github.com/lantervale/ember/world"
 )
 
 // Pass is an offscreen picture its window draws before itself: List, in

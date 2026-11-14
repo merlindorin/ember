@@ -4,9 +4,9 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	"github.com/merlindorin/ember/collide"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/collide"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/world"
 )
 
 // SolidIn makes a level a collide.Solid: the rectangles of its solid cells.

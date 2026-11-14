@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 // garden is the trees planted so far and the ghost of the next one.

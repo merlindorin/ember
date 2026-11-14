@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/internal/chrome"
+	"github.com/lantervale/ember/internal/chrome"
 )
 
 // TestAPictureCursorShowsOnTheCanvas runs testdata/cursor: its picture

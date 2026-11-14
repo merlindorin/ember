@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 const crossfade = 2 * time.Second

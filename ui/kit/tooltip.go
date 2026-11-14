@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // Tooltip is tip, any element such as a Label or a
 // Column of them, shows beside its element while the pointer is over it,

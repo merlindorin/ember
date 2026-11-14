@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // Zoom draws the Document f times its size, as a browser's zoom does: it

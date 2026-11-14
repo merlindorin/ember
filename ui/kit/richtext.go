@@ -4,10 +4,10 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/internal/emojinames"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/css"
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/internal/emojinames"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/css"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // RichText is a Label whose text reads [b]…[/b],

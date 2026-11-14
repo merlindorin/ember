@@ -3,8 +3,8 @@ package main
 import (
 	"math/bits"
 
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/games/internal/sound"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/games/internal/sound"
 )
 
 // Sounds are 2048's effects, made in code.

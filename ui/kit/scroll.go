@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // Scroll is a div of class "kit-scroll" that clips its content and scrolls
 // it, with bars while it overflows. It may shrink below its content in a row or column.

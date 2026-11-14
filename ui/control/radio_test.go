@@ -3,7 +3,7 @@ package control_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/ui/control"
+	"github.com/lantervale/ember/ui/control"
 )
 
 func TestARadioChecksOnceAndNotWhenDisabled(t *testing.T) {

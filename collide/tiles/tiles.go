@@ -15,8 +15,8 @@
 package tiles
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // PropSolid is the tile property that makes a tile stop bodies with its

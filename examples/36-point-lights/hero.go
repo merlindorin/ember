@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/collide"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/collide"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // newHero is the walker standing at its feet on at, with a body as wide as

@@ -3,7 +3,7 @@ package sound_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/games/internal/sound"
+	"github.com/lantervale/ember/games/internal/sound"
 )
 
 func TestAMixStaysUnderItsLimit(t *testing.T) {

@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // Label is a line of text, the old ember/ui's Label: a span of class "kit-label",
 // kept on one line. Looks change it: Wrap wraps it in its box, Truncate

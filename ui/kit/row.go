@@ -3,7 +3,7 @@ package kit
 import (
 	"strconv"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // Row lines its children up left to right, the old ember/ui's Row: a flex div of class "kit-row",

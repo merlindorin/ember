@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/render"
 )
 
 // EmojiSet is colour emoji as pictures, by the grapheme cluster each

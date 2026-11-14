@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 //nolint:gochecknoglobals // lookup table

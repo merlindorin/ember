@@ -1,6 +1,6 @@
 package main
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 type Burning interface {
 	world.BasicFace

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 //go:embed css/*.css images/*.png

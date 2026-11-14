@@ -7,9 +7,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/render"
 )
 
 // param is one of an effect's own uniforms in its Params struct, laid out

@@ -11,7 +11,7 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/color"
+	"github.com/lantervale/ember/color"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

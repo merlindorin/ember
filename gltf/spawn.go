@@ -3,10 +3,10 @@ package gltf
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/anim"
-	"github.com/merlindorin/ember/render"
-	"github.com/merlindorin/ember/scene"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/anim"
+	"github.com/lantervale/ember/render"
+	"github.com/lantervale/ember/scene"
+	"github.com/lantervale/ember/world"
 )
 
 // Instance is a spawned model: the root carries the transform and the

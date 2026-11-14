@@ -3,9 +3,9 @@ package render
 import (
 	"encoding/json"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/world"
 )
 
 // Environment is the look of the world: sun, ambient light, fog and the

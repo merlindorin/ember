@@ -3,7 +3,7 @@ package paint
 import (
 	"sync"
 
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/twod"
 )
 
 // sharp keeps each texture's pixelated copy, up to maxSharp, then starts

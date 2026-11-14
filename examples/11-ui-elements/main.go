@@ -7,10 +7,10 @@
 package main
 
 import (
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
 )
 
 // page puts what the body holds in the middle of the window.

@@ -3,7 +3,7 @@ package anim
 import (
 	"sort"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 type Path int

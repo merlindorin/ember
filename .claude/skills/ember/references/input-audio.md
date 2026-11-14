@@ -1,6 +1,6 @@
 # Input and sound
 
-Packages `github.com/merlindorin/ember/input` and `github.com/merlindorin/ember/audio`. Guide: `docs/08-input`, `docs/09-audio`. Examples: `examples/47-keyboard` … `examples/55-audio-effects`.
+Packages `github.com/lantervale/ember/input` and `github.com/lantervale/ember/audio`. Guide: `docs/08-input`, `docs/09-audio`. Examples: `examples/47-keyboard` … `examples/55-audio-effects`.
 
 ## Where input comes from
 
@@ -130,12 +130,12 @@ Also `SetGamepadButton(id, b, down)`, `SetGamepadTrigger(id, trigger, pull)`, `A
 package main
 
 import (
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 type Act int
@@ -183,7 +183,7 @@ func main() {
 The mixer is an **entity**: `ember.New().AddEntities(win, mixer)`. The device opens only when a mixer is added, and never under `EMBER_HIDDEN`; without a device it mixes at the World's pace.
 
 - `audio.NewMixer(opts ...audio.MixerOption) *audio.Mixer`; options `audio.WithBus(name string, volume float32, opts ...Option)`, `audio.MaxVoices(n)`, `audio.SampleRate(hz)`.
-- Formats: import `_ "github.com/merlindorin/ember/audio/wav"` and/or `_ "github.com/merlindorin/ember/audio/vorbis"` (Ogg).
+- Formats: import `_ "github.com/lantervale/ember/audio/wav"` and/or `_ "github.com/lantervale/ember/audio/vorbis"` (Ogg).
 - Short sounds, decoded whole: `audio.Load(fsys fs.FS, name string) (*audio.Clip, error)`. Made in code: `audio.NewClip(rate, channels int, samples []float32)`.
 - Music and long loops, streamed: `audio.Open(fsys fs.FS, name string) (*audio.Stream, error)`.
 
@@ -241,12 +241,12 @@ import (
 	"math"
 	"math/rand/v2"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 type Beeper struct {

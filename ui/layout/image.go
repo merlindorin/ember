@@ -3,7 +3,7 @@ package layout
 import (
 	"strconv"
 
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // brokenIcon is the side of the icon an img that didn't load shows, as Chrome's

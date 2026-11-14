@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 type Burning interface {

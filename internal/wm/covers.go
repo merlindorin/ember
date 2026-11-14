@@ -1,8 +1,8 @@
 package wm
 
 import (
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/world"
 )
 
 type cover struct {

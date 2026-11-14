@@ -3,12 +3,12 @@ package paint //nolint:testpackage // white-box: builds box trees by hand and re
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui/internal/style"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui/internal/style"
+	"github.com/lantervale/ember/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

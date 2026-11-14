@@ -1,6 +1,6 @@
 package layout
 
-import "github.com/merlindorin/ember/ui/internal/style"
+import "github.com/lantervale/ember/ui/internal/style"
 
 // leaf lays out a node without child boxes: empty, or holding inline content, Taffy's
 // compute_leaf_layout with text as its measure function.

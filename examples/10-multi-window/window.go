@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/camera"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/render"
-	"github.com/merlindorin/ember/scene"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/camera"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/render"
+	"github.com/lantervale/ember/scene"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
+	"github.com/lantervale/ember/world"
 )
 
 // newSceneWindow is the primary window, added first, with its label and

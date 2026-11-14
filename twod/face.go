@@ -6,8 +6,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
 )
 
 // Face is a TrueType font file's typeface, drawn at any size.

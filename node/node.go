@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/gltf"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/gltf"
+	"github.com/lantervale/ember/world"
 )
 
 // Noded is any entity carrying a Node.

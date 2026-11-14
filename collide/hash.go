@@ -1,6 +1,6 @@
 package collide
 
-import "github.com/merlindorin/ember/geom"
+import "github.com/lantervale/ember/geom"
 
 // hash is a spatial hash of bodies: a cell's entries are in the bucket its
 // coordinates hash to, beside other cells' at times. Each entry carries

@@ -3,9 +3,9 @@ package control_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/ui/control"
+	"github.com/lantervale/ember/ui/control"
 
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/input"
 	"github.com/stretchr/testify/assert"
 )
 

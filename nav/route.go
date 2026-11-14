@@ -1,6 +1,6 @@
 package nav
 
-import "github.com/merlindorin/ember/geom"
+import "github.com/lantervale/ember/geom"
 
 // Route is a way to walk, planned again when the grid changes or the way
 // ahead closes.

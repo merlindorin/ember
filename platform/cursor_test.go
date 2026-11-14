@@ -5,7 +5,7 @@ import (
 	"image"
 	"testing"
 
-	"github.com/merlindorin/ember/internal/cursorhint"
+	"github.com/lantervale/ember/internal/cursorhint"
 )
 
 func TestAPictureCursorKeepsItsPictureAndHotSpot(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 func TestResolveAddsPxAndPercent(t *testing.T) {

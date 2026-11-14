@@ -12,10 +12,10 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/internal/chrome"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/internal/chrome"
+	"github.com/lantervale/ember/ui/kit"
 )
 
 const sentence = "The quick brown fox jumps over the lazy dog, then naps in the warm afternoon sun."

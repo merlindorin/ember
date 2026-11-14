@@ -1,6 +1,6 @@
 package main
 
-import "github.com/merlindorin/ember/input"
+import "github.com/lantervale/ember/input"
 
 // Act is what the player means to do, whatever button says it.
 type Act int

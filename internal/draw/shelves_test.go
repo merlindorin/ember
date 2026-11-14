@@ -3,9 +3,9 @@ package draw_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/internal/draw"
+	"github.com/lantervale/ember/internal/draw"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 func TestShelvesPackAlongShelvesThenOntoANewPage(t *testing.T) {

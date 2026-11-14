@@ -1628,7 +1628,7 @@ const file_ember_automation_v1_automation_proto_rawDesc = "" +
 	"\tSetPaused\x12%.ember.automation.v1.SetPausedRequest\x1a&.ember.automation.v1.SetPausedResponse\x12K\n" +
 	"\x04Step\x12 .ember.automation.v1.StepRequest\x1a!.ember.automation.v1.StepResponse\x12]\n" +
 	"\n" +
-	"Screenshot\x12&.ember.automation.v1.ScreenshotRequest\x1a'.ember.automation.v1.ScreenshotResponseB6Z4github.com/merlindorin/ember/automation/automationpbb\x06proto3"
+	"Screenshot\x12&.ember.automation.v1.ScreenshotRequest\x1a'.ember.automation.v1.ScreenshotResponseB5Z3github.com/lantervale/ember/automation/automationpbb\x06proto3"
 
 var (
 	file_ember_automation_v1_automation_proto_rawDescOnce sync.Once

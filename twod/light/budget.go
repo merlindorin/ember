@@ -3,10 +3,10 @@ package light
 import (
 	"slices"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
 )
 
 // Priority ranks a light against the others of its view when they are

@@ -3,7 +3,7 @@ package geom_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 func near(a, b geom.Vec2) bool { return a.Sub(b).Len() < 1e-4 }

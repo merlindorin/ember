@@ -9,9 +9,9 @@ import (
 	"image/png"
 	"io/fs"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/node"
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/node"
+	"github.com/lantervale/ember/render"
 )
 
 //nolint:gochecknoinits // registers the package's resource types on import

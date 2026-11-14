@@ -3,7 +3,7 @@ package net //nolint:testpackage // white-box: Client.unplaced
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 func TestPlacedIDsAreStableAndApart(t *testing.T) {

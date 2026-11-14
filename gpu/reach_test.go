@@ -3,9 +3,9 @@ package gpu //nolint:testpackage // tests the unexported occluder reach helpers
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
 )
 
 func TestOnlyTheLightsAnExcludedOccluderReachesAreRedrawn(t *testing.T) {

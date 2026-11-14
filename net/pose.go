@@ -3,8 +3,8 @@ package net
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/scene"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/scene"
 )
 
 // placed2D is a 2D entity, as a twod.Item is: its placement in its parent,

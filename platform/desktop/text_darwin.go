@@ -44,7 +44,7 @@ import (
 	"unsafe"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/input"
 )
 
 // typed is each window's input, by its NSWindow, for inserted text.

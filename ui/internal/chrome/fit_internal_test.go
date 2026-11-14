@@ -5,7 +5,7 @@ package chrome
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 	"github.com/stretchr/testify/assert"
 )
 

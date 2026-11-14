@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/twod/light"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/twod/light"
+	"github.com/lantervale/ember/world"
 )
 
 // Keys tries the torch's options: R steps its radius through 100, 150 and

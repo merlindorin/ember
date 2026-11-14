@@ -1,8 +1,8 @@
 package anim
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/mesh"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/mesh"
 )
 
 // Influence binds a vertex to up to four joints of a Skin.

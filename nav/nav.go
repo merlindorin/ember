@@ -11,7 +11,7 @@ package nav
 import (
 	"math"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // Grid is cells, some of them solid, laid out in a plane: a twod.TileMap,

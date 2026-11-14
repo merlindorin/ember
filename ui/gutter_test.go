@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui"
 )
 
 const shrinkToFit = "position: absolute; left: 20px; top: 40px; display: flex; flex-direction: column; min-width: 120px"

@@ -4,7 +4,7 @@
 package spatial
 
 import (
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 type cell struct{ x, z int32 }

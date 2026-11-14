@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
 )
 
 // check is a map editor's view options, one checked and one disabled.

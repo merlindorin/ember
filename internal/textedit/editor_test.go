@@ -3,9 +3,9 @@ package textedit_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/internal/textedit"
+	"github.com/lantervale/ember/internal/textedit"
 
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/input"
 )
 
 type clip struct{ text string }

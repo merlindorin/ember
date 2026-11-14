@@ -3,7 +3,7 @@ package layout
 import (
 	"math"
 
-	"github.com/merlindorin/ember/ui/internal/box"
+	"github.com/lantervale/ember/ui/internal/box"
 )
 
 // unitsPerPoint is Chrome's layout unit, 1/64 of a device pixel, in points: with the

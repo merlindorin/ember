@@ -5,10 +5,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
 )
 
 func TestTheOrbShowsTheHealthTheButtonsChange(t *testing.T) {

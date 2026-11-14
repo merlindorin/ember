@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // Actions binds a game's actions, values of its own type A, to buttons,

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
 )
 
 // label is a character sheet's header: a caption, a name, a muted line, a

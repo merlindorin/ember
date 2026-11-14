@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/ease"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/ease"
+	"github.com/lantervale/ember/world"
 )
 
 // A room's sound: how large its reverb is, and how much of it is heard.

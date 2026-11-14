@@ -7,7 +7,7 @@
 //	go run ./examples/02-entities-and-systems
 package main
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 func main() {
 	world.New().

@@ -3,7 +3,7 @@ package css //nolint:testpackage // holds the unexported el helper the other tes
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 func el(tag dom.Tag, id string, classes ...string) *dom.Node {

@@ -4,7 +4,7 @@ package desktop
 
 import (
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/input"
 )
 
 // listenTouches waits for a backend: touches come from macOS only for now,

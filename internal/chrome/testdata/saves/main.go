@@ -12,9 +12,9 @@ import (
 	"strconv"
 	"syscall/js"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/world"
 )
 
 type panicker struct{}

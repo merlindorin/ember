@@ -3,10 +3,10 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/camera"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/camera"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/ui"
 )
 
 func TestEachWindowHasItsCameraAndUI(t *testing.T) {

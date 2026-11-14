@@ -30,8 +30,8 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/world"
 )
 
 // ID identifies a replicated entity across all peers: the region that

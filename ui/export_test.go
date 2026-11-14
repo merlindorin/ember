@@ -3,14 +3,14 @@ package ui
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/ui/paint"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/ui/paint"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/textedit"
-	"github.com/merlindorin/ember/ui/control"
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/textedit"
+	"github.com/lantervale/ember/ui/control"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // ShownBackground is what paint draws as n's background now.

@@ -1,10 +1,10 @@
 package paint
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui/internal/box"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui/internal/box"
 )
 
 // HitTest is the element box at p, in the root's space, that paints on

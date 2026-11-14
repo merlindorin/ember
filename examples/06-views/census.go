@@ -1,6 +1,6 @@
 package main
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 // Census is a view: the World keeps it in sync with every burning entity,
 // but never updates it.

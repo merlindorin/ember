@@ -4,7 +4,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // A tooltip (role tooltip) is placed once each time it shows: when it

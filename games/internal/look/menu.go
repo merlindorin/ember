@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/merlindorin/ember/games/internal/save"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/games/internal/save"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/world"
 )
 
 // Hooks are what the Escape menu does in its game.

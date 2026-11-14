@@ -11,8 +11,8 @@ import (
 	"testing/fstest"
 	"unicode"
 
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // Icons is an icon font and the names of its

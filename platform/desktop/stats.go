@@ -9,7 +9,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 // statsWarmup is how many frames EMBER_STATS skips before it averages.

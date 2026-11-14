@@ -3,18 +3,18 @@ package ui
 import (
 	"slices"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/inputfeed"
-	"github.com/merlindorin/ember/internal/textedit"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui/control"
-	"github.com/merlindorin/ember/ui/internal/box"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/internal/style"
-	"github.com/merlindorin/ember/ui/paint"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/inputfeed"
+	"github.com/lantervale/ember/internal/textedit"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui/control"
+	"github.com/lantervale/ember/ui/internal/box"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/paint"
+	"github.com/lantervale/ember/world"
 )
 
 // interaction is what the pointer, the keys and the focus are doing to a

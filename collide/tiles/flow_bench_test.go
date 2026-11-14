@@ -5,10 +5,10 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/nav"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/nav"
+	"github.com/lantervale/ember/twod"
 )
 
 // meadow fills chunks with floor (1), a few walls (2) and trees (3) from

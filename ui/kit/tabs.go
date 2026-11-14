@@ -1,8 +1,8 @@
 package kit
 
 import (
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/ui"
 )
 
 // TabPage is one tab of Tabs: its title and the page it shows.

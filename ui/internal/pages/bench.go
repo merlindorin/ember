@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // Frame is one kind of frame's cost: CPU time and allocations for styling and laying

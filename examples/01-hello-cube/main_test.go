@@ -3,9 +3,9 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/platform"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/platform"
 )
 
 func TestCornersAreColouredByPosition(t *testing.T) {

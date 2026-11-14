@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
+	"github.com/lantervale/ember/world"
 )
 
 // newFlashlight is a cone of cold white light 260 points long, opening 0.6

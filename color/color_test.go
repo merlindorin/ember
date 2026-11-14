@@ -3,7 +3,7 @@ package color_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/color"
+	"github.com/lantervale/ember/color"
 )
 
 func near(a, b float32) bool { return a-b < 1e-3 && b-a < 1e-3 }

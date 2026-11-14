@@ -4,10 +4,10 @@ import (
 	"math"
 	"testing"
 
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/scene"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/scene"
+	"github.com/lantervale/ember/world"
 )
 
 type ear struct {

@@ -3,9 +3,9 @@ package twod
 import (
 	"math"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/world"
 )
 
 // InfiniteMap is a tile map without edges: chunks of cells a generator

@@ -1,8 +1,8 @@
 package light
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
 )
 
 // Shape is what a shape light is full inside, in the light's own space.

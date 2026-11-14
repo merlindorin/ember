@@ -6,7 +6,7 @@
 //	go run ./examples/10-multi-window
 package main
 
-import "github.com/merlindorin/ember"
+import "github.com/lantervale/ember"
 
 func main() {
 	ember.New().

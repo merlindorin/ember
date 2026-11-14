@@ -15,14 +15,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/export"
-	"github.com/merlindorin/ember/ui/internal/chrome"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/export"
+	"github.com/lantervale/ember/ui/internal/chrome"
 )
 
 func TestAThreeElementPageMatchesChrome(t *testing.T) {

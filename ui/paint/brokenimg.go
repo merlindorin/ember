@@ -3,9 +3,9 @@ package paint
 import (
 	"strings"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // BrokenIcon is the side of the icon an img that didn't load shows, as

@@ -5,12 +5,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

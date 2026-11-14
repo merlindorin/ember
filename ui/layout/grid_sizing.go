@@ -4,7 +4,7 @@ import (
 	"slices"
 	"sort"
 
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 type trackEstimate func(t *gridTrack, parent float32) float32

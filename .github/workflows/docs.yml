@@ -1,5 +1,5 @@
 # Builds the guide on every push to main and publishes it on GitHub Pages,
-# at https://merlindorin.github.io/ember/: every example built for the
+# at https://lantervale.github.io/ember/: every example built for the
 # browser (task web:guide, at live/ for the "Run in your browser" buttons),
 # the guide's pictures captured headless on lavapipe (task docs:shots, kept
 # between runs so only the shots whose code changed are remade), then the

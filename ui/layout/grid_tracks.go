@@ -3,7 +3,7 @@ package layout
 import (
 	"math"
 
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 const maxGridTracks = 10000

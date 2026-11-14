@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/internal/twodgrid"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/internal/twodgrid"
 	"github.com/stretchr/testify/require"
 )
 

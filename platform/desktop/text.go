@@ -2,7 +2,7 @@
 
 package desktop
 
-import "github.com/merlindorin/ember/input"
+import "github.com/lantervale/ember/input"
 
 // addText types text into in: every character but controls and the
 // private range macOS gives function keys, emoji and their joiners kept.

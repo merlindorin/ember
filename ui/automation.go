@@ -5,15 +5,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/slot"
-	"github.com/merlindorin/ember/internal/textedit"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui/control"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/internal/style"
-	"github.com/merlindorin/ember/ui/layout"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/slot"
+	"github.com/lantervale/ember/internal/textedit"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui/control"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/layout"
 )
 
 // actSelectAll is the old ember/ui's act that selects a text field's text.

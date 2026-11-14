@@ -1,6 +1,6 @@
 ---
 name: ember
-description: Build games, tools and examples with the ember Go engine (github.com/merlindorin/ember) - windows, 2D drawing, ui screens of HTML elements and CSS, input, sound, headless tests and captures. Use whenever code imports github.com/merlindorin/ember or a task asks for a game, example or screen made with ember.
+description: Build games, tools and examples with the ember Go engine (github.com/lantervale/ember) - windows, 2D drawing, ui screens of HTML elements and CSS, input, sound, headless tests and captures. Use whenever code imports github.com/lantervale/ember or a task asks for a game, example or screen made with ember.
 ---
 
 # Building with ember
@@ -53,15 +53,15 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
+	"github.com/lantervale/ember/world"
 )
 
 const cell, cols, rows = 32, 8, 8

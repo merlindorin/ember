@@ -6,10 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/textedit"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/textedit"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/world"
 )
 
 // keyed records the KeyPressed events of the frames run.

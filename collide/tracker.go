@@ -4,7 +4,7 @@ import (
 	"cmp"
 	"slices"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 // BodyEntered is emitted when a body starts overlapping a trigger.

@@ -4,8 +4,8 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/internal/wgpu"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/internal/wgpu"
 	"github.com/stretchr/testify/assert"
 )
 

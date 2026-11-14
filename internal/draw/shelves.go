@@ -1,6 +1,6 @@
 package draw
 
-import "github.com/merlindorin/ember/geom"
+import "github.com/lantervale/ember/geom"
 
 // SilhouetteSide is a silhouette mask atlas page's side, in points, at
 // least: a page grows to hold its largest tile. Tests make it small.

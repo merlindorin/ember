@@ -3,10 +3,10 @@ package paint
 import (
 	"sync"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui/control"
-	"github.com/merlindorin/ember/ui/internal/box"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui/control"
+	"github.com/lantervale/ember/ui/internal/box"
 )
 
 // LiveSet is what a paint drew live (decision 0052): a focused editable

@@ -4,10 +4,10 @@ import (
 	"image"
 	"testing"
 
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/nav"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/nav"
+	"github.com/lantervale/ember/twod"
 )
 
 var _ nav.Grid = (*tiles.Layer)(nil)

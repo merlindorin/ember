@@ -3,10 +3,10 @@ package node3d_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/node"
-	"github.com/merlindorin/ember/node/node3d"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/node"
+	"github.com/lantervale/ember/node/node3d"
+	"github.com/lantervale/ember/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

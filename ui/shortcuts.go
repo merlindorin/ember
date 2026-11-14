@@ -4,13 +4,13 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/inputfeed"
-	"github.com/merlindorin/ember/internal/slot"
-	"github.com/merlindorin/ember/internal/textedit"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui/control"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/inputfeed"
+	"github.com/lantervale/ember/internal/slot"
+	"github.com/lantervale/ember/internal/textedit"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui/control"
 )
 
 // Menu shortcuts: a menu item's aria-keyshortcuts, such as "Cmd+S" or

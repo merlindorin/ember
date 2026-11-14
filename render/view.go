@@ -1,10 +1,10 @@
 package render
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/wm"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/wm"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/world"
 )
 
 // View is the resolved active camera for the current frame. Gameplay uses

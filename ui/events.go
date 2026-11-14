@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
 )
 
 // Clicked is a button, a summary or any element with a tabindex pressed,

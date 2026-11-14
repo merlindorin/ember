@@ -1,4 +1,4 @@
-module github.com/merlindorin/ember
+module github.com/lantervale/ember
 
 go 1.27.0
 

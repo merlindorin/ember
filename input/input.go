@@ -11,8 +11,8 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/inputfeed"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/inputfeed"
 )
 
 const keyCount = int(keyLast) + 1

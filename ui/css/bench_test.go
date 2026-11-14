@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // inspector is a tool panel's worth of elements: 50 rows of a label, an

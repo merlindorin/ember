@@ -15,7 +15,7 @@ ember is a Go game engine for online, open-world games. A game is plain Go: enti
 Every page of this guide is a complete example from the repository's `examples`. Clone it and run them from its folder:
 
 ```sh
-git clone https://github.com/merlindorin/ember
+git clone https://github.com/lantervale/ember
 cd ember
 task wgpu
 go run ./examples/01-hello-cube

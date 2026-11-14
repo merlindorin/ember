@@ -1,9 +1,9 @@
 package audio
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/scene"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/scene"
+	"github.com/lantervale/ember/world"
 )
 
 // A Listener hears emitters from where its entity is, turned as it is: put

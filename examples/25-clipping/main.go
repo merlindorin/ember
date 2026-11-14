@@ -6,11 +6,11 @@
 package main
 
 import (
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
 )
 
 const news = "Lighthouse keeper spots three ships at dusk · Harbour opens at dawn · Fog expected tonight"

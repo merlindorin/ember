@@ -3,11 +3,11 @@ package main
 import (
 	"math"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
+	"github.com/lantervale/ember/world"
 )
 
 func moonlight() color.Color { return color.RGB(0.08, 0.09, 0.16) }

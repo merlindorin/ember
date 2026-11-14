@@ -15,7 +15,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // Diff is how two pictures of the same page differ.

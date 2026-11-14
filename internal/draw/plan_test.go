@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/merlindorin/ember/internal/draw"
+	"github.com/lantervale/ember/internal/draw"
 )
 
 const (

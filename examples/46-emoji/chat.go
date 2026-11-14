@@ -3,8 +3,8 @@ package main
 import (
 	"strings"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/twod"
 )
 
 // Chat shows the messages sent, the last few, in both faces.

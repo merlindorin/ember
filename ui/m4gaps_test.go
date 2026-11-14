@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/world"
 )
 
 func backs(l *live, frames int) []ui.BackPressed {

@@ -3,7 +3,7 @@ package kit
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // NinePatch is a div of class "kit-nine-patch" drawing

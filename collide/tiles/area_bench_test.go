@@ -3,8 +3,8 @@ package tiles_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/geom"
 )
 
 // BenchmarkAreaFillSolid reads a 128×128 area's solid cells after a change

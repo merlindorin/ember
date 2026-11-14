@@ -1,6 +1,6 @@
 package layout
 
-import "github.com/merlindorin/ember/ui/internal/style"
+import "github.com/lantervale/ember/ui/internal/style"
 
 // alignment is an align-* or justify-* value with its overflow safety.
 type alignment struct {

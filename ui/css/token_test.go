@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/ui/css"
+	"github.com/lantervale/ember/ui/css"
 )
 
 func kinds(toks []css.Token) string {

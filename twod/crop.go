@@ -3,8 +3,8 @@ package twod
 import (
 	"math"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
 )
 
 // cropMargin is how many transparent pixels a cropped pass keeps around

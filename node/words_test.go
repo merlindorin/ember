@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/merlindorin/ember/node"
+	"github.com/lantervale/ember/node"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

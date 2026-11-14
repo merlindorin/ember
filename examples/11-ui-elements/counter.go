@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // Counter counts the clicks on one button, and goes back to zero on the

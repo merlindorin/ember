@@ -7,11 +7,11 @@ import (
 
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/internal/emojinames"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/internal/pages"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember/internal/emojinames"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/internal/pages"
+	"github.com/lantervale/ember/ui/kit"
 )
 
 //go:embed emoji

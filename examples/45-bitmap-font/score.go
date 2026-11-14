@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 // Score counts up 250 points a second and writes them, six digits wide.

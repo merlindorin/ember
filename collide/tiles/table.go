@@ -1,8 +1,8 @@
 package tiles
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // tile is what a tile is to collision: solid or not, and the shapes it

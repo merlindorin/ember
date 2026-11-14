@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/merlindorin/ember/color"
+	"github.com/lantervale/ember/color"
 )
 
 func aces(x float64) float64 {

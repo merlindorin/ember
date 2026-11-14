@@ -1,6 +1,6 @@
 package twod
 
-import "github.com/merlindorin/ember/node"
+import "github.com/lantervale/ember/node"
 
 // Align is where text sits across the width it is given: a ui label's
 // text in its rectangle.

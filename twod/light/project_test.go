@@ -9,8 +9,8 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/twod"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

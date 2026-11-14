@@ -22,7 +22,7 @@ import (
 	"image"
 	"os"
 
-	"github.com/merlindorin/ember"
+	"github.com/lantervale/ember"
 )
 
 func main() {

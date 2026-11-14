@@ -3,7 +3,7 @@ package twod
 import (
 	"sync"
 
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/render"
 )
 
 // variantKey names a texture made from another: its source, and the

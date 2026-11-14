@@ -13,10 +13,10 @@
 package render
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/mesh"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/scene"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/mesh"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/scene"
 )
 
 // Material controls surface shading. Materials are shared by pointer;

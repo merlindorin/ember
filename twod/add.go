@@ -1,6 +1,6 @@
 package twod
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 func (s *Sprite) Add(children ...world.BasicFace) *Sprite         { add(&s.Item, children); return s }
 func (l *Line) Add(children ...world.BasicFace) *Line             { add(&l.Item, children); return l }

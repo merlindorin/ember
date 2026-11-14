@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/world"
 )
 
 // ShowSize writes the window's size in its label.

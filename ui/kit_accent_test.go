@@ -3,10 +3,10 @@ package ui_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
 	"github.com/stretchr/testify/assert"
 )
 

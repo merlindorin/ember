@@ -11,15 +11,15 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/align"
-	"github.com/merlindorin/ember/ui/export"
-	"github.com/merlindorin/ember/ui/internal/assets"
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/align"
+	"github.com/lantervale/ember/ui/export"
+	"github.com/lantervale/ember/ui/internal/assets"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // Run shows d in a window of w×h points, or exports it laid out at that

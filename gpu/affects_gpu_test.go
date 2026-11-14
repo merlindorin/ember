@@ -8,14 +8,14 @@ import (
 	"math"
 	"testing"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/internal/wgpu"
-	"github.com/merlindorin/ember/internal/wm"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/internal/wgpu"
+	"github.com/lantervale/ember/internal/wm"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
+	"github.com/lantervale/ember/world"
 )
 
 // scene draws a 200×100 window under a black ambient holding ents, and

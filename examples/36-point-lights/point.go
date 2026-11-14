@@ -3,9 +3,9 @@ package main
 import (
 	"math"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/twod/light"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/twod/light"
+	"github.com/lantervale/ember/world"
 )
 
 // newTorch is the warm light the hero carries, reaching 150 points, at full

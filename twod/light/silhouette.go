@@ -5,11 +5,11 @@ import (
 	"math"
 	"slices"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/internal/lit"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/internal/lit"
+	"github.com/lantervale/ember/twod"
 )
 
 // silhouetteLights is how many of the lights reaching a Silhouette sprite,

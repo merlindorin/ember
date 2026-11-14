@@ -8,9 +8,9 @@ import (
 	"syscall/js"
 	"unicode/utf8"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/inputfeed"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/inputfeed"
 )
 
 // keys maps KeyboardEvent.code, a key's place on the keyboard whatever

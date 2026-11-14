@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/internal/style"
 	"github.com/stretchr/testify/assert"
 )
 

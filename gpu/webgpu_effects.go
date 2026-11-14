@@ -4,10 +4,10 @@ import (
 	"errors"
 	"unsafe"
 
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/internal/errlog"
-	"github.com/merlindorin/ember/internal/wgpu"
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/internal/errlog"
+	"github.com/lantervale/ember/internal/wgpu"
+	"github.com/lantervale/ember/render"
 )
 
 // errNoSource is the error of an effect without a source.

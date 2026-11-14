@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // Thumbnails is a div of class "kit-thumbnails", a listbox of Thumbnail
 // cells laid out in lines, 118 by 112 points each, that scrolls when they run past its

@@ -4,7 +4,7 @@ import (
 	"math"
 	"strconv"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // Progress is a block of class "kit-progress" holding a

@@ -3,9 +3,9 @@
 package assets
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui/internal/box"
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui/internal/box"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // Of is a ui.Document's image by url, as css resolves it: a scheme url

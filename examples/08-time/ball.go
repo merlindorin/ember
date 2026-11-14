@@ -1,6 +1,6 @@
 package main
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 // Ball moves one unit each fixed step, and remembers where it was before.
 type Ball struct{ x, before float32 }

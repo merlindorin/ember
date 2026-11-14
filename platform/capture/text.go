@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/input"
 )
 
 // typingEvery is how many frames apart typed characters land, about

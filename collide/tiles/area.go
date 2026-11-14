@@ -4,7 +4,7 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // Area is a window of an InfiniteMap layer's cells, columns by rows from

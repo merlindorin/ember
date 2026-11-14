@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/gltf"
+	"github.com/lantervale/ember/gltf"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

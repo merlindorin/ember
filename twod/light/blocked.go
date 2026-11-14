@@ -1,8 +1,8 @@
 package light
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
 )
 
 // blockedCell is the side, in window points, of a cell of a blocked grid.

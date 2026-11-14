@@ -1,6 +1,6 @@
 # ember
 
-ember is a Go game engine for online open-world games, built on its own ECS (`world`). Module `github.com/merlindorin/ember`; this folder is the module root. It never imports a game built on it (guarded by a test).
+ember is a Go game engine for online open-world games, built on its own ECS (`world`). Module `github.com/lantervale/ember`; this folder is the module root. It never imports a game built on it (guarded by a test).
 
 Engine decisions live in `docs/99-decisions/`, one short file each from its `TEMPLATE.md` (context, decision, alternatives, consequences), and the guide publishes them. Read its README before changing behaviour. Only real engine choices with alternatives belong there, recorded once they settle; add the file and its index row in the same commit, and supersede instead of rewriting.
 

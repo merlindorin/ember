@@ -9,10 +9,10 @@
 package camera
 
 import (
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/wm"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/wm"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/world"
 )
 
 // Plugin installs every controller system; they only act on entities that

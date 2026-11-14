@@ -4,7 +4,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/merlindorin/ember/ui/control"
+	"github.com/lantervale/ember/ui/control"
 )
 
 // Menus follow WAI-ARIA's menu and menubar patterns, keyed on roles: a

@@ -31,14 +31,14 @@ import (
 	"syscall/js"
 	"time"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/audiodevice"
-	"github.com/merlindorin/ember/internal/errlog"
-	"github.com/merlindorin/ember/internal/wgpu"
-	"github.com/merlindorin/ember/internal/wm"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/platform/capture"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/audiodevice"
+	"github.com/lantervale/ember/internal/errlog"
+	"github.com/lantervale/ember/internal/wgpu"
+	"github.com/lantervale/ember/internal/wm"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/platform/capture"
+	"github.com/lantervale/ember/world"
 )
 
 // Plugin makes the page's canvas the World's runner.

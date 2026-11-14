@@ -3,7 +3,7 @@ package nav
 import (
 	"math"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // FlowField points every cell of a grid the way to one target, for a

@@ -5,11 +5,11 @@ import (
 
 	"github.com/rivo/uniseg"
 
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/emojinames"
-	"github.com/merlindorin/ember/internal/inputfeed"
-	"github.com/merlindorin/ember/ui/control"
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/emojinames"
+	"github.com/lantervale/ember/internal/inputfeed"
+	"github.com/lantervale/ember/ui/control"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // A text field with a data-shortcodes attribute, an ember extension as

@@ -7,10 +7,10 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/emojinames"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/emojinames"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui/internal/dom"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -3,9 +3,9 @@ package gpu //nolint:testpackage // tests the unexported GPU timing switch
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 func TestTheGPUIsTimedOnlyWhileTheProfilerShows(t *testing.T) {

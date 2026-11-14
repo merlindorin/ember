@@ -3,10 +3,10 @@ package layout_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/internal/fonts"
-	"github.com/merlindorin/ember/ui/layout"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/internal/fonts"
+	"github.com/lantervale/ember/ui/layout"
 )
 
 // BenchmarkInlineText lays out fifty wrapped paragraphs with spans, in the Go font, as each

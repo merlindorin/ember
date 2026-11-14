@@ -3,7 +3,7 @@ package collide //nolint:testpackage // white-box: shares the unexported thing, 
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // chase moves e towards hero for steps fixed steps of one point, aiming

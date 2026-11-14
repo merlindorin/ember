@@ -8,8 +8,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 // Attr is one attribute, kept in the order it was set.

@@ -3,7 +3,7 @@ package ui
 import (
 	"math"
 
-	"github.com/merlindorin/ember/ui/control"
+	"github.com/lantervale/ember/ui/control"
 )
 
 // A listbox is WAI-ARIA's listbox pattern, its options laid out in lines as CSS places

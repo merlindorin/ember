@@ -7,16 +7,16 @@
 package server
 
 import (
-	"github.com/merlindorin/ember/anim"
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/camera"
-	"github.com/merlindorin/ember/ease"
-	"github.com/merlindorin/ember/internal/wm"
-	"github.com/merlindorin/ember/render"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/anim"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/camera"
+	"github.com/lantervale/ember/ease"
+	"github.com/lantervale/ember/internal/wm"
+	"github.com/lantervale/ember/render"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
+	"github.com/lantervale/ember/world"
 )
 
 // Option sets up the World New returns.

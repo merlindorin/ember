@@ -12,8 +12,8 @@ import (
 	"sync"
 	"unicode/utf8"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/render"
 	"github.com/rivo/uniseg"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/gobold"

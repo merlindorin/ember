@@ -4,9 +4,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/lit"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/lit"
+	"github.com/lantervale/ember/twod"
 )
 
 // Layer is a tile map as collision and paths see it: a collide.Solid, a

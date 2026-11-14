@@ -3,7 +3,7 @@ package ui
 import (
 	"strings"
 
-	"github.com/merlindorin/ember/ui/layout"
+	"github.com/lantervale/ember/ui/layout"
 )
 
 // Translator says a message in the player's language: each text node's

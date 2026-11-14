@@ -3,7 +3,7 @@ package layout
 import (
 	"sort"
 
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 func gridAlignContent(a style.Align) alignment {

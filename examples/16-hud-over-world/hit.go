@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
+	"github.com/lantervale/ember/world"
 )
 
 // Hit hurts the walker under a left click by a quarter of its health,

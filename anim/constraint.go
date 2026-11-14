@@ -1,6 +1,6 @@
 package anim
 
-import "github.com/merlindorin/ember/geom"
+import "github.com/lantervale/ember/geom"
 
 // Constraint adjusts a sampled pose before it is resolved, in model space:
 // inverse kinematics, aiming, look-at. Animators apply theirs in order.

@@ -3,11 +3,11 @@ package input_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/inputfeed"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/inputfeed"
 )
 
 func TestAMenuCapturesOnlyTheKeysItUses(t *testing.T) {

@@ -17,8 +17,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/golden"
-	"github.com/merlindorin/ember/internal/chrome"
+	"github.com/lantervale/ember/golden"
+	"github.com/lantervale/ember/internal/chrome"
 )
 
 // TestGoldenInTheBrowser renders the 2D golden scenes in a headless Chrome

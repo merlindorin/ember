@@ -7,7 +7,7 @@ cascade:
 
 {{< ember/hero image="06-2d/19-lights/point.gif" alt="A night garden lit by a flickering torch: trees and pillars cast soft shadows, a hero walks between them" caption="go run ./examples/36-point-lights" >}}
 
-{{< hextra/hero-badge link="https://github.com/merlindorin/ember" >}}
+{{< hextra/hero-badge link="https://github.com/lantervale/ember" >}}
 Pure Go · 2D · UI · ECS
 {{< /hextra/hero-badge >}}
 

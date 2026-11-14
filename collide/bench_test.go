@@ -4,8 +4,8 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/world"
 )
 
 // horde is n enemies of 16×10 boxes spread over a disc as bench2d's 20k

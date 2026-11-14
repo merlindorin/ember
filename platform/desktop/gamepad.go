@@ -7,8 +7,8 @@ import (
 	"slices"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
 )
 
 // loadGamepadMappings adds SDL game controller mappings from the file

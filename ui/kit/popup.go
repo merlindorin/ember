@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // PopUp is a select of class "kit-pop-up" showing items,
 // item selected shown (-1 for none, which shows a ui.Placeholder), with

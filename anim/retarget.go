@@ -1,6 +1,6 @@
 package anim
 
-import "github.com/merlindorin/ember/geom"
+import "github.com/lantervale/ember/geom"
 
 // Retarget maps a clip made for one skeleton onto another whose joints
 // have the same names (a shared rig family, an animation library).

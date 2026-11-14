@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/server"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/server"
+	"github.com/lantervale/ember/world"
 )
 
 func TestAServerSimulatesLikeAClient(t *testing.T) {

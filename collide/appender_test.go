@@ -3,7 +3,7 @@ package collide //nolint:testpackage // white-box: shares the thing, setup and w
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // appending walls answer through AppendSolidIn, and count what is asked.

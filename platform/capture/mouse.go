@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
 )
 
 // Mouse moves the cursor along waypoints, holds buttons and turns the

@@ -3,7 +3,7 @@ package input
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // GamepadButton is a controller's button, named by its position on a

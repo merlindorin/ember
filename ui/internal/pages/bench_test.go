@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/ui/internal/pages"
+	"github.com/lantervale/ember/ui/internal/pages"
 )
 
 // runPage builds the page in dir and runs it with EMBER_UI_BENCH, returning its frames.

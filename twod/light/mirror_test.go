@@ -5,10 +5,10 @@ import (
 	"math/rand/v2"
 	"testing"
 
-	"github.com/merlindorin/ember/collide"
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/collide"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // BenchmarkCPUMirror is what light probes were weighed against (decision

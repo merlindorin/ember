@@ -1,8 +1,8 @@
 package twod
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
 )
 
 // The options shared by every 2D entity are Options; each kind of entity

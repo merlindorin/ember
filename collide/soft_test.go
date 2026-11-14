@@ -3,7 +3,7 @@ package collide //nolint:testpackage // white-box: the unexported crowd, its den
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

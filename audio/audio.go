@@ -10,7 +10,7 @@
 // World's pace, and a Recorder keeps what was mixed for tests to check.
 package audio
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 // Plugin runs the mixers and emitters of a World. ember.New installs it;
 // servers add it to world.New.

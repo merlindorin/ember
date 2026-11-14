@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui/align"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui/align"
 )
 
 func TestElementsLineUp(t *testing.T) {

@@ -3,7 +3,7 @@ package textedit
 import (
 	"runtime"
 
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/input"
 )
 
 // Platform is whose key conventions an editor follows.

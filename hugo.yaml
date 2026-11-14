@@ -1,4 +1,4 @@
-baseURL: https://merlindorin.github.io/ember/
+baseURL: https://lantervale.github.io/ember/
 locale: en-US
 title: ember
 resourceDir: .hugo/resources
@@ -51,7 +51,7 @@ menu:
         type: theme-toggle
     - name: GitHub
       weight: 4
-      url: https://github.com/merlindorin/ember
+      url: https://github.com/lantervale/ember
       params:
         icon: github
 
@@ -81,9 +81,9 @@ params:
     message: "ember is **experimental**: its API can still move."
   editURL:
     enable: true
-  edit: https://github.com/merlindorin/ember/edit/main
-  repository: https://github.com/merlindorin/ember/blob/main
-  examples: https://github.com/merlindorin/ember/blob/main/examples
+  edit: https://github.com/lantervale/ember/edit/main
+  repository: https://github.com/lantervale/ember/blob/main
+  examples: https://github.com/lantervale/ember/blob/main/examples
 
 # The live builds change under the same names (task web:guide), so the local site makes browsers check them each time.
 server:

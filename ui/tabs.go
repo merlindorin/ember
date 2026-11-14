@@ -1,6 +1,6 @@
 package ui
 
-import "github.com/merlindorin/ember/ui/control"
+import "github.com/lantervale/ember/ui/control"
 
 // Tabs follow WAI-ARIA's tabs pattern: a role=tablist holds role=tab
 // elements, the one with aria-selected="true" selected, each naming its

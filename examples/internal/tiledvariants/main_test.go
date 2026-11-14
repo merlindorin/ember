@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/merlindorin/ember"
+	"github.com/lantervale/ember"
 )
 
 func TestTheFixtureLoadsWithItsPalettesAndMasks(t *testing.T) {

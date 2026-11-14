@@ -4,7 +4,7 @@ package ember.automation.v1;
 
 import "google/protobuf/struct.proto";
 
-option go_package = "github.com/merlindorin/ember/automation/automationpb";
+option go_package = "github.com/lantervale/ember/automation/automationpb";
 
 // Automation drives a running ember app from outside: read and manipulate
 // every UI element, invoke named actions, read and write live world state

@@ -10,9 +10,9 @@ import (
 	"image/png"
 	"syscall/js"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
 )
 
 // canvas is the primary window's backend: the page's canvas. A page has

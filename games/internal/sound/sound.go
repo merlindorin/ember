@@ -6,7 +6,7 @@ import (
 	"math"
 	"math/rand/v2"
 
-	"github.com/merlindorin/ember/audio"
+	"github.com/lantervale/ember/audio"
 )
 
 // Rate is the clips' sample rate.

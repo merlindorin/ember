@@ -22,7 +22,7 @@ import "C"
 
 import (
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/merlindorin/ember/internal/wgpu"
+	"github.com/lantervale/ember/internal/wgpu"
 )
 
 // surfaceSource puts a CAMetalLayer on the window's view for WebGPU to

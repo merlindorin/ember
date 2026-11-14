@@ -1,6 +1,6 @@
 package main
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 // Rock has a Name but no Heat: it never burns.
 type Rock struct {

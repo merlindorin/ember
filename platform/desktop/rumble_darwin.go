@@ -154,7 +154,7 @@ static void emberStopRumbles(void) {
 */
 import "C"
 
-import "github.com/merlindorin/ember/internal/inputfeed"
+import "github.com/lantervale/ember/internal/inputfeed"
 
 // playRumble plays r on the nth connected pad of family through the
 // GameController framework's haptics (macOS 11 and later).

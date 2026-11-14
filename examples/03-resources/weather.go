@@ -1,6 +1,6 @@
 package main
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 // Weather is a resource: one value in the World, shared by every system.
 type Weather struct{ Wind float32 }

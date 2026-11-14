@@ -4,12 +4,12 @@ import (
 	"math"
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
 )
 
 func TestTheFlashlightPointsAtTheMouse(t *testing.T) {

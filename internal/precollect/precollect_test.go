@@ -3,8 +3,8 @@ package precollect_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/internal/precollect"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/internal/precollect"
+	"github.com/lantervale/ember/world"
 )
 
 func TestHooksRunInOrderPerWorld(t *testing.T) {

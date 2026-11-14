@@ -3,10 +3,10 @@ package ui
 import (
 	"slices"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/world"
 )
 
 // Handler is what a callback may be: a plain func(), one taking the

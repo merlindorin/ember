@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 // Paths address live values:

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/merlindorin/ember/gltf"
+	"github.com/lantervale/ember/gltf"
 )
 
 // TestApocalypsePack loads a real asset pack when it is on this machine

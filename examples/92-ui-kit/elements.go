@@ -1,6 +1,6 @@
 package main
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // elements are the kit's components by their page's name, each built in
 // a file of its group.

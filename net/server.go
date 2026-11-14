@@ -9,10 +9,10 @@ import (
 	"slices"
 	"sort"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/netside"
-	"github.com/merlindorin/ember/spatial"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/netside"
+	"github.com/lantervale/ember/spatial"
+	"github.com/lantervale/ember/world"
 )
 
 // NewServer returns the authoritative side of a game, a plugin the game adds

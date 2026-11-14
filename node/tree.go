@@ -3,7 +3,7 @@ package node
 import (
 	"reflect"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 type (

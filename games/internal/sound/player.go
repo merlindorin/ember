@@ -3,7 +3,7 @@ package sound
 import (
 	"time"
 
-	"github.com/merlindorin/ember/audio"
+	"github.com/lantervale/ember/audio"
 )
 
 // Player is a game's mixer: its music on the "music" bus, its effects on

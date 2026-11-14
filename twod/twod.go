@@ -23,11 +23,11 @@
 package twod
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	lt "github.com/merlindorin/ember/internal/lit"
-	"github.com/merlindorin/ember/node"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	lt "github.com/lantervale/ember/internal/lit"
+	"github.com/lantervale/ember/node"
+	"github.com/lantervale/ember/world"
 )
 
 // Placement is where a 2D entity is in its parent: position, rotation and

@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/color"
+	"github.com/lantervale/ember/color"
 )
 
 // ClassUse is what a Class may be the class of in Tiled: flags, so one

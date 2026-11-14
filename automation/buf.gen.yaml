@@ -2,7 +2,7 @@ version: v2
 plugins:
   - local: ["go", "tool", "protoc-gen-go"]
     out: .
-    opt: module=github.com/merlindorin/ember/automation
+    opt: module=github.com/lantervale/ember/automation
   - local: ["go", "tool", "protoc-gen-connect-go"]
     out: .
-    opt: module=github.com/merlindorin/ember/automation
+    opt: module=github.com/lantervale/ember/automation

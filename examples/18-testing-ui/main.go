@@ -6,8 +6,8 @@
 package main
 
 import (
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/platform"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/platform"
 )
 
 func main() {

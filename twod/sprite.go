@@ -1,10 +1,10 @@
 package twod
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	lt "github.com/merlindorin/ember/internal/lit"
-	"github.com/merlindorin/ember/node"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	lt "github.com/lantervale/ember/internal/lit"
+	"github.com/lantervale/ember/node"
 )
 
 //nolint:gochecknoinits // registers the package's node types on import

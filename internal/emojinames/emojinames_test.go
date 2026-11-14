@@ -3,7 +3,7 @@ package emojinames_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/internal/emojinames"
+	"github.com/lantervale/ember/internal/emojinames"
 )
 
 func TestShortcodesExpandAndUnknownOnesStay(t *testing.T) {

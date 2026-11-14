@@ -3,9 +3,9 @@ package light //nolint:testpackage // white-box: times light's own map cache
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // BenchmarkTileMapShadows is the shadows of one light's reach, 600×600

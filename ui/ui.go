@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // Node is an element or a text node of a Document's tree.

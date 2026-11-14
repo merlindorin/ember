@@ -1,6 +1,6 @@
 package layout
 
-import "github.com/merlindorin/ember/ui/internal/style"
+import "github.com/lantervale/ember/ui/internal/style"
 
 // resolve is a length against a basis, as Taffy's maybe_resolve: none for auto and sizing
 // keywords, and for a percentage of a basis that is none.

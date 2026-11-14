@@ -5,10 +5,10 @@ import (
 	"image/color"
 	"math"
 
-	ecolor "github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
+	ecolor "github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
 )
 
 // newLava is a pool of lava whose own picture glows: Emissive lights the

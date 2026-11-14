@@ -12,8 +12,8 @@ import (
 	"io/fs"
 	"strings"
 
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/twod"
 )
 
 //go:embed art/*.png

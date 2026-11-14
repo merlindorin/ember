@@ -3,13 +3,13 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/games/internal/save"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/align"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/games/internal/save"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/align"
+	"github.com/lantervale/ember/world"
 )
 
 func nodes(g *Game) []*ui.Node {

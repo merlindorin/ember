@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 type clock struct{ t time.Time }

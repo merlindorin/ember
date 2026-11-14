@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/internal/shots"
+	"github.com/lantervale/ember/internal/shots"
 )
 
 // root is ember's root, from this package.

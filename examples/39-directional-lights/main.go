@@ -9,11 +9,11 @@ import (
 	"embed"
 	"log"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
 )
 
 //go:embed tiles.png objects.png

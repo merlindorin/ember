@@ -1,8 +1,8 @@
 package twod
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
 )
 
 // The canvas's drawing, in the space of what is being drawn: Draw gets a

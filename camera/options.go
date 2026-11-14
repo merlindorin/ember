@@ -1,8 +1,8 @@
 package camera
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/platform"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/platform"
 )
 
 // Each controller takes options of its own, typed so that one meant for

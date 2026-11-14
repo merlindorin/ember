@@ -6,10 +6,10 @@ package wm
 import (
 	"math"
 
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/inputfeed"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/inputfeed"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/world"
 )
 
 type registry struct {

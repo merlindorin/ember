@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/merlindorin/ember/gltf"
+	"github.com/lantervale/ember/gltf"
 )
 
 const (

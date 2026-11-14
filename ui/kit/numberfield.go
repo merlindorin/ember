@@ -3,7 +3,7 @@ package kit
 import (
 	"strconv"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // NumberField is an input of type number and

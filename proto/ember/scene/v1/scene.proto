@@ -4,7 +4,7 @@ package ember.scene.v1;
 
 import "google/protobuf/struct.proto";
 
-option go_package = "github.com/merlindorin/ember/automation/scenepb";
+option go_package = "github.com/lantervale/ember/automation/scenepb";
 
 // SceneService inspects and edits the live scene tree of a running ember
 // app, game or shard. Node paths are node paths such as

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // shadowShapes are tile id's shapes that block light only, of class shadow,

@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/internal/pages"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/internal/pages"
+	"github.com/lantervale/ember/ui/kit"
 )
 
 const sheet = `

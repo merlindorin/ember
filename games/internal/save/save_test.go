@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/games/internal/save"
+	"github.com/lantervale/ember/games/internal/save"
 )
 
 func TestTheLeaderboardKeepsTheBestInOrder(t *testing.T) {

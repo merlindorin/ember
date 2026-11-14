@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 // BoxOf is n's content box in its window's points (the Document's, times its zoom), for a

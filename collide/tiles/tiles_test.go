@@ -5,12 +5,12 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/merlindorin/ember/collide"
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/lit"
-	"github.com/merlindorin/ember/nav"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/collide"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/lit"
+	"github.com/lantervale/ember/nav"
+	"github.com/lantervale/ember/twod"
 )
 
 // The tiles of the tests: floor, a wall, a tile with a collision shape, one

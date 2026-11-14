@@ -4,8 +4,8 @@ import (
 	"iter"
 	"slices"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
 )
 
 // Effect is a fullscreen WGSL fragment effect: its source defines

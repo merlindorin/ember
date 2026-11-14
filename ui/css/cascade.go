@@ -4,7 +4,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // index buckets a sheet's selectors by their rightmost compound's id,

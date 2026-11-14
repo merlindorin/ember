@@ -8,8 +8,8 @@ import (
 	"math"
 	"testing"
 
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/audio/wav"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/audio/wav"
 )
 
 func file(tag, channels, rate, bits int, data []byte, extra ...[]byte) []byte {

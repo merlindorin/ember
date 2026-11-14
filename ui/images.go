@@ -6,10 +6,10 @@ import (
 	_ "image/png" // ui.Images and url() backgrounds decode PNG
 	"io/fs"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui/css"
-	"github.com/merlindorin/ember/ui/internal/box"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui/css"
+	"github.com/lantervale/ember/ui/internal/box"
 )
 
 // imageBytes is the file url names: one of css.DefaultImages, else a path

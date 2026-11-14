@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

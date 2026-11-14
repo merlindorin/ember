@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/collide"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/collide"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // spawn turns the level's objects into the hero, at the start, and solid

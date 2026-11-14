@@ -15,8 +15,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/audio/wav"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/audio/wav"
 )
 
 const rate = 22050

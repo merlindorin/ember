@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/color"
+	"github.com/lantervale/ember/color"
 )
 
 // oldParseHex is ParseHex as it was before it stopped allocating, kept as

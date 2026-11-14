@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/input"
 )
 
 // Keys holds keys down during frame ranges, as a player would.

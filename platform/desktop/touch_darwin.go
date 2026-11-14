@@ -52,7 +52,7 @@ import "C"
 
 import (
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/input"
 )
 
 // touched is each window's fingers, by its NSWindow; AppKit calls on the

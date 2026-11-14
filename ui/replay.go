@@ -3,12 +3,12 @@ package ui
 import (
 	"slices"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/inputfeed"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui/internal/box"
-	"github.com/merlindorin/ember/ui/paint"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/inputfeed"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui/internal/box"
+	"github.com/lantervale/ember/ui/paint"
 )
 
 // replay is what a Document keeps to draw a frame again when nothing in

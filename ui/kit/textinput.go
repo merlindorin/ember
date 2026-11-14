@@ -3,8 +3,8 @@ package kit
 import (
 	"strconv"
 
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/ui"
 )
 
 // TextInput is an input of class "kit-text-input"

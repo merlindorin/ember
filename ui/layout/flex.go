@@ -5,7 +5,7 @@ import (
 	"math"
 	"slices"
 
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 // flexDir is a flex direction with its axes.

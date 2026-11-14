@@ -1,6 +1,6 @@
 package input
 
-import "github.com/merlindorin/ember/geom"
+import "github.com/lantervale/ember/geom"
 
 // TouchSource is what a finger touches.
 type TouchSource int

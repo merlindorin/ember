@@ -3,9 +3,9 @@
 package box
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 // Kind is what generated a box.

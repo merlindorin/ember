@@ -3,12 +3,12 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/games/internal/look"
-	"github.com/merlindorin/ember/games/internal/save"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/ui/align"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/games/internal/look"
+	"github.com/lantervale/ember/games/internal/save"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/ui/align"
+	"github.com/lantervale/ember/world"
 )
 
 func play(t *testing.T) (*Game, *world.World, func(input.Key)) {

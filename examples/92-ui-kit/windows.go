@@ -5,9 +5,9 @@ import (
 	"testing/fstest"
 	"time"
 
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
+	"github.com/lantervale/ember/world"
 )
 
 // thumbnails is a level picker: four levels, the second selected, the locked one dimmed.

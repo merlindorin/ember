@@ -1,6 +1,6 @@
 package node
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 func init() { //nolint:gochecknoinits // registers the package's node types on import
 	Register(Type{New: func() Noded { return NewEmpty() }})

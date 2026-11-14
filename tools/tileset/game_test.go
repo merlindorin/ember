@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
 )
 
 // engineDeclared is what the tool declares with no -props: the engine's

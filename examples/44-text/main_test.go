@@ -3,9 +3,9 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
 )
 
 func TestTheParagraphWrapsAndTheClockRuns(t *testing.T) {

@@ -3,12 +3,12 @@ package light //nolint:testpackage // white-box: shares light's test scene, reac
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/collide/tiles"
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/internal/lit"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/collide/tiles"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/internal/lit"
+	"github.com/lantervale/ember/twod"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

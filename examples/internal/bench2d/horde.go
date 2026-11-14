@@ -3,11 +3,11 @@ package main
 import (
 	"math/rand/v2"
 
-	"github.com/merlindorin/ember/collide"
-	"github.com/merlindorin/ember/examples/internal/crypt"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/collide"
+	"github.com/lantervale/ember/examples/internal/crypt"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 // foe is a demo enemy as the demo builds one: an entity with a sprite and

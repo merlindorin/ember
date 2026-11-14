@@ -4,11 +4,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/internal/emojinames"
-	"github.com/merlindorin/ember/node"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/internal/emojinames"
+	"github.com/lantervale/ember/node"
 )
 
 //nolint:gochecknoinits // registers the package's node types on import

@@ -1,8 +1,8 @@
 package wgpu
 
 import (
-	"github.com/merlindorin/ember/internal/slot"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/internal/slot"
+	"github.com/lantervale/ember/world"
 )
 
 // Shared is what the desktop runner shares with the renderer in a World:

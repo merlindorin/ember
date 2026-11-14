@@ -3,8 +3,8 @@
 package ember
 
 import (
-	"github.com/merlindorin/ember/platform/desktop"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/platform/desktop"
+	"github.com/lantervale/ember/world"
 )
 
 // runnerPlugin runs the World in native windows.

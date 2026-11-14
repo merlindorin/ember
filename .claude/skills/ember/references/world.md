@@ -1,6 +1,6 @@
 # The World: entities, systems, phases, events, time
 
-Package `github.com/merlindorin/ember/world`. Guide: `docs/02-world`. Examples: `examples/02-entities-and-systems` … `examples/08-time`.
+Package `github.com/lantervale/ember/world`. Guide: `docs/02-world`. Examples: `examples/02-entities-and-systems` … `examples/08-time`.
 
 ## Start a World
 
@@ -182,7 +182,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 type Heat struct{ Degrees float32 }
@@ -249,11 +249,11 @@ func main() {
 package main
 
 import (
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/ease"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/ease"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/twod"
 )
 
 func main() {

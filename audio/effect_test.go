@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/audio"
+	"github.com/lantervale/ember/audio"
 )
 
 func sine(t *testing.T, hz float64, frames int) *audio.Clip {

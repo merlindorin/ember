@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/twod/light"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/twod/light"
 )
 
 func TestEveryPanelBuilds(t *testing.T) {

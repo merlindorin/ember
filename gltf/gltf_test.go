@@ -13,11 +13,11 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/anim"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/render"
-	"github.com/merlindorin/ember/scene"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/anim"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/render"
+	"github.com/lantervale/ember/scene"
+	"github.com/lantervale/ember/world"
 )
 
 // builder assembles a glTF document and its binary buffer.

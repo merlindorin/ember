@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/merlindorin/ember/ui/align"
+	"github.com/lantervale/ember/ui/align"
 )
 
 // alignSkip is why page name is skipped: another task is fixing it, until

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/node"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/node"
 )
 
 //nolint:gochecknoinits // registers the package's resource types on import

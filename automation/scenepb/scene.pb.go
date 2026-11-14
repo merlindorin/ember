@@ -959,7 +959,7 @@ const file_ember_scene_v1_scene_proto_rawDesc = "" +
 	"\aGetNode\x12\x1e.ember.scene.v1.GetNodeRequest\x1a\x1f.ember.scene.v1.GetNodeResponse\x12V\n" +
 	"\vSetProperty\x12\".ember.scene.v1.SetPropertyRequest\x1a#.ember.scene.v1.SetPropertyResponse\x12J\n" +
 	"\aIsolate\x12\x1e.ember.scene.v1.IsolateRequest\x1a\x1f.ember.scene.v1.IsolateResponse\x12O\n" +
-	"\bSnapshot\x12\x1f.ember.scene.v1.SnapshotRequest\x1a .ember.scene.v1.SnapshotResponse0\x01B1Z/github.com/merlindorin/ember/automation/scenepbb\x06proto3"
+	"\bSnapshot\x12\x1f.ember.scene.v1.SnapshotRequest\x1a .ember.scene.v1.SnapshotResponse0\x01B0Z.github.com/lantervale/ember/automation/scenepbb\x06proto3"
 
 var (
 	file_ember_scene_v1_scene_proto_rawDescOnce sync.Once

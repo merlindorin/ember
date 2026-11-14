@@ -10,14 +10,14 @@ import (
 
 	"connectrpc.com/connect"
 	"connectrpc.com/grpcreflect"
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/automation/automationpb"
-	"github.com/merlindorin/ember/automation/automationpb/automationpbconnect"
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/scene"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/automation/automationpb"
+	"github.com/lantervale/ember/automation/automationpb/automationpbconnect"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/scene"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 

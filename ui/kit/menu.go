@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // Menu is a div of class "kit-menu" and role menu holding

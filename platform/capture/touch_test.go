@@ -3,10 +3,10 @@ package capture_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/inputfeed"
-	"github.com/merlindorin/ember/platform/capture"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/inputfeed"
+	"github.com/lantervale/ember/platform/capture"
 )
 
 func TestScriptedFingersGoDownMoveAndLift(t *testing.T) {

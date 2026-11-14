@@ -11,8 +11,8 @@ package mesh
 import (
 	"math"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
 )
 
 type Vertex struct {

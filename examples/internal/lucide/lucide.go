@@ -5,7 +5,7 @@ package lucide
 import (
 	"embed"
 
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember/ui/kit"
 )
 
 //go:embed lucide.ttf codepoints.json

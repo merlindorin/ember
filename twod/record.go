@@ -1,6 +1,6 @@
 package twod
 
-import "github.com/merlindorin/ember/internal/draw"
+import "github.com/lantervale/ember/internal/draw"
 
 // Mark is a point in what a Canvas draws, to record from.
 type Mark struct{ m draw.Mark }

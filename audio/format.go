@@ -33,7 +33,7 @@ var (
 // RegisterFormat registers a decoder for the data starting with magic, in
 // which '?' matches any byte. Decoders register themselves when imported:
 //
-//	import _ "github.com/merlindorin/ember/audio/wav"
+//	import _ "github.com/lantervale/ember/audio/wav"
 func RegisterFormat(name, magic string, decode func(io.ReadSeeker) (Decoder, error)) {
 	formatsMu.Lock()
 	defer formatsMu.Unlock()

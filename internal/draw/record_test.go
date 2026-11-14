@@ -4,9 +4,9 @@ import (
 	"image"
 	"testing"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/render"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

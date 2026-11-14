@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
 )
 
 // popUp is a video setting's window mode, and a shape not chosen yet.

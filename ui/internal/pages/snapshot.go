@@ -8,10 +8,10 @@ import (
 	"math"
 	"os"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/export"
-	"github.com/merlindorin/ember/ui/internal/assets"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/export"
+	"github.com/lantervale/ember/ui/internal/assets"
 )
 
 // snapshots are the canvases' snapshots from ember's capture at path, of d

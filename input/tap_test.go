@@ -3,8 +3,8 @@ package input_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/inputfeed"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/inputfeed"
 )
 
 // A press and its release that both arrive before a frame, as a quick tap

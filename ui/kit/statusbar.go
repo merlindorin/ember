@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // StatusBar is a div of class "kit-status-bar" along a
 // window's bottom reading text in a muted Label of class "kit-status", cut

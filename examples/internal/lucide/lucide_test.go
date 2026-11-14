@@ -3,7 +3,7 @@ package lucide_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/examples/internal/lucide"
+	"github.com/lantervale/ember/examples/internal/lucide"
 )
 
 func TestTheFontNamesItsIcons(t *testing.T) {

@@ -1,7 +1,7 @@
 package style
 
 import (
-	"github.com/merlindorin/ember/color"
+	"github.com/lantervale/ember/color"
 )
 
 // Computed is one node's computed style. The zero value is CSS's initial

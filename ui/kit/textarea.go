@@ -3,7 +3,7 @@ package kit
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // TextArea is a textarea of class "kit-text-area"

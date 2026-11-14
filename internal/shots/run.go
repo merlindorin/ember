@@ -18,7 +18,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/merlindorin/ember/internal/wgpu"
+	"github.com/lantervale/ember/internal/wgpu"
 )
 
 // version changes the key of every shot when what the runner does with a

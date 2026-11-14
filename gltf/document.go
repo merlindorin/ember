@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"sort"
 
-	"github.com/merlindorin/ember/anim"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/anim"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/render"
 )
 
 // document mirrors the subset of the glTF 2.0 JSON schema the loader uses.

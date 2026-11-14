@@ -4,8 +4,8 @@ import (
 	"testing"
 	"unicode"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/render"
 	"golang.org/x/image/font/sfnt"
 )
 

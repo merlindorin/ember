@@ -4,7 +4,7 @@ import (
 	"image"
 	"testing"
 
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/render"
 )
 
 func TestATextureTellsItsPresenterWhatChanged(t *testing.T) {

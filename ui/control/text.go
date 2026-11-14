@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/internal/textedit"
+	"github.com/lantervale/ember/internal/textedit"
 )
 
 type textKind int

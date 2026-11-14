@@ -3,8 +3,8 @@ package draw
 import (
 	"slices"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
 )
 
 // state is what a List applies to everything drawn on it as it is drawn:

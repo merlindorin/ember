@@ -6,7 +6,7 @@ import (
 	"unsafe"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/merlindorin/ember/internal/wgpu"
+	"github.com/lantervale/ember/internal/wgpu"
 )
 
 // surfaceSource is the window's X11 window on GLFW's display. A build

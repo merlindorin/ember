@@ -1,8 +1,8 @@
 package paint
 
 import (
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 // culled reports whether ink, in the root's space under the surface's

@@ -1,6 +1,6 @@
 package render
 
-import "github.com/merlindorin/ember/geom"
+import "github.com/lantervale/ember/geom"
 
 // Post describes how a camera's rendered scene becomes the final image: at
 // which resolution the scene renders, and which effects run on it after

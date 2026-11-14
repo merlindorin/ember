@@ -3,9 +3,9 @@ package ui_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/ui"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

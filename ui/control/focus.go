@@ -3,7 +3,7 @@ package control
 import (
 	"slices"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // Target is something that can take a window's focus, as laid out this

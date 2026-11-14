@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // PathPopUp is a button of class "kit-path-pop-up"

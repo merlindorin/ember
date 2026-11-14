@@ -3,8 +3,8 @@ package slot_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/internal/slot"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/internal/slot"
+	"github.com/lantervale/ember/world"
 )
 
 type thing struct{ n int }

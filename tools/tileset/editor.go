@@ -11,7 +11,7 @@ import (
 	"slices"
 	"testing/fstest"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // Editor is the tool's state: the tileset file, its document, the tile

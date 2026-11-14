@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	scenepb "github.com/merlindorin/ember/automation/scenepb"
+	scenepb "github.com/lantervale/ember/automation/scenepb"
 	http "net/http"
 	strings "strings"
 )

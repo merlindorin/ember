@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 // HUD shows the controls and what the effects are doing, since a GIF can't

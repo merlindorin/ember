@@ -4,8 +4,8 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // glow is a white disc of size pixels, opaque in the middle and fading

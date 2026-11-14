@@ -4,7 +4,7 @@
 //	go run ./examples/04-events
 package main
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 func main() {
 	world.New().

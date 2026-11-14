@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/input"
 )
 
 // element is the element whose automation ID ends in id, ok false when

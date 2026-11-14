@@ -10,10 +10,10 @@ import (
 	"embed"
 	"log"
 
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/render"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/render"
+	"github.com/lantervale/ember/twod"
 )
 
 //go:embed tiles.png walker.png

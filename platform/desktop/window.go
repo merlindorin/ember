@@ -4,8 +4,8 @@ import (
 	"image"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/platform"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/platform"
 )
 
 func flag(on bool) int {

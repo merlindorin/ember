@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/internal/chrome"
+	"github.com/lantervale/ember/internal/chrome"
 )
 
 // TestEveryExampleRunsInTheBrowser builds every example and game for

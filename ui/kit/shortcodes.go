@@ -1,8 +1,8 @@
 package kit
 
 import (
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/ui"
 )
 
 // ShortcodeField is the old ember/ui's Shortcodes for a TextInput or TextArea: a

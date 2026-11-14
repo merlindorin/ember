@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 // Clock writes the time since the start in its text, every frame.

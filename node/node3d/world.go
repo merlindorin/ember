@@ -5,12 +5,12 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/internal/netside"
-	"github.com/merlindorin/ember/net"
-	"github.com/merlindorin/ember/node"
-	"github.com/merlindorin/ember/render"
-	"github.com/merlindorin/ember/scene"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/internal/netside"
+	"github.com/lantervale/ember/net"
+	"github.com/lantervale/ember/node"
+	"github.com/lantervale/ember/render"
+	"github.com/lantervale/ember/scene"
+	"github.com/lantervale/ember/world"
 )
 
 func init() { //nolint:gochecknoinits // registers the package's node types on import

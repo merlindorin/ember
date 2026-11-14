@@ -3,7 +3,7 @@ package gpu
 import (
 	"math"
 
-	"github.com/merlindorin/ember/color"
+	"github.com/lantervale/ember/color"
 )
 
 // hdrBackground is the scene colour that the composite pass (exposure,

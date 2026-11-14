@@ -7,12 +7,12 @@
 package main
 
 import (
-	"github.com/merlindorin/ember"
-	"github.com/merlindorin/ember/camera"
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/platform"
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/kit"
+	"github.com/lantervale/ember"
+	"github.com/lantervale/ember/camera"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/platform"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/kit"
 )
 
 func main() {

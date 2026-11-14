@@ -3,10 +3,10 @@ package main
 import (
 	"strconv"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/ui"
 )
 
 // Orb is an element of the game's own: a round flask filled to the hero's

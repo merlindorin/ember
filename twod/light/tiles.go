@@ -3,9 +3,9 @@ package light
 import (
 	"sync"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/internal/lit"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/internal/lit"
+	"github.com/lantervale/ember/twod"
 )
 
 // The tile properties and shape class light reads, and the collision

@@ -3,7 +3,7 @@ package css //nolint:testpackage // uses the package's unexported test helpers (
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/dom"
 	"github.com/stretchr/testify/assert"
 )
 

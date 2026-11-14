@@ -3,7 +3,7 @@ package input //nolint:testpackage // white-box: the unexported feed, the backen
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 func TestPressedOnlyOnTransitionFrame(t *testing.T) {

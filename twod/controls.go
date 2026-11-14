@@ -1,9 +1,9 @@
 package twod
 
 import (
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/input"
 )
 
 // press tracks a mouse press on r: clicked on the release over it, held

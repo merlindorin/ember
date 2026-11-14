@@ -3,8 +3,8 @@ package kit
 import (
 	"strconv"
 
-	"github.com/merlindorin/ember/ui"
-	"github.com/merlindorin/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui"
+	"github.com/lantervale/ember/ui/internal/dom"
 )
 
 // TableColumn is a Table's column: a th reading title. ColumnWidth,

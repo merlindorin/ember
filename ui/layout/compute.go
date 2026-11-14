@@ -4,8 +4,8 @@ import (
 	"math"
 	"slices"
 
-	"github.com/merlindorin/ember/ui/internal/box"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/internal/box"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 type runMode uint8

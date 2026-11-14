@@ -8,9 +8,9 @@ import (
 	"math"
 	"testing"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
 )
 
 // rgbAt is img's pixel at x, y from the middle of shine's window.

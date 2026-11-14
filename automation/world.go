@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 // EntityInfo summarizes an entity for listings.

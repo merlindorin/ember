@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/twod/light"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/twod/light"
 )
 
 func TestTheTilePanelEditsTheDeclaredPropertiesAndTheEngineReadsThem(t *testing.T) {

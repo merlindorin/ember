@@ -3,10 +3,10 @@ package main
 import (
 	"math"
 
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/twod"
 )
 
 // Hero walks the meadow and hears it. The listener is on him, so his

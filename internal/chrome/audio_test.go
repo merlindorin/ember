@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/internal/chrome"
+	"github.com/lantervale/ember/internal/chrome"
 )
 
 // TestAClickOnTheCanvasStartsTheSound runs the sound examples under

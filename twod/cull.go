@@ -1,6 +1,6 @@
 package twod
 
-import "github.com/merlindorin/ember/geom"
+import "github.com/lantervale/ember/geom"
 
 // cullMargin is how far outside a view, in its points, an entity still
 // counts as in it: room for what is drawn past its bounds, such as a

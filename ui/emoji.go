@@ -1,6 +1,6 @@
 package ui
 
-import "github.com/merlindorin/ember/twod"
+import "github.com/lantervale/ember/twod"
 
 // Emoji draws set's colour emoji in the Document's text, as twod does for
 // a face with twod.Emoji: each one a picture one em wide, laid out as

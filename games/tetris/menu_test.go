@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/input"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/input"
 )
 
 func clearRow(p *Play) {

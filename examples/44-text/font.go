@@ -3,7 +3,7 @@ package main
 import (
 	"embed"
 
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/twod"
 )
 
 //go:embed fonts

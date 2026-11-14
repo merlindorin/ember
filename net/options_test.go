@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 func TestServerOptionsAndDefaults(t *testing.T) {

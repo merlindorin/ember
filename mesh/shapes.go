@@ -1,8 +1,8 @@
 package mesh
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
 )
 
 // Box is centered on the origin with the given full extents.

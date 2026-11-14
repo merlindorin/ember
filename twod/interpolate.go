@@ -3,9 +3,9 @@ package twod
 import (
 	"math"
 
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/node"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/node"
+	"github.com/lantervale/ember/world"
 )
 
 // pose is a placement's values, compared to see whether something moved

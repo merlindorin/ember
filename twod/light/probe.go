@@ -1,9 +1,9 @@
 package light
 
 import (
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/twod"
 )
 
 // Probe asks the light where it stands: a 2D entity, a child of what the

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // The settings' callbacks: each writes on the status line what its

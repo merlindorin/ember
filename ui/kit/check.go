@@ -1,6 +1,6 @@
 package kit
 
-import "github.com/merlindorin/ember/ui"
+import "github.com/lantervale/ember/ui"
 
 // Check is a label of class "kit-check" holding a checkbox
 // of class "kit-check-box" and its text, so a click on either toggles it. args

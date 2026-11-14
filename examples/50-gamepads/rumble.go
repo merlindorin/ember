@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/world"
 )
 
 // Rumble shakes the pads. South gives a 0.3 s jolt, the heavy motor full

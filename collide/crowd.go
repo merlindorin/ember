@@ -3,7 +3,7 @@ package collide
 import (
 	"math"
 
-	"github.com/merlindorin/ember/geom"
+	"github.com/lantervale/ember/geom"
 )
 
 // capacity is how much of a crowd cell soft bodies may cover: a soft body

@@ -1,8 +1,8 @@
 package tiles
 
 import (
-	"github.com/merlindorin/ember/collide"
-	"github.com/merlindorin/ember/nav"
+	"github.com/lantervale/ember/collide"
+	"github.com/lantervale/ember/nav"
 )
 
 // What a Layer and an Area are to collide and nav.

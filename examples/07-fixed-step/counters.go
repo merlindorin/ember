@@ -1,6 +1,6 @@
 package main
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 // Steps runs in FixedUpdate: sixty times per simulated second, whatever the
 // frame rate.

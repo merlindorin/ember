@@ -3,8 +3,8 @@ package gltf
 import (
 	"fmt"
 
-	"github.com/merlindorin/ember/anim"
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/anim"
+	"github.com/lantervale/ember/render"
 )
 
 // Without returns the model minus the joints drop marks, which must be

@@ -14,7 +14,7 @@ func TestABrowserBuildLeavesTheServerOut(t *testing.T) {
 	if testing.Short() {
 		t.Skip("lists a js build's packages")
 	}
-	cmd := exec.Command("go", "list", "-deps", "github.com/merlindorin/ember/automation")
+	cmd := exec.Command("go", "list", "-deps", "github.com/lantervale/ember/automation")
 	cmd.Env = append(os.Environ(), "CGO_ENABLED=0", "GOOS=js", "GOARCH=wasm")
 	out, err := cmd.Output()
 	if err != nil {

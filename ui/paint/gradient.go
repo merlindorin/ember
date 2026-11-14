@@ -4,9 +4,9 @@ import (
 	"math"
 	"sync"
 
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 // gradientSteps is how many bands an interval between two stops is cut

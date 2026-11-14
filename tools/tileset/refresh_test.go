@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/merlindorin/ember/automation"
-	"github.com/merlindorin/ember/internal/draw"
-	"github.com/merlindorin/ember/twod"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/automation"
+	"github.com/lantervale/ember/internal/draw"
+	"github.com/lantervale/ember/twod"
+	"github.com/lantervale/ember/world"
 )
 
 // another is a value of d other than now, which the tile shows.

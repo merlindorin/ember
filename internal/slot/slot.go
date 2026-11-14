@@ -3,7 +3,7 @@
 // engine packages that need it get it. Games hold their values instead.
 package slot
 
-import "github.com/merlindorin/ember/world"
+import "github.com/lantervale/ember/world"
 
 type slot[T any] struct{ v *T }
 

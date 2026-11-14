@@ -1,6 +1,6 @@
 package layout
 
-import "github.com/merlindorin/ember/ui/internal/style"
+import "github.com/lantervale/ember/ui/internal/style"
 
 // gridItem is an in-flow grid item, Taffy's GridItem.
 type gridItem struct {

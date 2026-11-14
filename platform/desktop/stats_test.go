@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/world"
 )
 
 func TestRunStatsAverageThePastWarmupCostliestFirst(t *testing.T) {

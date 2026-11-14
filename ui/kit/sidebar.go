@@ -3,7 +3,7 @@ package kit
 import (
 	"slices"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // Sidebar is a div of class "kit-sidebar" listing places

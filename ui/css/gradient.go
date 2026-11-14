@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/merlindorin/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/internal/style"
 )
 
 // gradientKinds are the gradient functions in the subset, by name.

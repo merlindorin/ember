@@ -12,10 +12,10 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/anim"
-	"github.com/merlindorin/ember/color"
-	"github.com/merlindorin/ember/geom"
-	"github.com/merlindorin/ember/render"
+	"github.com/lantervale/ember/anim"
+	"github.com/lantervale/ember/color"
+	"github.com/lantervale/ember/geom"
+	"github.com/lantervale/ember/render"
 )
 
 // Encode writes a model as a binary glTF (.glb) that Decode reads back

@@ -3,7 +3,7 @@ package kit
 import (
 	"strconv"
 
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/ui"
 )
 
 // Grid places its children in rows of columns cells, the old ember/ui's Grid: a CSS grid of class

@@ -4,9 +4,9 @@
 package pointer
 
 import (
-	"github.com/merlindorin/ember/internal/slot"
-	"github.com/merlindorin/ember/node"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/internal/slot"
+	"github.com/lantervale/ember/node"
+	"github.com/lantervale/ember/world"
 )
 
 // Gate is a World's rule of what takes the pointer.

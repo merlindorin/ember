@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/inputfeed"
-	"github.com/merlindorin/ember/ui/control"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/inputfeed"
+	"github.com/lantervale/ember/ui/control"
 )
 
 // settle readies a number input's commit, as the old ember/ui's NumberField

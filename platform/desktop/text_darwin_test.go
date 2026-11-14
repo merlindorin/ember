@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/internal/inputfeed"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/internal/inputfeed"
 )
 
 // onMain runs functions on the main thread, where AppKit and GLFW must be

@@ -8,7 +8,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/color"
+	"github.com/lantervale/ember/color"
 )
 
 // PropertyKind is the type of a property: what Tiled shows and the loader

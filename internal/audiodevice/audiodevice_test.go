@@ -5,9 +5,9 @@ import (
 	"math"
 	"testing"
 
-	"github.com/merlindorin/ember/audio"
-	"github.com/merlindorin/ember/internal/audiodevice"
-	"github.com/merlindorin/ember/world"
+	"github.com/lantervale/ember/audio"
+	"github.com/lantervale/ember/internal/audiodevice"
+	"github.com/lantervale/ember/world"
 )
 
 // The device itself needs sound hardware, so tests cover the byte stream

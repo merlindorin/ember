@@ -11,7 +11,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/merlindorin/ember/twod"
+	"github.com/lantervale/ember/twod"
 )
 
 // tilesetFile is what the file dialog reads of a .tsj: its tiles' size

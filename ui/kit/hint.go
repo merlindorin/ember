@@ -1,8 +1,8 @@
 package kit
 
 import (
-	"github.com/merlindorin/ember/input"
-	"github.com/merlindorin/ember/ui"
+	"github.com/lantervale/ember/input"
+	"github.com/lantervale/ember/ui"
 )
 
 // Hint is a line of help that reads for the device the player used last:

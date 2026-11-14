@@ -5,7 +5,7 @@ package kit_test
 import (
 	"testing"
 
-	"github.com/merlindorin/ember/ui/internal/chrome"
+	"github.com/lantervale/ember/ui/internal/chrome"
 )
 
 func TestStatusBarCard(t *testing.T) {

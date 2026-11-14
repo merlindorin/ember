@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/merlindorin/ember/ui/control"
-	"github.com/merlindorin/ember/ui/internal/dom"
-	"github.com/merlindorin/ember/ui/internal/style"
-	"github.com/merlindorin/ember/ui/paint"
+	"github.com/lantervale/ember/ui/control"
+	"github.com/lantervale/ember/ui/internal/dom"
+	"github.com/lantervale/ember/ui/internal/style"
+	"github.com/lantervale/ember/ui/paint"
 )
 
 // A grid is a table of role grid, as WAI-ARIA's grid pattern: one Tab
